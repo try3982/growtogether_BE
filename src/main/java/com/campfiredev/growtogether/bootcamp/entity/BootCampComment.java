@@ -13,6 +13,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @AllArgsConstructor
 @Builder
 @Table(name="boot_camp_comment")
+
 public class BootCampComment extends BaseEntity {
 
     @Id
@@ -30,8 +31,6 @@ public class BootCampComment extends BaseEntity {
     @JoinColumn(name = "boot_camp_review_id",nullable = false)
     private BootCampReview bootCampReview;
 
-
     //user 추가 예정
-
 
 }
