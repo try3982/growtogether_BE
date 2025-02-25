@@ -17,6 +17,10 @@ public class MemberDto {
     @Email(message = "올바른 이메일 형식이 아닙니다.")
     private String email;
 
+    // 이메일 인증 코드
+    @NotBlank(message = "이메일 인증 코드는 필수입니다.")
+    private String verificationCode;
+
     @NotBlank(message = "전화번호는 필수입니다.")
     @Pattern(regexp = "^[0-9]{10,11}$", message = "전화번호는 10~11자리 숫자만 입력 가능합니다.")
     private String phone;

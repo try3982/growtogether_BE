@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
-@Table(name = "user", uniqueConstraints = {
+@Table(name = "'user'", uniqueConstraints = {
         @UniqueConstraint(columnNames = "email"),
         @UniqueConstraint(columnNames = "nick_name"),
         @UniqueConstraint(columnNames = "phone_number")

@@ -1,5 +1,6 @@
 package com.campfiredev.growtogether.member.service;
 
+import com.campfiredev.growtogether.mail.service.EmailService;
 import com.campfiredev.growtogether.member.dto.MemberDto;
 import com.campfiredev.growtogether.member.entity.MemberEntity;
 import com.campfiredev.growtogether.member.entity.UserSkillEntity;
@@ -23,8 +24,13 @@ public class MemberService {
     private final SkillRepository skillRepository;
     private final UserSkillRepository userSkillRepository;
     private final PasswordEncoder passwordEncoder;
+    private final EmailService emailService;
 
     public MemberEntity register(MemberDto request) {
+        // 이메일 인증 여부 확인
+        if (!emailService.verifyCode(request.getEmail(), request.getVerificationCode())) {
+            throw new IllegalArgumentException("이메일 인증이 완료되지 않았습니다.");
+        }
 
         // 중복 검사
         if (memberRepository.existsByEmail(request.getEmail())) {
