@@ -29,6 +29,11 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-mail'
+    implementation 'com.sun.mail:jakarta.mail:2.0.1'
+    implementation 'org.hibernate.validator:hibernate-validator:8.0.1.Final'
+    implementation 'jakarta.validation:jakarta.validation-api:3.0.2'
+
+
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     implementation 'jakarta.platform:jakarta.jakartaee-api:10.0.0'
     compileOnly 'org.projectlombok:lombok'
