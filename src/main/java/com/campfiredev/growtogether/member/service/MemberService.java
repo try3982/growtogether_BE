@@ -12,7 +12,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -25,7 +24,6 @@ public class MemberService {
     private final UserSkillRepository userSkillRepository;
     private final PasswordEncoder passwordEncoder;
 
-    @Transactional
     public MemberEntity register(MemberDto request) {
 
         // 중복 검사
@@ -39,24 +37,15 @@ public class MemberService {
             throw new IllegalArgumentException("이미 사용 중인 전화번호입니다.");
         }
 
-        // 비밀번호 암호화
-        String encryptedPassword = passwordEncoder.encode(request.getPassword());
-
         // 회원 저장
-        MemberEntity member = MemberEntity.builder()
+        MemberEntity member = memberRepository.save(MemberEntity.builder()
                 .nickName(request.getNickName())
                 .email(request.getEmail())
                 .phone(request.getPhone())
-                .password(encryptedPassword)
+                .password(passwordEncoder.encode(request.getPassword()))
                 .githubUrl(request.getGithubUrl())
                 .profileImageUrl(request.getProfileImageUrl())
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
-                .build();
-
-
-
-        member = memberRepository.save(member);
+                .build());
 
         // 선택한 기술 스택 저장
         if (request.getSkills() != null && !request.getSkills().isEmpty()) {
@@ -67,6 +56,5 @@ public class MemberService {
         }
 
         return member;
-
     }
 }
