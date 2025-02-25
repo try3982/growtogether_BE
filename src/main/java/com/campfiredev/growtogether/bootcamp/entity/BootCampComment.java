@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Table(name="boot_camp_comment")
 public class BootCampComment {
 
     @Id

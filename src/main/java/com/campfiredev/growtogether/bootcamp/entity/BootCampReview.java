@@ -13,10 +13,12 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Table(name="boot_camp_review")
 public class BootCampReview {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name="boot_camp_review_id")
     private Long bootCampReviewId;
 
     @Column(nullable = false)

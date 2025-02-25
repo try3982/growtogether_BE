@@ -9,10 +9,12 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Table(name="review_like")
 public class ReviewLike {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+
     private Long likeId;
 
     //좋아요 누른 사용자 필드 생성 예정
