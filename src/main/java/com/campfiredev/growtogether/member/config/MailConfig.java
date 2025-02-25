@@ -1,4 +1,4 @@
-package com.campfiredev.growtogether.config;
+package com.campfiredev.growtogether.member.config;
 
 
 import org.springframework.context.annotation.Bean;
