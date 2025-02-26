@@ -20,7 +20,6 @@ public class SkillStudy extends BaseEntity {
     @JoinColumn(name = "skill_id")
     private Skill skill;
 
-    @Setter
     @ManyToOne
     @JoinColumn(name = "study_id")
     private Study study;

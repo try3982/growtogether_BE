@@ -1,5 +1,7 @@
 package com.campfiredev.growtogether.study.service;
 
+import com.campfiredev.growtogether.exception.custom.CustomException;
+import com.campfiredev.growtogether.exception.response.ErrorCode;
 import com.campfiredev.growtogether.study.dto.StudyDTO;
 import com.campfiredev.growtogether.study.entity.Skill;
 import com.campfiredev.growtogether.study.entity.SkillStudy;
@@ -10,7 +12,10 @@ import com.campfiredev.growtogether.study.repository.StudyRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
+
+import static com.campfiredev.growtogether.exception.response.ErrorCode.*;
 
 @Service
 @RequiredArgsConstructor
@@ -21,7 +26,14 @@ public class StudyService {
     private final SkillStudyRepository skillStudyRepository;
 
     public StudyDTO createStudy(StudyDTO dto) {
+        validateDates(dto.getStudyStartDate(), dto.getStudyEndDate());
+        
         List<Skill> skills = skillRepository.findBySkillNameIn(dto.getSkillNames());
+
+        if(dto.getSkillNames().size() != skills.size()){
+            throw new CustomException(ErrorCode.INVALID_SKILL);
+        }
+
         Study study = Study.fromDTO(dto);
 
         List<SkillStudy> skillStudies = skills.stream()
@@ -34,6 +46,18 @@ public class StudyService {
         study.addSkillStudies(skillStudyRepository.saveAll(skillStudies));
 
         return StudyDTO.fromEntity(study);
+    }
+
+    private void validateDates(Date studyStartDate, Date studyEndDate) {
+        Date currentDate = new Date();
+
+        if (studyStartDate.before(currentDate)) {
+            throw new CustomException(START_DATE_PAST);
+        }
+
+        if (studyEndDate.before(studyStartDate)) {
+            throw new CustomException(END_DATE_AFTER_START_DATE);
+        }
     }
 
     public List<StudyDTO> getAllStudies() {
