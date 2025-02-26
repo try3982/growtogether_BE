@@ -14,7 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.Map;
 
 @RestController
-@RequestMapping("member")
+@RequestMapping("/member")
 @RequiredArgsConstructor
 public class MemberController {
 

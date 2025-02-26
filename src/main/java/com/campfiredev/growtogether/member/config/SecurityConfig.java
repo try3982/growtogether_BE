@@ -10,7 +10,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
-@EnableWebSecurity
+//@EnableWebSecurity
 public class SecurityConfig {
 
     @Bean
@@ -23,8 +23,8 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/email/**", "/member/register").permitAll() // 인증 없이 허용할 엔드포인트
-                        .anyRequest().authenticated() // 나머지 요청은 인증 필요
+                        .requestMatchers("/api/email/**", "/member/**").permitAll() // 인증 없이 허용할 엔드포인트
+                        .anyRequest().authenticated()
                 )
                 .formLogin(login -> login.disable()) // 기본 로그인 페이지 비활성화
                 .httpBasic(httpBasic -> httpBasic.disable()); // HTTP 기본 인증 비활성화
