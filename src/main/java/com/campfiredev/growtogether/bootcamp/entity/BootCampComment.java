@@ -1,10 +1,11 @@
 package com.campfiredev.growtogether.bootcamp.entity;
 
+import com.campfiredev.growtogether.common.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import java.time.LocalDateTime;
-
+@EntityListeners(AuditingEntityListener.class)
 @Entity
 @Getter
 @Setter
@@ -12,7 +13,8 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 @Table(name="boot_camp_comment")
-public class BootCampComment {
+
+public class BootCampComment extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,19 +31,6 @@ public class BootCampComment {
     @JoinColumn(name = "boot_camp_review_id",nullable = false)
     private BootCampReview bootCampReview;
 
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
-
     //user 추가 예정
 
-    @PrePersist
-    public void onPrePersist() {
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
-    }
-
-    @PreUpdate
-    public void onPreUpdate() {
-        this.updatedAt = LocalDateTime.now();
-    }
 }
