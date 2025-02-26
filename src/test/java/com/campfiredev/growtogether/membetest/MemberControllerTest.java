@@ -3,12 +3,14 @@ package com.campfiredev.growtogether.membetest;
 import com.campfiredev.growtogether.mail.service.EmailService;
 import com.campfiredev.growtogether.member.controller.MemberController;
 import com.campfiredev.growtogether.member.service.MemberService;
+import com.campfiredev.growtogether.member.service.S3Service;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers;
@@ -41,10 +43,13 @@ class MemberControllerTest {
     @MockBean
     private EmailService emailService;
 
+    @MockBean
+    private S3Service s3Service;
+
     @BeforeEach
     void setUp() {
         this.mockMvc = MockMvcBuilders.webAppContextSetup(context)
-                .apply(SecurityMockMvcConfigurers.springSecurity()) // Spring Security 적용
+                .apply(SecurityMockMvcConfigurers.springSecurity())
                 .build();
     }
 
@@ -57,7 +62,7 @@ class MemberControllerTest {
         mockMvc.perform(post("/member/email/verify")
                         .param("email", "test@example.com")
                         .param("code", "123456")
-                        .with(csrf())) // CSRF 보호 적용
+                        .with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("이메일 인증이 완료되었습니다."));
     }
@@ -82,7 +87,7 @@ class MemberControllerTest {
     @DisplayName("이메일 인증 코드 검증 - 실패 (코드 없음)")
     void verifyEmail_MissingCode() throws Exception {
         mockMvc.perform(post("/member/email/verify")
-                        .param("email", "test@example.com") // 코드 누락
+                        .param("email", "test@example.com")
                         .with(csrf()))
                 .andExpect(status().isBadRequest());
     }

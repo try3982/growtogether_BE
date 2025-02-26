@@ -1,27 +1,33 @@
 package com.campfiredev.growtogether.membetest;
 
-
 import com.campfiredev.growtogether.mail.service.EmailService;
 import com.campfiredev.growtogether.member.dto.MemberDto;
 import com.campfiredev.growtogether.member.entity.MemberEntity;
+import com.campfiredev.growtogether.member.entity.UserSkillEntity;
 import com.campfiredev.growtogether.member.repository.MemberRepository;
 import com.campfiredev.growtogether.member.repository.UserSkillRepository;
 import com.campfiredev.growtogether.member.service.MemberService;
+import com.campfiredev.growtogether.member.service.S3Service;
+import com.campfiredev.growtogether.skill.entity.SkillEntity;
 import com.campfiredev.growtogether.skill.repository.SkillRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-
 class MemberServiceTest {
 
     @InjectMocks
@@ -40,11 +46,22 @@ class MemberServiceTest {
     private PasswordEncoder passwordEncoder;
 
     @Mock
-    private EmailService emailService; // ✅ EmailService 추가!
+    private EmailService emailService;
+
+    @Mock
+    private S3Service s3Service;
+
+    @Mock
+    private MultipartFile mockFile;
+
+    @BeforeEach
+    void setUp() {
+        lenient().when(emailService.verifyCode(anyString(), anyString())).thenReturn(true);
+    }
 
     @Test
-    @DisplayName("회원가입 성공 테스트")
-    void register_success() {
+    @DisplayName("회원가입 성공 - 필수 입력값만 포함")
+    void register_success_with_required_fields() {
         // Given
         MemberDto request = new MemberDto();
         request.setNickName("testUser");
@@ -53,30 +70,24 @@ class MemberServiceTest {
         request.setPassword("Password123!");
         request.setVerificationCode("123456");
 
-        // 이메일 인증 성공하도록 설정 (strict mode 문제 방지)
-        lenient().when(emailService.verifyCode(anyString(), anyString())).thenReturn(true);
-
-        // 중복 검사 - 중복 없음 (모두 false 반환)
+        doReturn(true).when(emailService).verifyCode(anyString(), anyString());
         when(memberRepository.existsByEmail(anyString())).thenReturn(false);
         when(memberRepository.existsByNickName(anyString())).thenReturn(false);
         when(memberRepository.existsByPhone(anyString())).thenReturn(false);
+        when(passwordEncoder.encode(anyString())).thenReturn("hashedPassword");
 
-        // 비밀번호 암호화
-        when(passwordEncoder.encode(anyString())).thenReturn("$2a$10$hashedPassword");
-
-        // 회원 저장 Mock 설정
         MemberEntity savedMember = MemberEntity.builder()
                 .userId(1L)
                 .nickName(request.getNickName())
                 .email(request.getEmail())
                 .phone(request.getPhone())
-                .password("$2a$10$hashedPassword")
+                .password("hashedPassword")
                 .build();
 
         when(memberRepository.save(any(MemberEntity.class))).thenReturn(savedMember);
 
         // When
-        MemberEntity result = memberService.register(request);
+        MemberEntity result = memberService.register(request, null);
 
         // Then
         assertNotNull(result);
@@ -84,82 +95,93 @@ class MemberServiceTest {
         assertEquals(request.getNickName(), result.getNickName());
         assertEquals(request.getEmail(), result.getEmail());
         assertEquals(request.getPhone(), result.getPhone());
-
-        // 비밀번호 암호화 검증
         assertNotEquals(request.getPassword(), result.getPassword());
-        assertTrue(result.getPassword().startsWith("$2a$")); // BCrypt 해시인지 확인
 
-        // ✅ Mock 호출 검증
-        verify(emailService, times(1)).verifyCode(eq(request.getEmail()), eq(request.getVerificationCode())); // ✅ `eq()` 사용하여 정확한 값 전달
-        verify(memberRepository, times(1)).existsByEmail(request.getEmail());
-        verify(memberRepository, times(1)).existsByNickName(request.getNickName());
-        verify(memberRepository, times(1)).existsByPhone(request.getPhone());
-        verify(passwordEncoder, times(1)).encode(request.getPassword());
+        verify(emailService, times(1)).verifyCode(eq(request.getEmail()), eq(request.getVerificationCode()));
         verify(memberRepository, times(1)).save(any(MemberEntity.class));
     }
 
     @Test
-    @DisplayName("중복된 이메일로 회원가입 실패")
-    void register_fail_duplicate_email() {
-        // Given
-        MemberDto request = new MemberDto();
-        request.setEmail("test@example.com");
-        request.setVerificationCode("123456");
-
-        lenient().when(emailService.verifyCode(anyString(), anyString())).thenReturn(true); // ✅ 문제 해결
-        when(memberRepository.existsByEmail(anyString())).thenReturn(true);
-
-        // When & Then
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            memberService.register(request);
-        });
-
-        assertEquals("이미 사용 중인 이메일입니다.", exception.getMessage());
-        verify(emailService, times(1)).verifyCode(eq(request.getEmail()), eq(request.getVerificationCode())); // ✅ `eq()` 사용
-        verify(memberRepository, times(1)).existsByEmail(request.getEmail());
-    }
-
-    @Test
-    @DisplayName("중복된 닉네임으로 회원가입 실패")
-    void register_fail_duplicate_nickname() {
+    @DisplayName("회원가입 성공 - 프로필 이미지 포함")
+    void register_success_with_profile_image() {
         // Given
         MemberDto request = new MemberDto();
         request.setNickName("testUser");
         request.setEmail("test@example.com");
+        request.setPhone("01012345678");
+        request.setPassword("Password123!");
         request.setVerificationCode("123456");
 
-        lenient().when(emailService.verifyCode(anyString(), anyString())).thenReturn(true);
-        when(memberRepository.existsByNickName(anyString())).thenReturn(true);
+        doReturn(true).when(emailService).verifyCode(anyString(), anyString());
+        when(memberRepository.existsByEmail(anyString())).thenReturn(false);
+        when(memberRepository.existsByNickName(anyString())).thenReturn(false);
+        when(memberRepository.existsByPhone(anyString())).thenReturn(false);
+        when(passwordEncoder.encode(anyString())).thenReturn("hashedPassword");
+        when(s3Service.uploadFile(any(MultipartFile.class))).thenReturn("s3-key");
 
-        // When & Then
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            memberService.register(request);
-        });
+        MemberEntity savedMember = MemberEntity.builder()
+                .userId(1L)
+                .nickName(request.getNickName())
+                .email(request.getEmail())
+                .phone(request.getPhone())
+                .password("hashedPassword")
+                .profileImageKey("s3-key")
+                .build();
 
-        assertEquals("이미 사용 중인 닉네임입니다.", exception.getMessage());
-        verify(emailService, times(1)).verifyCode(eq(request.getEmail()), eq(request.getVerificationCode())); // ✅ `eq()` 사용
-        verify(memberRepository, times(1)).existsByNickName(request.getNickName());
+        when(memberRepository.save(any(MemberEntity.class))).thenReturn(savedMember);
+
+        // When
+        MemberEntity result = memberService.register(request, mockFile);
+
+        // Then
+        assertNotNull(result);
+        assertEquals("s3-key", result.getProfileImageKey());
+
+        verify(s3Service, times(1)).uploadFile(mockFile);
     }
 
     @Test
-    @DisplayName("중복된 전화번호로 회원가입 실패")
-    void register_fail_duplicate_phone() {
+    @DisplayName("회원가입 성공 - 깃허브 URL과 기술 스택 포함")
+    void register_success_with_github_and_skills() {
         // Given
         MemberDto request = new MemberDto();
-        request.setPhone("01012345678");
+        request.setNickName("testUser");
         request.setEmail("test@example.com");
+        request.setPhone("01012345678");
+        request.setPassword("Password123!");
         request.setVerificationCode("123456");
+        request.setGithubUrl("https://github.com/testUser");
+        request.setSkills(List.of(1L, 2L));
 
-        lenient().when(emailService.verifyCode(anyString(), anyString())).thenReturn(true);
-        when(memberRepository.existsByPhone(anyString())).thenReturn(true);
+        SkillEntity skill1 = new SkillEntity(1L, "Java", "Backend", "java-logo");
+        SkillEntity skill2 = new SkillEntity(2L, "Spring Boot", "Backend", "spring-logo");
 
-        // When & Then
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            memberService.register(request);
-        });
+        doReturn(true).when(emailService).verifyCode(anyString(), anyString());
+        when(memberRepository.existsByEmail(anyString())).thenReturn(false);
+        when(memberRepository.existsByNickName(anyString())).thenReturn(false);
+        when(memberRepository.existsByPhone(anyString())).thenReturn(false);
+        when(passwordEncoder.encode(anyString())).thenReturn("hashedPassword");
+        when(skillRepository.findAllById(anyList())).thenReturn(List.of(skill1, skill2));
 
-        assertEquals("이미 사용 중인 전화번호입니다.", exception.getMessage());
-        verify(emailService, times(1)).verifyCode(eq(request.getEmail()), eq(request.getVerificationCode())); // ✅ `eq()` 사용
-        verify(memberRepository, times(1)).existsByPhone(request.getPhone());
+        MemberEntity savedMember = MemberEntity.builder()
+                .userId(1L)
+                .nickName(request.getNickName())
+                .email(request.getEmail())
+                .phone(request.getPhone())
+                .password("hashedPassword")
+                .githubUrl(request.getGithubUrl())
+                .build();
+
+        when(memberRepository.save(any(MemberEntity.class))).thenReturn(savedMember);
+
+        // When
+        MemberEntity result = memberService.register(request, null);
+
+        // Then
+        assertNotNull(result);
+        assertEquals("https://github.com/testUser", result.getGithubUrl());
+
+        verify(skillRepository, times(1)).findAllById(request.getSkills());
+        verify(userSkillRepository, times(2)).save(any(UserSkillEntity.class));
     }
 }

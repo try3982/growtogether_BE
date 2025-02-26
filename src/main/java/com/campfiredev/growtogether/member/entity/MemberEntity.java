@@ -42,8 +42,8 @@ public class MemberEntity {
     @Column(name = "github_url")
     private String githubUrl;
 
-    @Column(name = "profile_image_url")
-    private String profileImageUrl;
+    @Column(name = "profile_image_key")
+    private String profileImageKey;
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
@@ -56,4 +56,8 @@ public class MemberEntity {
     // 사용자 기술 매핑
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UserSkillEntity> userSkills;
+
+    public void setProfileImageKey(String profileImageKey) {
+        this.profileImageKey = profileImageKey;
+    }
 }

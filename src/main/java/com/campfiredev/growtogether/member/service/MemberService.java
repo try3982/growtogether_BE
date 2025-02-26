@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -25,8 +26,9 @@ public class MemberService {
     private final UserSkillRepository userSkillRepository;
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
+    private final S3Service s3Service;
 
-    public MemberEntity register(MemberDto request) {
+    public MemberEntity register(MemberDto request, MultipartFile profileImage) {
         // 이메일 인증 여부 확인
         if (!emailService.verifyCode(request.getEmail(), request.getVerificationCode())) {
             throw new IllegalArgumentException("이메일 인증이 완료되지 않았습니다.");
@@ -43,6 +45,12 @@ public class MemberService {
             throw new IllegalArgumentException("이미 사용 중인 전화번호입니다.");
         }
 
+        // 프로필 이미지 업로드 후 파일 키 저장
+        String profileImageKey = null;
+        if (profileImage != null && !profileImage.isEmpty()) {
+            profileImageKey = s3Service.uploadFile(profileImage);
+        }
+
         // 회원 저장
         MemberEntity member = memberRepository.save(MemberEntity.builder()
                 .nickName(request.getNickName())
@@ -50,7 +58,7 @@ public class MemberService {
                 .phone(request.getPhone())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .githubUrl(request.getGithubUrl())
-                .profileImageUrl(request.getProfileImageUrl())
+                .profileImageKey(profileImageKey) // 파일 키 저장
                 .build());
 
         // 선택한 기술 스택 저장
