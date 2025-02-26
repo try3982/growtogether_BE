@@ -1,11 +1,14 @@
 package com.campfiredev.growtogether.member.service;
 
+import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
+import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -36,22 +39,32 @@ public class S3Service {
             return fileKey;  // 파일 키 반환
 
         } catch (IOException e) {
-            throw new RuntimeException("파일 업로드 실패: " + e.getMessage());
+            throw new RuntimeException("파일 업로드 실패: " + e.getMessage()); // 커스텀 예외 처리로 변경 필요
         }
     }
 
-    // S3 URL 반환 (파일 키를 기반으로 URL 생성)
+    public void deleteFile(String fileKey) {
+        try {
+            amazonS3.deleteObject(new DeleteObjectRequest(bucketName, fileKey));
+        } catch (AmazonServiceException e) {
+            throw new RuntimeException("S3에서 파일 삭제 실패: " + e.getMessage());
+        }
+    }
+
+
+    // S3 URL 반환
     public String getFileUrl(String fileKey) {
         return amazonS3.getUrl(bucketName, fileKey).toString();
     }
 
-    // 🔥 URL → 파일 키 변환 (추가된 부분)
+
+    //   URL → 파일 키 변환
     public String extractFileKeyFromUrl(String fileUrl) {
-        String prefix = amazonS3.getUrl(bucketName, "").toString(); // S3 기본 URL
-        return fileUrl.replace(prefix, ""); // 파일 키 추출
+        String prefix = amazonS3.getUrl(bucketName, "").toString();
+        return fileUrl.replace(prefix, "");
     }
 
-    // 파일 키 생성 (랜덤 UUID + 확장자 유지)
+    // 파일 키 생성
     private String generateFileKey(String originalFilename) {
         String extension = originalFilename.substring(originalFilename.lastIndexOf("."));
         return UUID.randomUUID() + extension;

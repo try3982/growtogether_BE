@@ -32,12 +32,7 @@ public class MemberController {
         return ResponseEntity.ok(Map.of("message", "회원가입이 완료되었습니다.", "userId", member.getUserId()));
     }
 
-    // 프로필 이미지 URL 조회 API
-    @GetMapping("/profile-image/{fileKey}")
-    public ResponseEntity<?> getProfileImageUrl(@PathVariable String fileKey) {
-        String fileUrl = s3Service.getFileUrl(fileKey);
-        return ResponseEntity.ok(Map.of("profileImageUrl", fileUrl));
-    }
+
 
 
 }

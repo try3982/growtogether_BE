@@ -9,6 +9,7 @@ import com.campfiredev.growtogether.member.repository.UserSkillRepository;
 import com.campfiredev.growtogether.skill.repository.SkillRepository;
 import com.campfiredev.growtogether.skill.entity.SkillEntity;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -71,4 +72,62 @@ public class MemberService {
 
         return member;
     }
+
+    // 프로필 이미지 삭제
+    @Transactional
+    public void deleteProfileImage(Long userId) {
+        // member 찾기
+        MemberEntity member = memberRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+
+        //  기존 프로필 이미지가 있는지 확인
+        if (member.getProfileImageKey() == null) {
+            throw new IllegalArgumentException("이미 프로필 이미지가 없습니다.");
+        }
+
+        // S3에서 이미지 삭제
+        s3Service.deleteFile(member.getProfileImageKey());
+
+        //DB에서 프로필 이미지 Key 제거
+        member.setProfileImageKey(null);
+        memberRepository.save(member);
+    }
+
+    @Transactional
+    public String updateProfileImage(Long userId, MultipartFile profileImage) {
+        // 사용자 찾기
+        MemberEntity member = memberRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+
+        //  기존 프로필 이미지 삭제 (있다면)
+        if (member.getProfileImageKey() != null) {
+            s3Service.deleteFile(member.getProfileImageKey());
+        }
+
+        // 새로운 이미지 업로드
+        String newImageKey = s3Service.uploadFile(profileImage);
+
+        //  DB에 새로운 Key 저장
+        member.setProfileImageKey(newImageKey);
+        memberRepository.save(member);
+
+        return newImageKey;
+    }
+
+    public String getProfileImageUrl(Long userId) {
+        // 사용자 찾기
+        MemberEntity member = memberRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다.")); // 예외 담당자가 수정 예정
+
+        // 프로필 이미지 존재 여부 확인
+        if (member.getProfileImageKey() == null) {
+            throw new IllegalArgumentException("사용자의 프로필 이미지가 없습니다.");
+        }
+
+        // ⃣ S3에서 파일 URL 반환
+        return s3Service.getFileUrl(member.getProfileImageKey());
+    }
+
+
+
 }
