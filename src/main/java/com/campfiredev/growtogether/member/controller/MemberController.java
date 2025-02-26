@@ -5,7 +5,7 @@ import com.campfiredev.growtogether.member.dto.MemberDto;
 import com.campfiredev.growtogether.member.entity.MemberEntity;
 import com.campfiredev.growtogether.member.service.MemberService;
 import com.campfiredev.growtogether.member.service.S3Service;
-
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -38,5 +38,6 @@ public class MemberController {
         String fileUrl = s3Service.getFileUrl(fileKey);
         return ResponseEntity.ok(Map.of("profileImageUrl", fileUrl));
     }
+
+
 }
-//

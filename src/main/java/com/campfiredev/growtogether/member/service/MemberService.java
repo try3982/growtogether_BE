@@ -58,7 +58,7 @@ public class MemberService {
                 .phone(request.getPhone())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .githubUrl(request.getGithubUrl())
-                .profileImageKey(profileImageKey) // 파일 키 저장
+                .profileImageKey(profileImageKey)
                 .build());
 
         // 선택한 기술 스택 저장

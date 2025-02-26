@@ -4,19 +4,14 @@ import com.campfiredev.growtogether.mail.service.EmailService;
 import com.campfiredev.growtogether.member.controller.MemberController;
 import com.campfiredev.growtogether.member.service.MemberService;
 import com.campfiredev.growtogether.member.service.S3Service;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
 
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
@@ -24,18 +19,12 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-
 @WebMvcTest(controllers = MemberController.class)
-@AutoConfigureMockMvc(addFilters = false)
-
-
+@AutoConfigureMockMvc(addFilters = false) // Spring Security 비활성화
 class MemberControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
-
-    @Autowired
-    private WebApplicationContext context;
 
     @MockBean
     private MemberService memberService;
@@ -45,13 +34,6 @@ class MemberControllerTest {
 
     @MockBean
     private S3Service s3Service;
-
-    @BeforeEach
-    void setUp() {
-        this.mockMvc = MockMvcBuilders.webAppContextSetup(context)
-                .apply(SecurityMockMvcConfigurers.springSecurity())
-                .build();
-    }
 
     @Test
     @WithMockUser
@@ -80,7 +62,6 @@ class MemberControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").value("인증 코드가 올바르지 않거나 만료되었습니다."));
     }
-
 
     @Test
     @WithMockUser
