@@ -1,5 +1,6 @@
 package com.campfiredev.growtogether.study.entity;
 
+import com.campfiredev.growtogether.common.entity.BaseEntity;
 import com.campfiredev.growtogether.study.dto.StudyDTO;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -7,7 +8,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -16,7 +16,7 @@ import java.util.List;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Study {
+public class Study extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long studyId;
@@ -38,10 +38,6 @@ public class Study {
     @Enumerated(EnumType.STRING)
     private StudyStatus studyStatus;
 
-    private LocalDateTime createdAt;
-
-    private LocalDateTime updatedAt;
-
     private Integer participant;
 
     private String type;
@@ -62,8 +58,6 @@ public class Study {
                 .studyEndDate(dto.getStudyEndDate())
                 .isDeleted(false)
                 .studyStatus(StudyStatus.PROGRESS)
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
                 .participant(0)
                 .type(dto.getType())
                 .studyCount(0)

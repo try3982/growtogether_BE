@@ -1,6 +1,7 @@
 package com.campfiredev.growtogether.study.entity;
 
 
+import com.campfiredev.growtogether.common.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -9,7 +10,7 @@ import lombok.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class SkillStudy {
+public class SkillStudy extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,8 +25,5 @@ public class SkillStudy {
     @JoinColumn(name = "study_id")
     private Study study;
 
-    public void linkStudy(Study study) {
-        this.study = study;
-    }
 }
 
