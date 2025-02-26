@@ -1,23 +1,23 @@
 package com.campfiredev.growtogether.study.service;
 
 import com.campfiredev.growtogether.study.dto.StudyDTO;
+import com.campfiredev.growtogether.study.entity.Skill;
+import com.campfiredev.growtogether.study.entity.SkillStudy;
 import com.campfiredev.growtogether.study.entity.Study;
-import com.campfiredev.growtogether.study.entity.StudyStatus;
+import com.campfiredev.growtogether.study.repository.SkillRepository;
+import com.campfiredev.growtogether.study.repository.SkillStudyRepository;
 import com.campfiredev.growtogether.study.repository.StudyRepository;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.Date;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -27,67 +27,73 @@ class StudyServiceTest {
     @Mock
     private StudyRepository studyRepository;
 
+    @Mock
+    private SkillRepository skillRepository;
+
+    @Mock
+    private SkillStudyRepository skillStudyRepository;
+
     @InjectMocks
     private StudyService studyService;
 
-    private Study study;
-    private StudyDTO studyDTO;
-
-    @BeforeEach
-    void setUp() {
-        study = Study.builder()
-                .studyId(1L)
-                .title("Study Title")
+    @Test
+    void createStudy() {
+        // Given
+        List<String> skillNames = Arrays.asList("Java", "Spring");
+        StudyDTO dto = StudyDTO.builder()
+                .title("New Study")
                 .description("Study Description")
-                .viewCount(0L)
-                .maxParticipant(10)
-                .studyStartDate(new Date())
-                .studyEndDate(new Date())
-                .isDeleted(true)
-                .studyStatus(StudyStatus.PROGRESS)
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
-                .participant(0)
-                .type("Online")
-                .studyCount(8)
+                .skillNames(skillNames)
                 .build();
 
-        studyDTO = StudyDTO.builder()
-                .studyId(study.getStudyId())
-                .title(study.getTitle())
-                .description(study.getDescription())
-                .viewCount(study.getViewCount())
-                .maxParticipant(study.getMaxParticipant())
-                .studyStartDate(study.getStudyStartDate())
-                .studyEndDate(study.getStudyEndDate())
-                .studyStatus(study.getStudyStatus())
-                .createdAt(study.getCreatedAt())
-                .updatedAt(study.getUpdatedAt())
-                .participant(study.getParticipant())
-                .type(study.getType())
-                .studyCount(study.getStudyCount())
-                .build();
+        Skill javaSkill = Skill.builder().skillName("Java").build();
+        Skill springSkill = Skill.builder().skillName("Spring").build();
+        List<Skill> skills = Arrays.asList(javaSkill, springSkill);
+
+        Study savedStudy = Study.fromDTO(dto);
+        List<SkillStudy> skillStudies = skills.stream()
+                .map(skill -> SkillStudy.builder()
+                        .skill(skill)
+                        .study(savedStudy)
+                        .build())
+                .toList();
+
+        // When
+        when(skillRepository.findBySkillNameIn(skillNames)).thenReturn(skills);
+        when(studyRepository.save(any(Study.class))).thenReturn(savedStudy);
+        when(skillStudyRepository.saveAll(anyList())).thenReturn(skillStudies);
+
+        StudyDTO result = studyService.createStudy(dto);
+
+        // Then
+        assertEquals(dto.getTitle(), result.getTitle());
+        assertEquals(dto.getDescription(), result.getDescription());
+        assertEquals(dto.getSkillNames().size(), result.getSkillNames().size());
+
+        verify(skillRepository, times(1)).findBySkillNameIn(skillNames);
+        verify(studyRepository, times(2)).save(any(Study.class));
+        verify(skillStudyRepository, times(1)).saveAll(anyList());
     }
 
     @Test
-    void createStudy_shouldReturnSavedStudyDTO() {
-        when(studyRepository.save(any(Study.class))).thenReturn(study);
+    void getAllStudies() {
+        // Given
+        Study study1 = Study.builder().title("Study 1").description("Description 1").build();
+        Study study2 = Study.builder().title("Study 2").description("Description 2").build();
+        study1.addSkillStudies(new ArrayList<>());
+        study2.addSkillStudies(new ArrayList<>());
+        List<Study> studies = Arrays.asList(study1, study2);
 
-        StudyDTO createdStudy = studyService.createStudy(studyDTO);
+        // When
+        when(studyRepository.findAll()).thenReturn(studies);
 
-        assertNotNull(createdStudy);
-        assertEquals(studyDTO.getTitle(), createdStudy.getTitle());
-        verify(studyRepository, times(1)).save(any(Study.class));
-    }
+        List<StudyDTO> result = studyService.getAllStudies();
 
-    @Test
-    void getAllStudies_shouldReturnListOfStudyDTOs() {
-        when(studyRepository.findAll()).thenReturn(Collections.singletonList(study));
+        // Then
+        assertEquals(2, result.size());
+        assertEquals("Study 1", result.get(0).getTitle());
+        assertEquals("Study 2", result.get(1).getTitle());
 
-        List<StudyDTO> studies = studyService.getAllStudies();
-
-        assertNotNull(studies);
-        assertEquals(1, studies.size());
         verify(studyRepository, times(1)).findAll();
     }
 }
