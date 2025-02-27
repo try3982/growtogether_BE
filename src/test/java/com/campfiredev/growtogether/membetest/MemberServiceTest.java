@@ -8,7 +8,6 @@ import com.campfiredev.growtogether.member.repository.MemberRepository;
 import com.campfiredev.growtogether.member.repository.UserSkillRepository;
 import com.campfiredev.growtogether.member.service.MemberService;
 import com.campfiredev.growtogether.member.service.S3Service;
-import com.campfiredev.growtogether.skill.entity.SkillEntity;
 import com.campfiredev.growtogether.skill.repository.SkillRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -21,7 +20,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;

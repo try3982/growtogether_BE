@@ -2,11 +2,11 @@ package com.campfiredev.growtogether.study.service;
 
 import com.campfiredev.growtogether.exception.custom.CustomException;
 import com.campfiredev.growtogether.exception.response.ErrorCode;
+import com.campfiredev.growtogether.skill.entity.SkillEntity;
+import com.campfiredev.growtogether.skill.repository.SkillRepository;
 import com.campfiredev.growtogether.study.dto.StudyDTO;
-import com.campfiredev.growtogether.study.entity.Skill;
 import com.campfiredev.growtogether.study.entity.SkillStudy;
 import com.campfiredev.growtogether.study.entity.Study;
-import com.campfiredev.growtogether.study.repository.SkillRepository;
 import com.campfiredev.growtogether.study.repository.SkillStudyRepository;
 import com.campfiredev.growtogether.study.repository.StudyRepository;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +15,8 @@ import org.springframework.stereotype.Service;
 import java.util.Date;
 import java.util.List;
 
-import static com.campfiredev.growtogether.exception.response.ErrorCode.*;
+import static com.campfiredev.growtogether.exception.response.ErrorCode.END_DATE_AFTER_START_DATE;
+import static com.campfiredev.growtogether.exception.response.ErrorCode.START_DATE_PAST;
 
 @Service
 @RequiredArgsConstructor
@@ -28,7 +29,7 @@ public class StudyService {
     public StudyDTO createStudy(StudyDTO dto) {
         validateDates(dto.getStudyStartDate(), dto.getStudyEndDate());
         
-        List<Skill> skills = skillRepository.findBySkillNameIn(dto.getSkillNames());
+        List<SkillEntity> skills = skillRepository.findBySkillNameIn(dto.getSkillNames());
 
         if(dto.getSkillNames().size() != skills.size()){
             throw new CustomException(ErrorCode.INVALID_SKILL);

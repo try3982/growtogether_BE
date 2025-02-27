@@ -1,10 +1,8 @@
 package com.campfiredev.growtogether.study.service;
 
 import com.campfiredev.growtogether.study.dto.StudyDTO;
-import com.campfiredev.growtogether.study.entity.Skill;
 import com.campfiredev.growtogether.study.entity.SkillStudy;
 import com.campfiredev.growtogether.study.entity.Study;
-import com.campfiredev.growtogether.study.repository.SkillRepository;
 import com.campfiredev.growtogether.study.repository.SkillStudyRepository;
 import com.campfiredev.growtogether.study.repository.StudyRepository;
 import org.junit.jupiter.api.Test;
