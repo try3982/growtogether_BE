@@ -1,10 +1,10 @@
 package com.campfiredev.growtogether.exception.response;
 
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
+
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 @Getter
 @AllArgsConstructor
@@ -19,7 +19,13 @@ public enum ErrorCode {
 
   INVALID_INPUT_DATA("잘못된 입력 데이터입니다.", BAD_REQUEST),
 
-  INTERNAL_SERVER_ERROR("서버 오류입니다.", HttpStatus.INTERNAL_SERVER_ERROR);
+  INTERNAL_SERVER_ERROR("서버 오류입니다.", HttpStatus.INTERNAL_SERVER_ERROR),
+
+  INVALID_SKILL("존재하지 않는 기술스택입니다.",BAD_REQUEST),
+
+  START_DATE_PAST("시작 날짜는 현재 날짜 이후여야 합니다.",BAD_REQUEST),
+
+  END_DATE_AFTER_START_DATE("종료 날짜는 시작 날짜 이후여야 합니다.",BAD_REQUEST);
 
   private final String description;
 
