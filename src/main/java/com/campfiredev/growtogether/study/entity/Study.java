@@ -1,6 +1,7 @@
 package com.campfiredev.growtogether.study.entity;
 
 import com.campfiredev.growtogether.common.entity.BaseEntity;
+import com.campfiredev.growtogether.member.entity.MemberEntity;
 import com.campfiredev.growtogether.study.dto.StudyDTO;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -47,6 +48,9 @@ public class Study extends BaseEntity {
     @OneToMany(mappedBy = "study", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<SkillStudy> skillStudies;
 
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private MemberEntity member;
 
     public static Study fromDTO(StudyDTO dto) {
         return Study.builder()
@@ -66,5 +70,9 @@ public class Study extends BaseEntity {
 
     public void addSkillStudies(List<SkillStudy> skillStudies) {
         this.skillStudies = skillStudies;
+    }
+
+    public void setAuthor(MemberEntity author) {
+        this.member = author;
     }
 }

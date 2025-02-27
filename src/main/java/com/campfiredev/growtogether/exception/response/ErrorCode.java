@@ -5,12 +5,14 @@ import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
 @Getter
 @AllArgsConstructor
 public enum ErrorCode {
 
   //예외 생길 때마다 이런 식으로 추가
+  NOT_INVALID_MEMBER("유효하지 않은 사용자입니다.", UNAUTHORIZED),
   ALREADY_JOINED_STUDY("이미 참석 중인 스터디입니다.", BAD_REQUEST),
   NOT_A_STUDY_MEMBER("스터디 참가자가 아닙니다.", BAD_REQUEST),
   NOT_A_STUDY_LEADER("스터디 팀장이 아닙니다.", BAD_REQUEST),

@@ -1,0 +1,35 @@
+INSERT INTO skill_entity (skill_name, category, skill_img_url)
+VALUES ('Docker', '데브옵스', 'https://example.com/docker.png'),
+       ('Kubernetes', '데브옵스', 'https://example.com/kubernetes.png'),
+       ('Jenkins', '데브옵스', 'https://example.com/jenkins.png'),
+       ('Terraform', '데브옵스', 'https://example.com/terraform.png'),
+       ('Ansible', '데브옵스', 'https://example.com/ansible.png'),
+       ('Prometheus', '데브옵스', 'https://example.com/prometheus.png'),
+
+       ('Node.js', '백엔드', 'https://example.com/nodejs.png'),
+       ('Express.js', '백엔드', 'https://example.com/expressjs.png'),
+       ('Django', '백엔드', 'https://example.com/django.png'),
+       ('Spring Boot', '백엔드', 'https://example.com/springboot.png'),
+       ('Ruby on Rails', '백엔드', 'https://example.com/rail.png'),
+       ('Flask', '백엔드', 'https://example.com/flask.png'),
+
+       ('React', '프론트엔드', 'https://example.com/react.png'),
+       ('Vue.js', '프론트엔드', 'https://example.com/vuejs.png'),
+       ('Angular', '프론트엔드', 'https://example.com/angular.png'),
+       ('Svelte', '프론트엔드', 'https://example.com/svelte.png'),
+       ('Next.js', '프론트엔드', 'https://example.com/nextjs.png'),
+       ('Bootstrap', '프론트엔드', 'https://example.com/bootstrap.png'),
+
+       ('MySQL', '데이터베이스', 'https://example.com/mysql.png'),
+       ('PostgreSQL', '데이터베이스', 'https://example.com/postgresql.png'),
+       ('MongoDB', '데이터베이스', 'https://example.com/mongodb.png'),
+       ('Redis', '데이터베이스', 'https://example.com/redis.png'),
+       ('Elasticsearch', '데이터베이스', 'https://example.com/elasticsearch.png'),
+       ('Firebase', '데이터베이스', 'https://example.com/firebase.png'),
+
+       ('AWS', '클라우드', 'https://example.com/aws.png'),
+       ('Microsoft Azure', '클라우드', 'https://example.com/azure.png'),
+       ('Google Cloud Platform', '클라우드', 'https://example.com/gcp.png'),
+       ('IBM Cloud', '클라우드', 'https://example.com/ibmcloud.png'),
+       ('Oracle Cloud', '클라우드', 'https://example.com/oraclecloud.png'),
+       ('DigitalOcean', '클라우드', 'https://example.com/digitalocean.png');
