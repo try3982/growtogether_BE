@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
-@Table(name = "'user'", uniqueConstraints = {
+@Table(name = "users", uniqueConstraints = {
         @UniqueConstraint(columnNames = "email"),
         @UniqueConstraint(columnNames = "nick_name"),
         @UniqueConstraint(columnNames = "phone_number")
@@ -59,5 +59,9 @@ public class MemberEntity {
 
     public void setProfileImageKey(String profileImageKey) {
         this.profileImageKey = profileImageKey;
+    }
+
+    public void usePoints(int amount){
+        points -= amount;
     }
 }
