@@ -1,7 +1,6 @@
 package com.campfiredev.growtogether.skill.controller;
 
 import com.campfiredev.growtogether.skill.dto.SkillDto;
-import com.campfiredev.growtogether.skill.entity.SkillEntity;
 import com.campfiredev.growtogether.skill.repository.SkillRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

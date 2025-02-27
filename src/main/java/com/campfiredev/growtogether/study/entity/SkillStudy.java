@@ -2,6 +2,7 @@ package com.campfiredev.growtogether.study.entity;
 
 
 import com.campfiredev.growtogether.common.entity.BaseEntity;
+import com.campfiredev.growtogether.skill.entity.SkillEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -18,7 +19,7 @@ public class SkillStudy extends BaseEntity {
 
     @ManyToOne
     @JoinColumn(name = "skill_id")
-    private Skill skill;
+    private SkillEntity skill;
 
     @ManyToOne
     @JoinColumn(name = "study_id")
