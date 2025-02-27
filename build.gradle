@@ -28,6 +28,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-web'
+ 
     implementation 'org.springframework.boot:spring-boot-starter-mail'
     implementation 'com.sun.mail:jakarta.mail:2.0.1'
     implementation 'org.hibernate.validator:hibernate-validator:8.0.1.Final'
@@ -39,6 +40,15 @@ dependencies {
 
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     implementation 'jakarta.platform:jakarta.jakartaee-api:10.0.0'
+ 
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0' 
+ 
+    implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
+    annotationProcessor "com.querydsl:querydsl-apt:5.0.0:jakarta"
+    annotationProcessor "jakarta.annotation:jakarta.annotation-api"
+    annotationProcessor "jakarta.persistence:jakarta.persistence-api"
+
+ 
     compileOnly 'org.projectlombok:lombok'
     runtimeOnly 'com.mysql:mysql-connector-j'
     annotationProcessor 'org.projectlombok:lombok'
@@ -47,9 +57,21 @@ dependencies {
     runtimeOnly 'com.h2database:h2'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
-
+ 
 }
 
 tasks.named('test') {
     useJUnitPlatform()
+}
+
+tasks.named('compileJava') {
+    options.annotationProcessorGeneratedSourcesDirectory = layout.buildDirectory.dir("generated/querydsl").get().asFile
+}
+
+sourceSets {
+    main {
+        java {
+            srcDirs = ['src/main/java', layout.buildDirectory.dir("generated/querydsl").get().asFile]
+        }
+    }
 }
