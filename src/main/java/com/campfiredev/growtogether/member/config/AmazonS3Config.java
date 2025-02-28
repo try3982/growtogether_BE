@@ -26,11 +26,11 @@ public class AmazonS3Config {
 
     @Bean
     public AmazonS3 amazonS3() {
-        if (accessKey == null || secretKey == null || region == null) {
+        if (credentials.accessKey == null || credentials.secretKey == null || region == null) {
             throw new IllegalArgumentException("AWS Access Key, Secret Key 또는 Region이 설정되지 않았습니다.");
         }
 
-        BasicAWSCredentials awsCreds = new BasicAWSCredentials(accessKey, secretKey);
+        BasicAWSCredentials awsCreds = new BasicAWSCredentials(credentials.accessKey, credentials.secretKey);
       
         return AmazonS3ClientBuilder.standard()
                 .withRegion(Regions.fromName(region))

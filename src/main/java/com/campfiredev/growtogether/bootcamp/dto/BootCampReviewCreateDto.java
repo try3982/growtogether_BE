@@ -2,6 +2,7 @@ package com.campfiredev.growtogether.bootcamp.dto;
 
 import com.campfiredev.growtogether.bootcamp.entity.BootCampReview;
 import com.campfiredev.growtogether.bootcamp.type.ProgramCourse;
+import com.campfiredev.growtogether.member.entity.MemberEntity;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -10,6 +11,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.List;
 
 public class BootCampReviewCreateDto {
 
@@ -18,6 +20,9 @@ public class BootCampReviewCreateDto {
     @AllArgsConstructor
     @Builder
     public static class Request {
+
+        private Long userId;
+
         @NotBlank(message = "제목은 필수 입력값입니다.")
         private String title;
 
@@ -45,8 +50,11 @@ public class BootCampReviewCreateDto {
         @NotNull(message = "부트캠프 종료날짜는 필수 입력값입니다.")
         private LocalDate bootCampEndDate;
 
-        public BootCampReview toEntity(){
+        private List<String> skillNames;
+
+        public BootCampReview toEntity(MemberEntity member){
             return BootCampReview.builder()
+                    .member(member)
                     .title(title)
                     .content(content)
                     .bootCampName(bootCampName)

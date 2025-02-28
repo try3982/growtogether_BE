@@ -2,6 +2,7 @@ package com.campfiredev.growtogether.bootcamp.entity;
 
 import com.campfiredev.growtogether.bootcamp.type.ProgramCourse;
 import com.campfiredev.growtogether.common.entity.BaseEntity;
+import com.campfiredev.growtogether.member.entity.MemberEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -57,8 +58,9 @@ public class BootCampReview extends BaseEntity {
     @Column(nullable = false)
     private Integer programSatisfaction;
 
-
-    //user 추가 예정
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="user_id",nullable = false)
+    private MemberEntity member;
 
     //후기 삭제시 댓글도 같이 삭제되도록
     @OneToMany(mappedBy = "bootCampReview",cascade = CascadeType.ALL,orphanRemoval = true)

@@ -4,9 +4,15 @@ import com.campfiredev.growtogether.bootcamp.dto.BootCampReviewCreateDto;
 import com.campfiredev.growtogether.bootcamp.dto.BootCampReviewResponseDto;
 import com.campfiredev.growtogether.bootcamp.dto.BootCampReviewUpdateDto;
 import com.campfiredev.growtogether.bootcamp.entity.BootCampReview;
+import com.campfiredev.growtogether.bootcamp.entity.BootCampSkill;
 import com.campfiredev.growtogether.bootcamp.repository.BootCampReviewRepository;
+import com.campfiredev.growtogether.bootcamp.repository.BootCampSkillRepository;
 import com.campfiredev.growtogether.exception.custom.CustomException;
 import com.campfiredev.growtogether.exception.response.ErrorCode;
+import com.campfiredev.growtogether.member.entity.MemberEntity;
+import com.campfiredev.growtogether.member.repository.MemberRepository;
+import com.campfiredev.growtogether.skill.entity.SkillEntity;
+import com.campfiredev.growtogether.skill.repository.SkillRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -16,22 +22,42 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class BootCampReviewService {
 
     private final BootCampReviewRepository bootCampReviewRepository;
+    private final BootCampSkillRepository bootCampSkillRepository;
+    private final MemberRepository memberRepository;
+    private final SkillRepository skillRepository;
 
     //후기 등록
     @Transactional
     public void createReview(BootCampReviewCreateDto.Request request) {
 
+        MemberEntity member = memberRepository.findByUserId(request.getUserId())
+                        .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
-        //이미지 업로드 로직 구현 예정
+        BootCampReview review = request.toEntity(member);
+        bootCampReviewRepository.save(review);
 
-        //학습언어
-        bootCampReviewRepository.save(request.toEntity());
+        if(request.getSkillNames() != null && !request.getSkillNames().isEmpty()){
+            List<SkillEntity> skills = skillRepository.findBySkillNameIn(request.getSkillNames());
+
+            List<BootCampSkill> bootCampSkills = skills.stream()
+                    .map(skill -> BootCampSkill.builder()
+                            .bootCampReview(review)
+                            .skill(skill)
+                            .build())
+                    .collect(Collectors.toList());
+
+            bootCampSkillRepository.saveAll(bootCampSkills);
+        }
+
 
     }
 
@@ -77,5 +103,8 @@ public class BootCampReviewService {
 
         return BootCampReviewResponseDto.PageResponse.fromEntityPage(bootCampReviews);
     }
+
+    //후기 상세 조회
+
 
 }
