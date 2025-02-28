@@ -71,14 +71,14 @@ public class JoinServiceImpl implements JoinService {
 
     validateConfirmJoin(studyMemberEntity);
 
+    studyMemberEntity.confirm();
+
     /**
      * 포인트 확인 후 차감
      * 동시성 이슈로 인해 redisson lock 적용
      */
     pointService.usePoint(studyMemberEntity.getMember().getUserId(),
         studyMemberEntity.getStudy().getStudyCount() * 5);
-
-    studyMemberEntity.confirm();
   }
 
   /**
