@@ -104,7 +104,7 @@ public class JoinServiceImpl implements JoinService {
   @Override
   public StudyMemberListDto getPendingList(Long studyId) {
 
-    List<StudyMemberEntity> list = joinRepository.findByStudyWithMembersAndStatus(studyId,
+    List<StudyMemberEntity> list = joinRepository.findByStudyWithMembersInStatus(studyId,
         List.of(PENDING));
 
     return StudyMemberListDto.fromEntity(list);
@@ -118,7 +118,7 @@ public class JoinServiceImpl implements JoinService {
   @Override
   public StudyMemberListDto getJoinList(Long studyId) {
 
-    List<StudyMemberEntity> list = joinRepository.findByStudyWithMembersAndStatus(studyId,
+    List<StudyMemberEntity> list = joinRepository.findByStudyWithMembersInStatus(studyId,
         List.of(NORMAL, LEADER, KICK));
 
     return StudyMemberListDto.fromEntity(list);

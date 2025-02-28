@@ -27,7 +27,7 @@ public interface JoinRepository extends JpaRepository<StudyMemberEntity, Long> {
   @Query("SELECT sm FROM StudyMemberEntity sm " +
       "JOIN FETCH sm.member " +
       "WHERE sm.study.studyId = :studyId and sm.status IN :statuses")
-  List<StudyMemberEntity> findByStudyWithMembersAndStatus(@Param("studyId") Long studyId,
+  List<StudyMemberEntity> findByStudyWithMembersInStatus(@Param("studyId") Long studyId,
       @Param("statuses") List<StudyMemberType> statuses);
 }
 
