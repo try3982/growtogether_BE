@@ -2,6 +2,8 @@ package com.campfiredev.growtogether.study.service;
 
 import com.campfiredev.growtogether.exception.custom.CustomException;
 import com.campfiredev.growtogether.exception.response.ErrorCode;
+import com.campfiredev.growtogether.member.entity.MemberEntity;
+import com.campfiredev.growtogether.member.repository.MemberRepository;
 import com.campfiredev.growtogether.skill.entity.SkillEntity;
 import com.campfiredev.growtogether.skill.repository.SkillRepository;
 import com.campfiredev.growtogether.study.dto.StudyDTO;
@@ -15,18 +17,21 @@ import org.springframework.stereotype.Service;
 import java.util.Date;
 import java.util.List;
 
-import static com.campfiredev.growtogether.exception.response.ErrorCode.END_DATE_AFTER_START_DATE;
-import static com.campfiredev.growtogether.exception.response.ErrorCode.START_DATE_PAST;
+import static com.campfiredev.growtogether.exception.response.ErrorCode.*;
 
 @Service
 @RequiredArgsConstructor
 public class StudyService {
 
     private final StudyRepository studyRepository;
+
     private final SkillRepository skillRepository;
+
     private final SkillStudyRepository skillStudyRepository;
 
-    public StudyDTO createStudy(StudyDTO dto) {
+    private final MemberRepository memberRepository;
+
+    public StudyDTO createStudy(StudyDTO dto, long userId) {
         validateDates(dto.getStudyStartDate(), dto.getStudyEndDate());
         
         List<SkillEntity> skills = skillRepository.findBySkillNameIn(dto.getSkillNames());
@@ -37,10 +42,15 @@ public class StudyService {
 
         Study study = Study.fromDTO(dto);
 
+        MemberEntity member = memberRepository.findById(1L).orElseThrow(()->new CustomException(NOT_INVALID_MEMBER));
+        study.setAuthor(member);
+
+        Study savedStudy = studyRepository.save(study);
+
         List<SkillStudy> skillStudies = skills.stream()
                 .map(skill -> SkillStudy.builder()
                         .skill(skill)
-                        .study(studyRepository.save(study))
+                        .study(savedStudy)
                         .build())
                 .toList();
 
