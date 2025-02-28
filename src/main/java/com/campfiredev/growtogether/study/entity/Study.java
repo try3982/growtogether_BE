@@ -62,7 +62,7 @@ public class Study extends BaseEntity {
                 .studyEndDate(dto.getStudyEndDate())
                 .isDeleted(false)
                 .studyStatus(StudyStatus.PROGRESS)
-                .participant(0)
+                .participant(1)
                 .type(dto.getType())
                 .studyCount(0)
                 .build();

@@ -13,6 +13,7 @@ import com.campfiredev.growtogether.study.repository.SkillStudyRepository;
 import com.campfiredev.growtogether.study.repository.StudyRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.List;
@@ -21,6 +22,7 @@ import static com.campfiredev.growtogether.exception.response.ErrorCode.*;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class StudyService {
 
     private final StudyRepository studyRepository;
@@ -31,18 +33,28 @@ public class StudyService {
 
     private final MemberRepository memberRepository;
 
+    @Transactional
     public StudyDTO createStudy(StudyDTO dto, long userId) {
         validateDates(dto.getStudyStartDate(), dto.getStudyEndDate());
-        
+
         List<SkillEntity> skills = skillRepository.findBySkillNameIn(dto.getSkillNames());
 
-        if(dto.getSkillNames().size() != skills.size()){
+        if (dto.getSkillNames().size() != skills.size()) {
             throw new CustomException(ErrorCode.INVALID_SKILL);
         }
 
         Study study = Study.fromDTO(dto);
 
-        MemberEntity member = memberRepository.findById(1L).orElseThrow(()->new CustomException(NOT_INVALID_MEMBER));
+//        해당부분은 아직 회원가입 api가 미완성 단계여서 주석처리 추후에 로직 변경예정
+//        MemberEntity member = memberRepository.findById(1L).orElseThrow(()->new CustomException(NOT_INVALID_MEMBER));
+        MemberEntity member = memberRepository.save(MemberEntity.builder()
+                .nickName(Math.random() + "")
+                .email(Math.random() + "")
+                .phone(Math.random() + "")
+                .password(Math.random() + "")
+                .build()
+        );
+
         study.setAuthor(member);
 
         Study savedStudy = studyRepository.save(study);
@@ -72,8 +84,18 @@ public class StudyService {
     }
 
     public List<StudyDTO> getAllStudies() {
-        return studyRepository.findAll().stream()
+        return studyRepository.findByIsDeletedFalseOrderByCreatedAtDesc().stream()
                 .map(StudyDTO::fromEntity)
                 .toList();
+    }
+
+    public StudyDTO getStudyById(Long studyId) {
+        Study study = studyRepository.findById(studyId)
+                .orElseThrow(() -> new CustomException(STUDY_NOT_FOUND));
+
+        if(study.getIsDeleted()){
+            throw new CustomException(ALREADY_DELETED_STUDY);
+        }
+        return StudyDTO.fromEntity(study);
     }
 }

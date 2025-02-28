@@ -24,6 +24,10 @@ public class StudyController {
     public List<StudyDTO> getAllStudies() {
         return studyService.getAllStudies();
     }
+    @GetMapping("/{studyId}")
+    public StudyDTO getStudyById(@PathVariable Long studyId) {
+        return studyService.getStudyById(studyId);
+    }
 }
 
 
