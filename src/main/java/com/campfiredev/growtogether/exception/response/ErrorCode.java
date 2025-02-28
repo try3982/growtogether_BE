@@ -25,7 +25,9 @@ public enum ErrorCode {
 
   START_DATE_PAST("시작 날짜는 현재 날짜 이후여야 합니다.",BAD_REQUEST),
 
-  END_DATE_AFTER_START_DATE("종료 날짜는 시작 날짜 이후여야 합니다.",BAD_REQUEST);
+  END_DATE_AFTER_START_DATE("종료 날짜는 시작 날짜 이후여야 합니다.",BAD_REQUEST),
+
+  REVIEW_NOT_FOUND("존재하지 않는 후기입니다.",BAD_REQUEST);
 
   private final String description;
 
