@@ -8,6 +8,7 @@ import com.campfiredev.growtogether.member.repository.MemberRepository;
 import com.campfiredev.growtogether.member.repository.UserSkillRepository;
 import com.campfiredev.growtogether.member.service.MemberService;
 import com.campfiredev.growtogether.member.service.S3Service;
+import com.campfiredev.growtogether.skill.entity.SkillEntity;
 import com.campfiredev.growtogether.skill.repository.SkillRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -151,8 +152,20 @@ class MemberServiceTest {
         request.setGithubUrl("https://github.com/testUser");
         request.setSkills(List.of(1L, 2L));
 
-        SkillEntity skill1 = new SkillEntity(1L, "Java", "Backend", "java-logo");
-        SkillEntity skill2 = new SkillEntity(2L, "Spring Boot", "Backend", "spring-logo");
+        SkillEntity skill1 = SkillEntity.builder()
+                .skillId(1L)
+                .skillName("Java")
+                .category("Backend")
+                .skillImgUrl("java-logo")
+                .build();
+
+        SkillEntity skill2 = SkillEntity.builder()
+                .skillId(2L)
+                .skillName("Spring Boot")
+                .category("Backend")
+                .skillImgUrl("spring-logo")
+                .build();
+
 
         doReturn(true).when(emailService).verifyCode(anyString(), anyString());
         when(memberRepository.existsByEmail(anyString())).thenReturn(false);

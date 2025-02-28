@@ -1,5 +1,10 @@
 package com.campfiredev.growtogether.study.service;
 
+import com.campfiredev.growtogether.exception.custom.CustomException;
+import com.campfiredev.growtogether.member.entity.MemberEntity;
+import com.campfiredev.growtogether.member.repository.MemberRepository;
+import com.campfiredev.growtogether.skill.entity.SkillEntity;
+import com.campfiredev.growtogether.skill.repository.SkillRepository;
 import com.campfiredev.growtogether.study.dto.StudyDTO;
 import com.campfiredev.growtogether.study.entity.SkillStudy;
 import com.campfiredev.growtogether.study.entity.Study;
@@ -11,11 +16,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -31,6 +35,9 @@ class StudyServiceTest {
     @Mock
     private SkillStudyRepository skillStudyRepository;
 
+    @Mock
+    private MemberRepository memberRepository;
+
     @InjectMocks
     private StudyService studyService;
 
@@ -38,15 +45,20 @@ class StudyServiceTest {
     void createStudy() {
         // Given
         List<String> skillNames = Arrays.asList("Java", "Spring");
+        Date validStartDate = new Date(System.currentTimeMillis() + 86400000); // 하루 뒤의 날짜
+        Date validEndDate = new Date(System.currentTimeMillis() + 172800000); // 이틀 뒤의 날짜
+
         StudyDTO dto = StudyDTO.builder()
                 .title("New Study")
                 .description("Study Description")
+                .studyStartDate(validStartDate)
+                .studyEndDate(validEndDate)
                 .skillNames(skillNames)
                 .build();
 
-        Skill javaSkill = Skill.builder().skillName("Java").build();
-        Skill springSkill = Skill.builder().skillName("Spring").build();
-        List<Skill> skills = Arrays.asList(javaSkill, springSkill);
+        SkillEntity javaSkill = SkillEntity.builder().skillName("Java").build();
+        SkillEntity springSkill = SkillEntity.builder().skillName("Spring").build();
+        List<SkillEntity> skills = Arrays.asList(javaSkill, springSkill);
 
         Study savedStudy = Study.fromDTO(dto);
         List<SkillStudy> skillStudies = skills.stream()
@@ -60,8 +72,9 @@ class StudyServiceTest {
         when(skillRepository.findBySkillNameIn(skillNames)).thenReturn(skills);
         when(studyRepository.save(any(Study.class))).thenReturn(savedStudy);
         when(skillStudyRepository.saveAll(anyList())).thenReturn(skillStudies);
+        when(memberRepository.findById(1L)).thenReturn(Optional.of(new MemberEntity()));
 
-        StudyDTO result = studyService.createStudy(dto);
+        StudyDTO result = studyService.createStudy(dto, 1L);
 
         // Then
         assertEquals(dto.getTitle(), result.getTitle());
@@ -69,8 +82,33 @@ class StudyServiceTest {
         assertEquals(dto.getSkillNames().size(), result.getSkillNames().size());
 
         verify(skillRepository, times(1)).findBySkillNameIn(skillNames);
-        verify(studyRepository, times(2)).save(any(Study.class));
+        verify(studyRepository, times(1)).save(any(Study.class));
         verify(skillStudyRepository, times(1)).saveAll(anyList());
+    }
+
+    @Test
+    void createStudy_withInvalidDates() {
+        // Given
+        List<String> skillNames = Arrays.asList("Java", "Spring");
+        Date invalidStartDate = new Date(System.currentTimeMillis() - 86400000); // 하루 전의 날짜
+        Date validEndDate = new Date(System.currentTimeMillis() + 172800000); // 이틀 뒤의 날짜
+
+        StudyDTO dto = StudyDTO.builder()
+                .title("New Study")
+                .description("Study Description")
+                .studyStartDate(invalidStartDate)
+                .studyEndDate(validEndDate)
+                .skillNames(skillNames)
+                .build();
+
+        // When
+        assertThrows(CustomException.class, () -> {
+            studyService.createStudy(dto, 1L);
+        });
+
+        // Then
+        verify(studyRepository, never()).save(any(Study.class));
+        verify(skillStudyRepository, never()).saveAll(anyList());
     }
 
     @Test

@@ -6,16 +6,19 @@ import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.stereotype.Component;
 
 @Configuration
 @Getter
 @Setter
+@RequiredArgsConstructor
 public class AmazonS3Config {
-    private Credentials credentials = new Credentials();
+    private final Credentials credentials;
     private String region= "ap-southeast-2";
 
     @Bean
@@ -28,6 +31,7 @@ public class AmazonS3Config {
     }
     @Getter
     @Setter
+    @Component
     public static class Credentials {
         @Value("${cloud.aws.credentials.access-key}")
         private String accessKey;
