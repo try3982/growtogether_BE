@@ -22,7 +22,9 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/email/**", "/member/**" ,"/**").permitAll() // 인증 없이 허용할 엔드포인트
+                                       
+                        .requestMatchers("/api/email/**", "/member/**","/**").permitAll() // 인증 없이 허용할 엔드포인트
+
                         .anyRequest().authenticated()
                 )
                 .formLogin(login -> login.disable()) // 기본 로그인 페이지 비활성화
