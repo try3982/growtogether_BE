@@ -1,8 +1,10 @@
 package com.campfiredev.growtogether.study.controller.join;
 
+import com.campfiredev.growtogether.study.dto.join.StudyMemberListDto;
 import com.campfiredev.growtogether.study.service.join.JoinService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -24,7 +26,7 @@ public class JoinController {
    */
   @PostMapping("{id}/join")
   public void join(@PathVariable Long id) {
-    joinService.join(8L,id);
+    joinService.join(9L,id);
   }
 
   /**
@@ -47,6 +49,21 @@ public class JoinController {
   @DeleteMapping("/join/{id}")
   public void cancelJoin(@PathVariable Long id) {
     joinService.cancelJoin(id);
+  }
+
+  /**
+   * 스터디 신청자 리스트(status = PENDING인 사람들만)
+   * @param id 스터디 id
+   * @return
+   */
+  @GetMapping("/{id}/pending")
+  public StudyMemberListDto pendingList(@PathVariable Long id) {
+    return joinService.getPendingList(id);
+  }
+
+  @GetMapping("/{id}/join")
+  public StudyMemberListDto joinList(@PathVariable Long id) {
+    return joinService.getJoinList(id);
   }
 }
 
