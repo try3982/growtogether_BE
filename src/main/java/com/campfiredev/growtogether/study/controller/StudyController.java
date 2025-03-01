@@ -28,6 +28,11 @@ public class StudyController {
     public StudyDTO getStudyById(@PathVariable Long studyId) {
         return studyService.getStudyById(studyId);
     }
+
+    @PutMapping("/{studyId}")
+    public StudyDTO updateStudy(@PathVariable Long studyId, @Valid @RequestBody StudyDTO dto) {
+        return studyService.updateStudy(studyId, dto);
+    }
 }
 
 

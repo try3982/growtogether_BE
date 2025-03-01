@@ -1,7 +1,6 @@
 package com.campfiredev.growtogether.study.service;
 
 import com.campfiredev.growtogether.exception.custom.CustomException;
-import com.campfiredev.growtogether.exception.response.ErrorCode;
 import com.campfiredev.growtogether.member.entity.MemberEntity;
 import com.campfiredev.growtogether.member.repository.MemberRepository;
 import com.campfiredev.growtogether.skill.entity.SkillEntity;
@@ -22,7 +21,7 @@ import static com.campfiredev.growtogether.exception.response.ErrorCode.*;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
+@Transactional
 public class StudyService {
 
     private final StudyRepository studyRepository;
@@ -33,15 +32,8 @@ public class StudyService {
 
     private final MemberRepository memberRepository;
 
-    @Transactional
     public StudyDTO createStudy(StudyDTO dto, long userId) {
-        validateDates(dto.getStudyStartDate(), dto.getStudyEndDate());
-
-        List<SkillEntity> skills = skillRepository.findBySkillNameIn(dto.getSkillNames());
-
-        if (dto.getSkillNames().size() != skills.size()) {
-            throw new CustomException(ErrorCode.INVALID_SKILL);
-        }
+        List<SkillEntity> skills = validateDates(dto);
 
         Study study = Study.fromDTO(dto);
 
@@ -70,19 +62,7 @@ public class StudyService {
 
         return StudyDTO.fromEntity(study);
     }
-
-    private void validateDates(Date studyStartDate, Date studyEndDate) {
-        Date currentDate = new Date();
-
-        if (studyStartDate.before(currentDate)) {
-            throw new CustomException(START_DATE_PAST);
-        }
-
-        if (studyEndDate.before(studyStartDate)) {
-            throw new CustomException(END_DATE_AFTER_START_DATE);
-        }
-    }
-
+    @Transactional(readOnly = true)
     public List<StudyDTO> getAllStudies() {
         return studyRepository.findByIsDeletedFalseOrderByCreatedAtDesc().stream()
                 .map(StudyDTO::fromEntity)
@@ -93,9 +73,62 @@ public class StudyService {
         Study study = studyRepository.findById(studyId)
                 .orElseThrow(() -> new CustomException(STUDY_NOT_FOUND));
 
-        if(study.getIsDeleted()){
+        if(Boolean.TRUE.equals(study.getIsDeleted())){
             throw new CustomException(ALREADY_DELETED_STUDY);
         }
+
+        study.updateViewCount();
         return StudyDTO.fromEntity(study);
+    }
+
+    public StudyDTO updateStudy(Long studyId, StudyDTO dto) {
+        Study study = studyRepository.findById(studyId)
+                .orElseThrow(() -> new CustomException(STUDY_NOT_FOUND));
+
+        List<SkillEntity> newSkills = validateDates(dto);
+        List<SkillStudy> existSkillStudies = study.getSkillStudies();
+
+        List<SkillStudy> toRemove = existSkillStudies.stream()
+                .filter(skillStudy -> !newSkills.contains(skillStudy.getSkill()))
+                .toList();
+
+        existSkillStudies.removeAll(toRemove);
+        skillStudyRepository.deleteAll(toRemove);
+
+        List<SkillStudy> newSkillStudies = newSkills.stream()
+                .filter(skill -> existSkillStudies.stream().noneMatch(skillStudy -> skillStudy.getSkill().equals(skill)))
+                .map(skill -> SkillStudy.builder()
+                        .skill(skill)
+                        .study(study)
+                        .build())
+                .toList();
+
+        skillStudyRepository.saveAll(newSkillStudies);
+
+        study.updateFromDto(dto,newSkillStudies);
+
+        return StudyDTO.fromEntity(study);
+    }
+
+    private List<SkillEntity> validateDates(StudyDTO dto) {
+        Date currentDate = new Date();
+        Date studyStartDate = dto.getStudyStartDate();
+        Date studyEndDate = dto.getStudyEndDate();
+
+        if (studyStartDate.before(currentDate)) {
+            throw new CustomException(START_DATE_PAST);
+        }
+
+        if (studyEndDate.before(studyStartDate)) {
+            throw new CustomException(END_DATE_AFTER_START_DATE);
+        }
+
+        List<SkillEntity> skills = skillRepository.findBySkillNameIn(dto.getSkillNames());
+
+        if (dto.getSkillNames().size() != skills.size()) {
+            throw new CustomException(INVALID_SKILL);
+        }
+
+        return skills;
     }
 }
