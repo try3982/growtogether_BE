@@ -19,10 +19,15 @@ public enum ErrorCode {
   USER_NOT_APPLIED("참가 신청 중인 유저가 아닙니다.",BAD_REQUEST),
   ALREADY_CONFIRMED("이미 참가 완료 된 유저입니다.",BAD_REQUEST),
   STUDY_FULL("모집 완료된 스터디입니다.",BAD_REQUEST),
+  STUDY_MEMBER_ONLY("참가 중인 사람만 투표할 수 있습니다.", BAD_REQUEST),
+  VOTING_ALREADY_EXISTS("이미 투표하셨습니다.", BAD_REQUEST),
+
 
   ALREADY_JOINED_STUDY("이미 참석 중인 스터디입니다.", BAD_REQUEST),
   NOT_A_STUDY_MEMBER("스터디 참가자가 아닙니다.", BAD_REQUEST),
   NOT_A_STUDY_LEADER("스터디 팀장이 아닙니다.", BAD_REQUEST),
+
+  VOTE_NOT_FOUND("존재하지 않는 투표입니다.", BAD_REQUEST),
 
   NOTICE_NOT_FOUND("존재하지 않는 공지사항입니다.",BAD_REQUEST),
 
