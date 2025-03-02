@@ -4,10 +4,7 @@ import com.campfiredev.growtogether.common.entity.BaseEntity;
 import com.campfiredev.growtogether.member.entity.MemberEntity;
 import com.campfiredev.growtogether.study.dto.StudyDTO;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.Date;
 import java.util.List;
@@ -34,6 +31,7 @@ public class Study extends BaseEntity {
 
     private Date studyEndDate;
 
+    @Setter
     private Boolean isDeleted;
 
     @Enumerated(EnumType.STRING)
