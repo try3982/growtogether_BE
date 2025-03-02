@@ -23,38 +23,32 @@ public class BootCampReviewController {
      * @return 성공메세지
      */
     @PostMapping
-    public ResponseEntity<?> createReview(@Valid @RequestBody BootCampReviewCreateDto.Request request) {
+    public ResponseEntity<BootCampReviewCreateDto> createReview(@Valid @RequestBody BootCampReviewCreateDto request) {
 
-
-        reviewService.createReview(request);
-
-        return ResponseEntity.ok("부트캠프 리뷰 등록이 완료되었습니다.");
+        return ResponseEntity.ok(reviewService.createReview(request));
     }
 
     /**
      * 부트캠프 리뷰 수정
-     * @param bootCampReviewId
+     * @param bootCampId
      * @param request
      * @return
      */
-    @PutMapping("/{bootCampReviewId}")
-    public ResponseEntity<?> updateReview(@PathVariable Long bootCampReviewId,@Valid @RequestBody BootCampReviewUpdateDto.Request request) {
+    @PutMapping("/{bootCampId}")
+    public ResponseEntity<BootCampReviewUpdateDto> updateReview(@PathVariable Long bootCampId,@Valid @RequestBody BootCampReviewUpdateDto request) {
 
-
-        reviewService.updateReview(bootCampReviewId , request);
-
-        return ResponseEntity.ok("부트캠프 리뷰 수정이 완료되었습니다.");
+        return ResponseEntity.ok(reviewService.updateReview(bootCampId , request));
     }
 
     /**
      * 부트캠프 리뷰 삭제
-     * @param bootCampReviewId
+     * @param bootCampId
      * @return
      */
-    @DeleteMapping("/{bootCampReviewId}")
-    public ResponseEntity<?> deleteReview(@PathVariable Long bootCampReviewId) {
+    @DeleteMapping("/{bootCampId}")
+    public ResponseEntity<String> deleteReview(@PathVariable Long bootCampId) {
 
-        reviewService.deleteReview(bootCampReviewId);
+        reviewService.deleteReview(bootCampId);
 
         return ResponseEntity.ok("부트캠프 리뷰 삭제가 완료되었습니다.");
     }
@@ -77,7 +71,24 @@ public class BootCampReviewController {
     /**
      * 부트캠프 상세 조회
      */
+    @GetMapping("/{bootCampId}")
+    public ResponseEntity<BootCampReviewResponseDto.Response> getBootCampDetail(@PathVariable Long bootCampId) {
 
+        BootCampReviewResponseDto.Response response = bootCampReviewService.getBootCampReviewDetail(bootCampId);
+
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * 부트캠프 좋아요
+     */
+    @PostMapping("/{bootCampId}/like")
+    public ResponseEntity<String> toggleLike(@PathVariable Long bootCampId , @RequestParam Long userId){
+
+        bootCampReviewService.toggleLike(bootCampId,userId);
+
+        return ResponseEntity.ok("좋아요 상태가 변경되었습니다.");
+    }
 
     /**
      * 부트캠프 검색 기능

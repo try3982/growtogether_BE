@@ -10,7 +10,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(name="boot_camp_skill")
+@Table(name="boot_camp_skill" , uniqueConstraints = @UniqueConstraint(columnNames = {"skill_id", "boot_camp_id"}))
 public class BootCampSkill {
 
     @Id
@@ -19,7 +19,7 @@ public class BootCampSkill {
     private Long bootCampSkillId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "boot_camp_review_id",nullable = false)
+    @JoinColumn(name = "boot_camp_id",nullable = false)
     private BootCampReview bootCampReview;
 
     @ManyToOne(fetch = FetchType.LAZY)
