@@ -16,6 +16,7 @@ public class StudyComment {
     private Long studyCommentId;
 
     @Column(nullable = false)
+    @Setter
     private String commentContent;
 
     @Column(nullable = false)

@@ -16,6 +16,7 @@ public enum ErrorCode {
   USER_NOT_FOUND("해당 유저가 존재하지 않습니다.",BAD_REQUEST),
   INSUFFICIENT_POINTS("포인트가 부족합니다.",BAD_REQUEST),
   STUDY_NOT_FOUND("존재하지 않는 스터디입니다.",BAD_REQUEST),
+  COMMENT_NOT_FOUND("존재하지 않는 댓글입니다.",BAD_REQUEST),
   USER_NOT_APPLIED("참가 신청 중인 유저가 아닙니다.",BAD_REQUEST),
   ALREADY_CONFIRMED("이미 참가 완료 된 유저입니다.",BAD_REQUEST),
   STUDY_FULL("모집 완료된 스터디입니다.",BAD_REQUEST),
