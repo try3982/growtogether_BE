@@ -9,8 +9,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class KickVoteDto {
+public class VotingDto {
 
-  private Long studyMemberId;
+  private boolean flag;
 
 }
