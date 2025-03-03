@@ -29,4 +29,9 @@ public class StudyCommentController {
     public StudyCommentDto updateComment(@PathVariable Long commentId, @Valid @RequestBody StudyCommentDto dto) {
         return studyCommentService.updateComment(commentId, dto);
     }
+
+    @DeleteMapping("/{commentId}")
+    public void deleteComment(@PathVariable Long commentId) {
+        studyCommentService.deleteComment(commentId);
+    }
 }
