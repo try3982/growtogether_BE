@@ -28,7 +28,7 @@ public class BootCampComment extends BaseEntity {
     private BootCampComment parentComment;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "boot_camp_review_id",nullable = false)
+    @JoinColumn(name = "boot_camp_id",nullable = false)
     private BootCampReview bootCampReview;
 
     //user 추가 예정
