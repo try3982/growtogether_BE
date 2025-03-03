@@ -121,7 +121,7 @@ class StudyServiceTest {
         List<Study> studies = Arrays.asList(study1, study2);
 
         // When
-        when(studyRepository.findAll()).thenReturn(studies);
+        when(studyRepository.findByIsDeletedFalseOrderByCreatedAtDesc()).thenReturn(studies);
 
         List<StudyDTO> result = studyService.getAllStudies();
 

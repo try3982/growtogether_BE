@@ -20,6 +20,8 @@ public enum ErrorCode {
   ALREADY_CONFIRMED("이미 참가 완료 된 유저입니다.",BAD_REQUEST),
   STUDY_FULL("모집 완료된 스터디입니다.",BAD_REQUEST),
 
+  ALREADY_DELETED_STUDY("이미 삭제된 게시글 입니다.",BAD_REQUEST),
+
   ALREADY_JOINED_STUDY("이미 참석 중인 스터디입니다.", BAD_REQUEST),
   NOT_A_STUDY_MEMBER("스터디 참가자가 아닙니다.", BAD_REQUEST),
   NOT_A_STUDY_LEADER("스터디 팀장이 아닙니다.", BAD_REQUEST),
