@@ -38,7 +38,11 @@ public enum ErrorCode {
 
   END_DATE_AFTER_START_DATE("종료 날짜는 시작 날짜 이후여야 합니다.",BAD_REQUEST),
 
-  REVIEW_NOT_FOUND("존재하지 않는 후기입니다.",BAD_REQUEST);
+  REVIEW_NOT_FOUND("존재하지 않는 후기입니다.",BAD_REQUEST),
+
+  COMMENT_NOT_FOUND("존재하지 않은 댓글입니다.",BAD_REQUEST),
+
+  COMMENT_ACCESS_DENIED("해당 댓글에 접근 권한이 없습니다.",BAD_REQUEST);
 
   private final String description;
 

@@ -1,9 +1,13 @@
 package com.campfiredev.growtogether.bootcamp.entity;
 
 import com.campfiredev.growtogether.common.entity.BaseEntity;
+import com.campfiredev.growtogether.member.entity.MemberEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @EntityListeners(AuditingEntityListener.class)
 @Entity
@@ -27,10 +31,17 @@ public class BootCampComment extends BaseEntity {
     @JoinColumn(name = "parent_comment_id")
     private BootCampComment parentComment;
 
+    @OneToMany(mappedBy = "parentComment", cascade = CascadeType.ALL,orphanRemoval = true)
+    private List<BootCampComment> childComments = new ArrayList<>();
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "boot_camp_id",nullable = false)
     private BootCampReview bootCampReview;
 
-    //user 추가 예정
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name="user_id",nullable = false)
+    private MemberEntity member;
 
+    @Column(nullable = false)
+    private Boolean isDeleted = false;
 }
