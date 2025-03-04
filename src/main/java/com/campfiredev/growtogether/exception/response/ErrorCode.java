@@ -24,6 +24,8 @@ public enum ErrorCode {
   VOTE_ALREADY_COMPLETE("이미 종료된 투표입니다.",BAD_REQUEST),
 
 
+  ALREADY_DELETED_STUDY("이미 삭제된 게시글 입니다.",BAD_REQUEST),
+
   ALREADY_JOINED_STUDY("이미 참석 중인 스터디입니다.", BAD_REQUEST),
   NOT_A_STUDY_MEMBER("스터디 참가자가 아닙니다.", BAD_REQUEST),
   NOT_A_STUDY_LEADER("스터디 팀장이 아닙니다.", BAD_REQUEST),
@@ -42,7 +44,11 @@ public enum ErrorCode {
 
   END_DATE_AFTER_START_DATE("종료 날짜는 시작 날짜 이후여야 합니다.",BAD_REQUEST),
 
-  REVIEW_NOT_FOUND("존재하지 않는 후기입니다.",BAD_REQUEST);
+  REVIEW_NOT_FOUND("존재하지 않는 후기입니다.",BAD_REQUEST),
+
+  COMMENT_NOT_FOUND("존재하지 않은 댓글입니다.",BAD_REQUEST),
+
+  COMMENT_ACCESS_DENIED("해당 댓글에 접근 권한이 없습니다.",BAD_REQUEST);
 
   private final String description;
 

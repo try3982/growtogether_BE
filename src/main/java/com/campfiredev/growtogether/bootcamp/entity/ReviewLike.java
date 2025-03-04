@@ -1,5 +1,6 @@
 package com.campfiredev.growtogether.bootcamp.entity;
 
+import com.campfiredev.growtogether.member.entity.MemberEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -9,17 +10,18 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(name="review_like")
+@Table(name="review_like", uniqueConstraints = @UniqueConstraint(columnNames = {"user_id","boot_camp_id"}))
 public class ReviewLike {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-
     private Long likeId;
 
-    //좋아요 누른 사용자 필드 생성 예정
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name="user_id",nullable = false)
+    private MemberEntity member;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name= "boot_camp_review_id",nullable = false)
+    @JoinColumn(name= "boot_camp_id",nullable = false)
     private BootCampReview bootCampReview;
 }
