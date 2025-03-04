@@ -1,5 +1,7 @@
-package com.campfiredev.growtogether.study.vote.dto;
+package com.campfiredev.growtogether.study.schedule.dto;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import lombok.AllArgsConstructor;
@@ -11,12 +13,15 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class UpdateScheduleDto {
+public class ScheduleUpdateDto {
 
-  private String content;
+  @NotBlank
+  private String title;
 
+  @NotNull
   private LocalDate date;
 
+  @NotNull
   private LocalTime time;
 
 }

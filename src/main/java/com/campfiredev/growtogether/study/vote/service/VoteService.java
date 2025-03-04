@@ -13,7 +13,7 @@ import com.campfiredev.growtogether.study.repository.join.JoinRepository;
 import com.campfiredev.growtogether.study.vote.ChangeVoteJob;
 import com.campfiredev.growtogether.study.vote.KickVoteJob;
 import com.campfiredev.growtogether.study.vote.SchedulerService;
-import com.campfiredev.growtogether.study.vote.dto.UpdateScheduleDto;
+import com.campfiredev.growtogether.study.schedule.dto.ScheduleUpdateDto;
 import com.campfiredev.growtogether.study.vote.dto.VotingDto;
 import com.campfiredev.growtogether.study.vote.dto.VoteCreateDto;
 import com.campfiredev.growtogether.study.vote.dto.VoteDto;
@@ -65,14 +65,14 @@ public class VoteService {
   }
 
   public void createChangeVote(Long memberId, Long studyId, Long scheduleId,
-      UpdateScheduleDto updateScheduleDto) {
+      ScheduleUpdateDto scheduleUpdateDto) {
     StudyMemberEntity studyMemberEntity = getStudyMemberEntity(memberId, studyId);
 
     String title = scheduleId + "번 스케줄 시간 변경 투표입니다.";
 
     ChangeVoteEntity save = changeVoteRepository.save(
-        ChangeVoteEntity.create(title, studyMemberEntity, updateScheduleDto.getContent(),
-            updateScheduleDto.getDate(), updateScheduleDto.getTime()));
+        ChangeVoteEntity.create(title, studyMemberEntity, scheduleUpdateDto.getTitle(),
+            scheduleUpdateDto.getDate(), scheduleUpdateDto.getTime()));
 
     scheduleJob(ChangeVoteJob.class, "changeJob", "changeGroup", 3, save.getId());
   }
