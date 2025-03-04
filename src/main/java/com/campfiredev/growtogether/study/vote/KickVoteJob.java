@@ -5,21 +5,18 @@ import lombok.RequiredArgsConstructor;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
+import org.springframework.scheduling.quartz.QuartzJobBean;
 import org.springframework.stereotype.Component;
 
 @Component
-@DisallowConcurrentExecution  // 같은 Job이 동시에 실행되지 않도록 설정
-@RequiredArgsConstructor
-public class KickVoteJob implements Job {
+public class KickVoteJob extends AbstractVoteJob {
 
-  private final VoteService voteService;
+  public KickVoteJob(VoteService voteService) {
+    super(voteService);
+  }
 
   @Override
-  public void execute(JobExecutionContext context) {
-    System.out.println("KickVoteJob");
-    Long id = context.getJobDetail().getJobDataMap().getLong("id");
-
+  protected void executeJob(VoteService voteService, Long id) {
     voteService.sumKickVote(id);
-
   }
 }

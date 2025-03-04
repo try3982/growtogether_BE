@@ -11,6 +11,6 @@ import lombok.NoArgsConstructor;
 @Builder
 public class VotingDto {
 
-  private boolean flag;
+  private boolean agree;
 
 }

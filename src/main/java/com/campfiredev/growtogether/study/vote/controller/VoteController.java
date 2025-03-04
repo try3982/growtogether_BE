@@ -23,32 +23,36 @@ public class VoteController {
 
   private final VoteService voteService;
 
-//  /**
-//   * 강퇴 투표
-//   * 로그인 구현 이후
-//   * @AuthenticationPrincipal로 사용자 정보 가져와 넘길 예정
-//   */
-//  @PostMapping("/{studyId}/kick_vote")
-//  public void kickVote(@PathVariable Long studyId, @RequestBody @Valid VotingDto votingDto){
-//    voteService.kickVote(3L, studyId, votingDto);
-//  }
-
+  /**
+   * 투표
+   * 로그인한 사용자 id 넘길 예정
+   * @param voteId 투표 id
+   * @param votingDto 찬반
+   */
   @PostMapping("/vote/{voteId}")
   public void vote(@PathVariable Long voteId, @RequestBody @Valid VotingDto votingDto) {
-    voteService.vote(2L, voteId, votingDto);
+    voteService.vote(1L, voteId, votingDto);
   }
 
+  /**
+   * 강퇴 투표 시작
+   * 로그인한 사용자 id 넘길 예정
+   */
   @PostMapping("/{studyId}/vote")
   public void createKickVote(@PathVariable Long studyId,
       @RequestBody @Valid VoteCreateDto voteCreateDto) {
     voteService.createKickVote(1L, studyId, voteCreateDto);
   }
 
+  /**
+   * 투표 리스트 조회
+   */
   @GetMapping("/{studyId}/vote")
   public ResponseEntity<List<VoteDto>> getPollsInProgress(@PathVariable Long studyId) {
     return ResponseEntity.ok(voteService.getVotes(studyId));
   }
 
+  //임시 테스트용
   @PostMapping("/{studyId}/change_vote")
   public void createChangeVote(@PathVariable Long studyId,
       @RequestBody @Valid UpdateScheduleDto updateScheduleDto) {

@@ -1,5 +1,6 @@
 package com.campfiredev.growtogether.study.vote.entity;
 
+import static com.campfiredev.growtogether.study.vote.type.VoteStatus.PROGRESS;
 import static com.campfiredev.growtogether.study.vote.type.VoteType.KICK;
 
 import com.campfiredev.growtogether.study.entity.join.StudyMemberEntity;
@@ -22,4 +23,14 @@ public class KickVoteEntity extends VoteEntity {
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "target_id")
   private StudyMemberEntity target;
+
+  public static KickVoteEntity create(String title, StudyMemberEntity studyMember, StudyMemberEntity target) {
+    return KickVoteEntity.builder()
+        .title(title)
+        .studyMember(studyMember)
+        .study(studyMember.getStudy())
+        .status(PROGRESS)
+        .target(target)
+        .build();
+  }
 }

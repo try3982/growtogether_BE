@@ -21,6 +21,7 @@ public enum ErrorCode {
   STUDY_FULL("모집 완료된 스터디입니다.",BAD_REQUEST),
   STUDY_MEMBER_ONLY("참가 중인 사람만 투표할 수 있습니다.", BAD_REQUEST),
   VOTING_ALREADY_EXISTS("이미 투표하셨습니다.", BAD_REQUEST),
+  VOTE_ALREADY_COMPLETE("이미 종료된 투표입니다.",BAD_REQUEST),
 
 
   ALREADY_JOINED_STUDY("이미 참석 중인 스터디입니다.", BAD_REQUEST),
