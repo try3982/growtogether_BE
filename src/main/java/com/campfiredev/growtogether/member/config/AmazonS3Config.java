@@ -31,11 +31,11 @@ public class AmazonS3Config {
         }
 
         BasicAWSCredentials awsCreds = new BasicAWSCredentials(credentials.accessKey, credentials.secretKey);
-      
+
         return AmazonS3ClientBuilder.standard()
-                .withRegion(Regions.fromName(region))
-                .withCredentials(new AWSStaticCredentialsProvider(awsCreds))
-                .build();
+            .withRegion(Regions.fromName(region))
+            .withCredentials(new AWSStaticCredentialsProvider(awsCreds))
+            .build();
     }
     @Getter
     @Setter
