@@ -33,7 +33,7 @@ public class SecurityConfig {
         return http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(authorizeRequests ->
                         authorizeRequests
-                                .requestMatchers("/api/email/**", "/member/**")
+                                .requestMatchers("/api/email/**", "/member/**", "/**")
                                 .permitAll()
                                 .requestMatchers("/logout/kakao", "/user-profile", "/home")
                                 .authenticated()
