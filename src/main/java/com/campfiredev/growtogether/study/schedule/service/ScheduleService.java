@@ -7,8 +7,10 @@ import static com.campfiredev.growtogether.study.type.StudyMemberType.NORMAL;
 
 import com.campfiredev.growtogether.exception.custom.CustomException;
 import com.campfiredev.growtogether.exception.response.ErrorCode;
+import com.campfiredev.growtogether.study.entity.Study;
 import com.campfiredev.growtogether.study.entity.join.StudyMemberEntity;
 import com.campfiredev.growtogether.study.repository.join.JoinRepository;
+import com.campfiredev.growtogether.study.schedule.dto.MainScheduleDto;
 import com.campfiredev.growtogether.study.schedule.dto.ScheduleCreateDto;
 import com.campfiredev.growtogether.study.schedule.dto.ScheduleDto;
 import com.campfiredev.growtogether.study.schedule.dto.ScheduleMonthDto;
@@ -17,7 +19,12 @@ import com.campfiredev.growtogether.study.schedule.entity.ScheduleEntity;
 import com.campfiredev.growtogether.study.schedule.repository.ScheduleRepository;
 import com.campfiredev.growtogether.study.vote.service.VoteService;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -33,6 +40,37 @@ public class ScheduleService {
   private final ScheduleRepository scheduleRepository;
   private final JoinRepository joinRepository;
   private final VoteService voteService;
+
+  public void createMainSchedule(Study study, Long memberId, List<MainScheduleDto> mainList) {
+    mainList.sort(Comparator.comparing(s -> s.getStartTime()));
+
+    for (int i = 1; i < mainList.size(); i++) {
+      MainScheduleDto prev = mainList.get(i - 1);
+      MainScheduleDto current = mainList.get(i);
+
+      if (!current.getStartTime().isAfter(prev.getStartTime())) {
+        throw new CustomException(ALREADY_EXISTS_SCHEDULE);
+      }
+    }
+
+    StudyMemberEntity studyMemberEntity = getStudyMemberEntity(study.getStudyId(), memberId);
+
+    DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
+
+    List<ScheduleEntity> schedules = mainList.stream()
+        .map(main -> ScheduleEntity.builder()
+            .title("메인 일정입니다.")
+            .studyMember(studyMemberEntity)
+            .study(study)
+            .date(LocalDate.parse(main.getStartTime().format(dateFormatter)))
+            .time(LocalTime.parse(main.getStartTime().format(timeFormatter)))
+            .type(MAIN)
+            .build())
+        .collect(Collectors.toList());
+
+    scheduleRepository.saveAll(schedules);
+  }
 
   public void createSchedule(Long studyId, Long memberId, ScheduleCreateDto scheduleCreateDto) {
     StudyMemberEntity studyMemberEntity = getStudyMemberEntity(studyId, memberId);

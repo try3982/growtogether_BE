@@ -29,9 +29,10 @@ public class ChangeVoteEntity extends VoteEntity {
   private LocalTime time;
 
   public static ChangeVoteEntity create(String title, StudyMemberEntity studyMemberEntity,
-      String content, LocalDate date, LocalTime time) {
+      String content, LocalDate date, LocalTime time, Long scheduleId) {
     return ChangeVoteEntity.builder()
         .title(title)
+        .scheduleId(scheduleId)
         .studyMember(studyMemberEntity)
         .study(studyMemberEntity.getStudy())
         .status(PROGRESS)

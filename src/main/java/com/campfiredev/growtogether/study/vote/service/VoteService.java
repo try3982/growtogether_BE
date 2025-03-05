@@ -72,7 +72,7 @@ public class VoteService {
 
     ChangeVoteEntity save = changeVoteRepository.save(
         ChangeVoteEntity.create(title, studyMemberEntity, scheduleUpdateDto.getTitle(),
-            scheduleUpdateDto.getDate(), scheduleUpdateDto.getTime()));
+            scheduleUpdateDto.getDate(), scheduleUpdateDto.getTime(), scheduleId));
 
     scheduleJob(ChangeVoteJob.class, "changeJob", "changeGroup", 3, save.getId());
   }

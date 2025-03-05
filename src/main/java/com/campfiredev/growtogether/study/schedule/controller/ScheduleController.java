@@ -29,23 +29,38 @@ public class ScheduleController {
 
   private final ScheduleService scheduleService;
 
+  /**
+   * 일정 추가
+   * 로그인 이후 사용자 id도 넘길 예정
+   */
   @PostMapping("/{studyId}/schedule")
   public void createSchedule(@PathVariable Long studyId,
       @RequestBody @Valid ScheduleCreateDto scheduleCreateDto) {
     scheduleService.createSchedule(studyId, 1L, scheduleCreateDto);
   }
 
+  /**
+   * 일정 수정
+   * 로그인 이후 사용자 id도 넘길 예정
+   */
   @PutMapping("/schedule/{scheduleId}")
   public void updateSchedule(@PathVariable Long scheduleId,
       @RequestBody @Valid ScheduleUpdateDto scheduleUpdateDto) {
     scheduleService.updateSchedule(1L, scheduleId, scheduleUpdateDto);
   }
 
+  /**
+   * 일정 삭제
+   * 로그인 이후 사용자 id도 넘길 예정
+   */
   @DeleteMapping("/schedule/{scheduleId}")
   public void deleteSchedule(@PathVariable Long scheduleId) {
     scheduleService.deleteSchedule(1L, scheduleId);
   }
 
+  /**
+   * 해당일의 일정 리스트 조회
+   */
   @GetMapping("/{studyId}/schedule")
   public ResponseEntity<List<ScheduleDto>> getSchedule(@PathVariable Long studyId,
       @RequestParam(required = false) LocalDate date) {
@@ -55,6 +70,9 @@ public class ScheduleController {
     return ResponseEntity.ok(scheduleService.getSchedules(studyId, date));
   }
 
+  /**
+   * 해당 달의 일정 리스트 조회
+   */
   @GetMapping("/{studyId}/schedules")
   public ResponseEntity<ScheduleMonthDto> getSchedules(@PathVariable Long studyId,
       @RequestParam(required = false) String date) {
