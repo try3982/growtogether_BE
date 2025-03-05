@@ -78,7 +78,7 @@ public class BootCampReviewCreateDto {
                 .toList();
 
         return BootCampReviewCreateDto.builder()
-                .userId(review.getMember().getUserId())
+                .userId(review.getMember().getMemberId())
                 .title(review.getTitle())
                 .content(review.getContent())
                 .bootCampName(review.getBootCampName())

@@ -90,7 +90,7 @@ class MemberServiceTest {
 
         // Then
         assertNotNull(result);
-        assertEquals(1L, result.getUserId());
+        assertEquals(1L, result.getMemberId());
         assertEquals(request.getNickName(), result.getNickName());
         assertEquals(request.getEmail(), result.getEmail());
         assertEquals(request.getPhone(), result.getPhone());

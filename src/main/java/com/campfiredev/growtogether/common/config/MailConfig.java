@@ -1,4 +1,4 @@
-package com.campfiredev.growtogether.member.config;
+package com.campfiredev.growtogether.common.config;
 
 
 import org.springframework.beans.factory.annotation.Value;

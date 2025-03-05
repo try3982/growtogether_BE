@@ -1,6 +1,8 @@
 package com.campfiredev.growtogether.member.dto;
 
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -8,7 +10,7 @@ import java.util.List;
 
 @Getter
 @Setter
-public class MemberDto {
+public class MemberRegisterDto {
 
     @NotBlank(message = "닉네임은 필수입니다.")
     private String nickName;
@@ -26,11 +28,11 @@ public class MemberDto {
     private String phone;
 
     @NotBlank(message = "비밀번호는 필수입니다.")
-    @Size(min = 8, max = 20, message = "비밀번호는 8자 이상 20자 이하이어야 합니다.")
-    @Pattern(
-            regexp = "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[!@#$%^&*()_+\\-={}\\[\\]:\";'<>?,./]).{8,20}$",
-            message = "비밀번호는 대문자, 소문자, 숫자, 특수문자를 포함해야 합니다."
-    )
+//    @Size(min = 8, max = 20, message = "비밀번호는 8자 이상 20자 이하이어야 합니다.")
+//    @Pattern(
+//            regexp = "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[!@#$%^&*()_+\\-={}\\[\\]:\";'<>?,./]).{8,20}$",
+//            message = "비밀번호는 대문자, 소문자, 숫자, 특수문자를 포함해야 합니다."
+//    )
     private String password;
 
     // 선택 입력 사항 (null 허용)

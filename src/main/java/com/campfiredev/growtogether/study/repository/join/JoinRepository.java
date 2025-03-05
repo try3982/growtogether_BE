@@ -21,7 +21,7 @@ public interface JoinRepository extends JpaRepository<StudyMemberEntity, Long> {
   Optional<StudyMemberEntity> findWithStudyAndMemberById(
       @Param("studyMemberId") Long studyMemberId);
 
-  @Query("SELECT sm.member.userId FROM StudyMemberEntity sm WHERE sm.id = :studyMemberId")
+  @Query("SELECT sm.member.memberId FROM StudyMemberEntity sm WHERE sm.id = :studyMemberId")
   Long getMemberIdByStudyMemberId(@Param("studyMemberId") Long studyMemberId);
 
   @Query("SELECT sm FROM StudyMemberEntity sm " +
@@ -31,7 +31,7 @@ public interface JoinRepository extends JpaRepository<StudyMemberEntity, Long> {
       @Param("statuses") List<StudyMemberType> statuses);
 
   @Query("SELECT sm FROM StudyMemberEntity sm "
-      + "WHERE sm.member.userId = :memberId AND sm.study.studyId = :studyId AND sm.status IN :statuses")
+      + "WHERE sm.member.memberId = :memberId AND sm.study.studyId = :studyId AND sm.status IN :statuses")
   Optional<StudyMemberEntity> findByMemberIdAndStudyIdInStatus(@Param("memberId") Long memberId,
       @Param("studyId") Long studyId, @Param("statuses") List<StudyMemberType> statuses);
 }

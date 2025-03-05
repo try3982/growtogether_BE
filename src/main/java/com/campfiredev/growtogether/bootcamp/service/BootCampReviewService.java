@@ -46,7 +46,7 @@ public class BootCampReviewService {
     @Transactional
     public BootCampReviewCreateDto createReview(BootCampReviewCreateDto request) {
 
-        MemberEntity member = memberRepository.findByUserId(request.getUserId())
+        MemberEntity member = memberRepository.findById(request.getUserId())
                         .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         BootCampReview review = request.toEntity(member);
