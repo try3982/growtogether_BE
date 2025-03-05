@@ -26,7 +26,7 @@ public class JoinController {
    */
   @PostMapping("{id}/join")
   public void join(@PathVariable Long id) {
-    joinService.join(2L,id);
+    joinService.join(3L,id);
   }
 
   /**

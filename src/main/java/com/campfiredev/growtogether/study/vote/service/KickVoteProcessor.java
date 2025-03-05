@@ -8,19 +8,17 @@ import com.campfiredev.growtogether.study.entity.join.StudyMemberEntity;
 import com.campfiredev.growtogether.study.repository.join.JoinRepository;
 import com.campfiredev.growtogether.study.vote.entity.KickVoteEntity;
 import com.campfiredev.growtogether.study.vote.entity.VoteEntity;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 @Component
 @Slf4j
+@RequiredArgsConstructor
 public class KickVoteProcessor implements VoteProcessor {
 
   private final JoinRepository joinRepository;
-
-  public KickVoteProcessor(JoinRepository joinRepository) {
-    this.joinRepository = joinRepository;
-  }
 
   @Override
   @Transactional

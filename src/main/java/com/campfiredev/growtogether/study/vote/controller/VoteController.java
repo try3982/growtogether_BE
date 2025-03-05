@@ -1,6 +1,6 @@
 package com.campfiredev.growtogether.study.vote.controller;
 
-import com.campfiredev.growtogether.study.vote.dto.UpdateScheduleDto;
+import com.campfiredev.growtogether.study.schedule.dto.ScheduleUpdateDto;
 import com.campfiredev.growtogether.study.vote.dto.VotingDto;
 import com.campfiredev.growtogether.study.vote.dto.VoteCreateDto;
 import com.campfiredev.growtogether.study.vote.dto.VoteDto;
@@ -31,7 +31,7 @@ public class VoteController {
    */
   @PostMapping("/vote/{voteId}")
   public void vote(@PathVariable Long voteId, @RequestBody @Valid VotingDto votingDto) {
-    voteService.vote(1L, voteId, votingDto);
+    voteService.vote(3L, voteId, votingDto);
   }
 
   /**
@@ -55,8 +55,8 @@ public class VoteController {
   //임시 테스트용
   @PostMapping("/{studyId}/change_vote")
   public void createChangeVote(@PathVariable Long studyId,
-      @RequestBody @Valid UpdateScheduleDto updateScheduleDto) {
-    voteService.createChangeVote(1L, studyId, 1L, updateScheduleDto);
+      @RequestBody @Valid ScheduleUpdateDto scheduleUpdateDto) {
+    voteService.createChangeVote(1L, studyId, 1L, scheduleUpdateDto);
   }
 
 }
