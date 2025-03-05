@@ -32,7 +32,7 @@ public class StudyMemberListDto {
 
     return new StudyMemberListDto(list.stream()
         .map(a -> Info.builder()
-            .userId(a.getMember().getUserId())
+            .userId(a.getMember().getMemberId())
             .nickname(a.getMember().getNickName())
             .studyMemberId(a.getId())
             .build())

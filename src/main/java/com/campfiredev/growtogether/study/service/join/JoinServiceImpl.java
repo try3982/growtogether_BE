@@ -77,7 +77,7 @@ public class JoinServiceImpl implements JoinService {
      * 포인트 확인 후 차감
      * 동시성 이슈로 인해 redisson lock 적용
      */
-    pointService.usePoint(studyMemberEntity.getMember().getUserId(),
+    pointService.usePoint(studyMemberEntity.getMember().getMemberId(),
         studyMemberEntity.getStudy().getStudyCount() * 5);
   }
 

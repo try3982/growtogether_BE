@@ -58,7 +58,7 @@ public class BootCampCommentService {
         BootCampComment comment = bootCampCommentRepository.findById(commentId)
                 .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
 
-/*        if(!comment.getMember().getUserId().equals(userId)){
+/*        if(!comment.getMember().getMemberId().equals(userId)){
             throw new CustomException(ErrorCode.COMMENT_ACCESS_DENIED);
         }*/
 
@@ -105,7 +105,7 @@ public class BootCampCommentService {
         return new CommentResponseDto(
                 comment.getBootCampCommentId(),
                 comment.getIsDeleted() ? "작성자에 의해 삭제된 댓글입니다." : comment.getCommentContent(),
-                comment.getMember().getUserId(),
+                comment.getMember().getMemberId(),
                 comment.getMember().getNickName(),
                 comment.getIsDeleted(),
                 childDtos
