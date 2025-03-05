@@ -82,7 +82,7 @@ public class ScheduleService {
   public void updateSchedule(Long memberId, Long scheduleId, ScheduleUpdateDto scheduleUpdateDto) {
     ScheduleEntity scheduleEntity = getScheduleEntity(scheduleId);
 
-    validateCreateVote(memberId, scheduleId, scheduleUpdateDto, scheduleEntity);
+    if(validateCreateVote(memberId, scheduleId, scheduleUpdateDto, scheduleEntity)) return;
 
     validateSameUser(memberId, scheduleEntity);
 
@@ -125,14 +125,16 @@ public class ScheduleService {
     return ScheduleMonthDto.from(collect);
   }
 
-  private void validateCreateVote(Long memberId, Long scheduleId, ScheduleUpdateDto scheduleUpdateDto,
+  private boolean validateCreateVote(Long memberId, Long scheduleId, ScheduleUpdateDto scheduleUpdateDto,
       ScheduleEntity scheduleEntity) {
     if (MAIN.equals(scheduleEntity.getType()) && (
         !scheduleEntity.getDate().equals(scheduleUpdateDto.getDate()) || !scheduleEntity.getTime()
             .equals(scheduleUpdateDto.getTime()))) {
       voteService.createChangeVote(memberId, scheduleEntity.getStudy().getStudyId(), scheduleId,
           scheduleUpdateDto);
+      return true;
     }
+    return false;
   }
 
   private void validateSameUser(Long memberId, ScheduleEntity scheduleEntity) {

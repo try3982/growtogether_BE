@@ -9,6 +9,7 @@ import com.campfiredev.growtogether.study.vote.entity.ChangeVoteEntity;
 import com.campfiredev.growtogether.study.vote.entity.VoteEntity;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class ChangeVoteProcessor implements VoteProcessor {
 
   private final ScheduleRepository scheduleRepository;
+  private final RedisTemplate<String, Object> redisTemplate;
 
   //임시 테스트용
   @Override
@@ -34,6 +36,8 @@ public class ChangeVoteProcessor implements VoteProcessor {
       scheduleEntity.setTitle(changeVoteEntity.getContent());
       scheduleEntity.setDate(changeVoteEntity.getDate());
       scheduleEntity.setTime(changeVoteEntity.getTime());
+
+      redisTemplate.delete("vote" + voteEntity.getId());
     }
   }
 }

@@ -31,7 +31,7 @@ public class VoteController {
    */
   @PostMapping("/vote/{voteId}")
   public void vote(@PathVariable Long voteId, @RequestBody @Valid VotingDto votingDto) {
-    voteService.vote(3L, voteId, votingDto);
+    voteService.vote(2L, voteId, votingDto);
   }
 
   /**
