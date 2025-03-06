@@ -20,19 +20,18 @@ import org.springframework.stereotype.Component;
 public class AmazonS3Config {
     private final Credentials credentials;
 
-    @Value("${cloud.aws.region}")
-    private String region;
+
 
     @Bean
     public AmazonS3 amazonS3() {
-        if (credentials.accessKey == null || credentials.secretKey == null || region == null) {
+        if (credentials.accessKey == null || credentials.secretKey == null || credentials.region == null) {
             throw new IllegalArgumentException("AWS Access Key, Secret Key 또는 Region이 설정되지 않았습니다.");
         }
 
         BasicAWSCredentials awsCreds = new BasicAWSCredentials(credentials.accessKey, credentials.secretKey);
 
         return AmazonS3ClientBuilder.standard()
-                .withRegion(Regions.fromName(region))
+                .withRegion(Regions.fromName(credentials.region))
                 .withCredentials(new AWSStaticCredentialsProvider(awsCreds))
                 .build();
     }
@@ -45,5 +44,8 @@ public class AmazonS3Config {
 
         @Value("${cloud.aws.credentials.secret-key}")
         private String secretKey;
+
+        @Value("${cloud.aws.credentials.region}")
+        private String region;
     }
 }
