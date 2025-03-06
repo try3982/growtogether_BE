@@ -43,21 +43,6 @@ public class JwtUtil {
                 .compact();
     }
 
-/*
-    // 리프레쉬 토큰을 발급하는 메서드
-    public String generateRefreshToken(Long memberId) {
-        log.info("리프레쉬 토큰이 발행되었습니다.");
-
-        return Jwts.builder()
-                   .claim("memberId",memberId.toString())
-                   .issuedAt(new Date())
-                   .expiration(new Date(System.currentTimeMillis() + expirationTime))
-                   .signWith(this.getSigningKey())
-                   .compact();
-    }
-*/
-
-
     // 응답 헤더에서 액세스 토큰을 반환하는 메서드
     public String getTokenFromHeader(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");

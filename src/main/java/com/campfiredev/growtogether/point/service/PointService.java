@@ -32,7 +32,7 @@ public class PointService {
             throw new CustomException(INSUFFICIENT_POINTS);
         }
 
-        // MemberEntity.usePoints(amount);
+         MemberEntity.usePoints(amount);
     }
 
     @RedissonLock(key = "point:#{#memberId}", waitTime = 5, leaseTime = 10)
