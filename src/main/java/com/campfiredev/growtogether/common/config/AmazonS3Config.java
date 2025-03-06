@@ -20,6 +20,8 @@ import org.springframework.stereotype.Component;
 public class AmazonS3Config {
     private final Credentials credentials;
 
+
+
     @Bean
     public AmazonS3 amazonS3() {
         if (credentials.accessKey == null || credentials.secretKey == null || credentials.region == null) {
@@ -45,6 +47,5 @@ public class AmazonS3Config {
 
         @Value("${cloud.aws.credentials.region}")
         private String region;
-
     }
 }
