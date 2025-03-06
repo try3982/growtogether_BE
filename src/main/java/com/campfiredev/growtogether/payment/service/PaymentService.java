@@ -1,6 +1,8 @@
 package com.campfiredev.growtogether.payment.service;
 
 import com.campfiredev.growtogether.common.config.PayConfig;
+import com.campfiredev.growtogether.member.entity.MemberEntity;
+import com.campfiredev.growtogether.member.service.MemberService;
 import com.campfiredev.growtogether.payment.dto.ApproveResponse;
 import com.campfiredev.growtogether.payment.dto.PaymentApprove;
 import com.campfiredev.growtogether.payment.dto.PaymentOrder;
@@ -24,6 +26,7 @@ public class PaymentService {
     private final RestTemplate restTemplate;
     private final PayConfig payConfig;
 
+    private final MemberService memberService;
     private final PointService pointService;
 
     // 카카오페이 요청 시 필요한 헤더 값
@@ -71,8 +74,9 @@ public class PaymentService {
                 new HttpEntity<>(parameters, getHeaders()),
                 ApproveResponse.class);
 
-        pointService.updatePoint(Long.valueOf(Objects.requireNonNull(approveResponse).partner_user_id()),
-                approveResponse.amount().total());
+        Long memberId = Long.valueOf(Objects.requireNonNull(approveResponse).partner_user_id());
+        MemberEntity memberEntity = memberService.findById(memberId);
+        pointService.updatePoint(memberEntity, approveResponse.amount().total());
 
         return approveResponse;
     }

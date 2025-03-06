@@ -25,20 +25,22 @@ public class S3Service {
 
     // 파일 업로드 (파일 키 반환)
     public String uploadFile(MultipartFile file) {
-        String fileKey = generateFileKey(file.getOriginalFilename());
+        String fileName = file.getOriginalFilename();
 
         try {
             ObjectMetadata metadata = new ObjectMetadata();
             metadata.setContentType(file.getContentType());
             metadata.setContentLength(file.getSize());
 
-            amazonS3.putObject(new PutObjectRequest(bucket, fileKey, file.getInputStream(), metadata)
+            amazonS3.putObject(new PutObjectRequest(bucket, fileName, file.getInputStream(), metadata)
                     .withCannedAcl(CannedAccessControlList.PublicRead));
 
-            return fileKey;  // 파일 키 반환
+            // 파일 주소 반환
+            return this.getFileUrl(fileName);
 
         } catch (IOException e) {
-            throw new RuntimeException("파일 업로드 실패: " + e.getMessage()); // 커스텀 예외 처리로 변경 필요
+            // 커스텀 예외 처리로 변경 필요
+            throw new RuntimeException("파일 업로드 실패: " + e.getMessage());
         }
     }
 
@@ -50,14 +52,13 @@ public class S3Service {
         }
     }
 
-
     // S3 URL 반환
     public String getFileUrl(String fileKey) {
         return amazonS3.getUrl(bucket, fileKey).toString();
     }
 
 
-    //   URL → 파일 키 변환
+/*    //   URL → 파일 키 변환
     public String extractFileKeyFromUrl(String fileUrl) {
         String prefix = amazonS3.getUrl(bucket, "").toString();
         return fileUrl.replace(prefix, "");
@@ -67,5 +68,6 @@ public class S3Service {
     private String generateFileKey(String originalFilename) {
         String extension = originalFilename.substring(originalFilename.lastIndexOf("."));
         return UUID.randomUUID() + extension;
-    }
+    }*/
+
 }

@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Entity
 @Table(name = "user_skill", uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"memberId", "skill_id"}) // memberId와 skill_id 조합을 유니크하게 설정
+        @UniqueConstraint(columnNames = {"member_id", "skill_id"}) // memberId와 skill_id 조합을 유니크하게 설정
 })
 @Getter
 @NoArgsConstructor
@@ -21,7 +21,7 @@ public class MemberSkillEntity {
     private Long userSkillId;
 
     @ManyToOne
-    @JoinColumn(name = "memberId", nullable = false)
+    @JoinColumn(name = "member_id", nullable = false)
     private MemberEntity user;
 
     @ManyToOne

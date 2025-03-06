@@ -11,6 +11,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Builder
 @Entity
 @Table(name = "member", uniqueConstraints = {
         @UniqueConstraint(columnNames = "email"),
@@ -18,7 +19,6 @@ import java.util.List;
         @UniqueConstraint(columnNames = "phone_number")
 })
 @Getter
-@Builder
 @NoArgsConstructor
 public class MemberEntity {
 
@@ -36,12 +36,12 @@ public class MemberEntity {
 
     @Column(name = "phone_number", nullable = true, length = 20)
     private String phone;
-    
+
     // 카카오 로그인 경우 null
     @Column(name = "password", nullable = true, length = 100)
     private String password;
 
-
+    // 추후 kakao에서 email 수집 확인 후 email 핸들링 로직 필요
     @Column(name = "email", nullable = false, length = 30)
     private String email;
 
@@ -53,8 +53,8 @@ public class MemberEntity {
     private String githubUrl;
 
     @Setter
-    @Column(name = "profile_image_key")
-    private String profileImageKey;
+    @Column(name = "profile_image_url")
+    private String profileImageUrl;
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
@@ -69,7 +69,7 @@ public class MemberEntity {
     private List<MemberSkillEntity> userSkills;
 
     @Builder
-    public MemberEntity(Long memberId, String kakaoId, String nickName, String phone, String password, String email, Integer points, String githubUrl, String profileImageKey, LocalDateTime createdAt, LocalDateTime updatedAt, List<MemberSkillEntity> userSkills) {
+    public MemberEntity(Long memberId, String kakaoId, String nickName, String phone, String password, String email, Integer points, String githubUrl, String profileImageUrl, LocalDateTime createdAt, LocalDateTime updatedAt, List<MemberSkillEntity> userSkills) {
         this.memberId =memberId;
         this.kakaoId = kakaoId;
         this.nickName = nickName;
@@ -78,10 +78,14 @@ public class MemberEntity {
         this.email = email;
         this.points = points;
         this.githubUrl = githubUrl;
-        this.profileImageKey = profileImageKey;
+        this.profileImageUrl = profileImageUrl;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
         this.userSkills = userSkills;
+    }
+
+    public void usePoints(int amount){
+        points -= amount;
     }
 
 }
