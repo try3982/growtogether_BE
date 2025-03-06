@@ -6,13 +6,16 @@ import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.campfiredev.growtogether.exception.custom.CustomException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.UUID;
+
+import static com.campfiredev.growtogether.exception.response.ErrorCode.FILE_UPLOAD_FAILED;
+import static com.campfiredev.growtogether.exception.response.ErrorCode.STUDY_MEMBER_ONLY;
 
 @Service
 @RequiredArgsConstructor
@@ -39,8 +42,8 @@ public class S3Service {
             return this.getFileUrl(fileName);
 
         } catch (IOException e) {
-            // 커스텀 예외 처리로 변경 필요
-            throw new RuntimeException("파일 업로드 실패: " + e.getMessage());
+            throw new CustomException(FILE_UPLOAD_FAILED);
+
         }
     }
 
@@ -57,17 +60,5 @@ public class S3Service {
         return amazonS3.getUrl(bucket, fileKey).toString();
     }
 
-
-/*    //   URL → 파일 키 변환
-    public String extractFileKeyFromUrl(String fileUrl) {
-        String prefix = amazonS3.getUrl(bucket, "").toString();
-        return fileUrl.replace(prefix, "");
-    }
-
-    // 파일 키 생성
-    private String generateFileKey(String originalFilename) {
-        String extension = originalFilename.substring(originalFilename.lastIndexOf("."));
-        return UUID.randomUUID() + extension;
-    }*/
 
 }
