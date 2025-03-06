@@ -22,6 +22,10 @@ public enum ErrorCode {
   STUDY_MEMBER_ONLY("참가 중인 사람만 투표할 수 있습니다.", BAD_REQUEST),
   VOTING_ALREADY_EXISTS("이미 투표하셨습니다.", BAD_REQUEST),
   VOTE_ALREADY_COMPLETE("이미 종료된 투표입니다.",BAD_REQUEST),
+  SCHEDULE_NOT_FOUND("존재하지 않는 일정입니다.",BAD_REQUEST),
+  NOT_AUTHOR("작성자가 아닙니다.",BAD_REQUEST),
+  CANNOT_DELETE_MAIN_SCHEDULE("메인 일정은 삭제할 수 없습니다.",HttpStatus.BAD_REQUEST),
+  ALREADY_EXISTS_SCHEDULE("겹치는 일정이 존재합니다.",BAD_REQUEST),
 
   // 파일 업로드 관련 예외
   FILE_UPLOAD_FAILED("파일 업로드에 실패했습니다.", HttpStatus.BAD_REQUEST),
@@ -58,7 +62,9 @@ public enum ErrorCode {
 
   COMMENT_NOT_FOUND("존재하지 않은 댓글입니다.",BAD_REQUEST),
 
-  COMMENT_ACCESS_DENIED("해당 댓글에 접근 권한이 없습니다.",BAD_REQUEST);
+  COMMENT_ACCESS_DENIED("해당 댓글에 접근 권한이 없습니다.",BAD_REQUEST),
+
+  NOTI_NOT_FOUND("해당 알림을 찾을 수 없습니다.",BAD_REQUEST);
 
   private final String description;
 
