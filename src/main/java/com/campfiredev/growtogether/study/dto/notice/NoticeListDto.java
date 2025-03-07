@@ -1,6 +1,7 @@
 package com.campfiredev.growtogether.study.dto.notice;
 
 import com.campfiredev.growtogether.study.entity.notice.NoticeEntity;
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -23,8 +24,7 @@ public class NoticeListDto {
 
     private String title;
 
-    //BaseEntity 이후 추가
-    //private LocalDateTime createdAt;
+    private LocalDateTime createdAt;
   }
 
   public static NoticeListDto fromEntityPage(Page<NoticeEntity> noticePage) {
@@ -32,7 +32,7 @@ public class NoticeListDto {
         Summary.builder()
             .noticeId(notice.getId())
             .title(notice.getTitle())
-            //.createdAt(notice.getCreatedAt()) // BaseEntity 추가 후 활성화
+            .createdAt(notice.getCreatedAt())
             .build()
     );
     return new NoticeListDto(summaryPage);

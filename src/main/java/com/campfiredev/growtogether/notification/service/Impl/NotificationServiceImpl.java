@@ -3,6 +3,7 @@ package com.campfiredev.growtogether.notification.service.Impl;
 import com.campfiredev.growtogether.exception.custom.CustomException;
 import com.campfiredev.growtogether.exception.response.ErrorCode;
 import com.campfiredev.growtogether.member.entity.MemberEntity;
+import com.campfiredev.growtogether.member.repository.MemberRepository;
 import com.campfiredev.growtogether.notification.dto.NotificationDto;
 import com.campfiredev.growtogether.notification.entity.Notification;
 import com.campfiredev.growtogether.notification.repository.EmitterRepository;
@@ -26,6 +27,7 @@ public class NotificationServiceImpl implements NotificationService {
     private final NotificationRepository notificationRepository;
     private final EmitterRepository emitterRepository;
     private static final Long DEFAULT_TIMEOUT = 60L * 1000 * 60; // 60분 타임 아웃
+    private final MemberRepository memberRepository;
 
     /**
      * 클라이언트가 SSE(Server - Sent Events) 알림을 구독하기 위해 호출하는 메서드
@@ -68,12 +70,19 @@ public class NotificationServiceImpl implements NotificationService {
 
     /**
      * 사용자의 읽지 않은 알림 목록 조회
-     * @param member 알림을 조회할 사용자
+     * @param
      * @return 읽지 않는 알림 리스트
      */
     @Override
-    public List<Notification> getUnReadNotifiactions(MemberEntity member) {
-        return notificationRepository.findByMemberAndIsCheckFalse(member);
+    public List<NotificationDto> getUnReadNotifiactions(Long id) {
+
+        MemberEntity member = memberRepository.findById(id)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        List<Notification> notifications = notificationRepository.findByMemberAndIsCheckFalseOrderByCreatedAtDesc(member);
+
+        return notifications.stream().map(notification -> new NotificationDto(notification.getContent(),notification.getType()))
+                .toList();
     }
 
     /**
