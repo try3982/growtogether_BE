@@ -42,6 +42,7 @@ public class SecurityConfig {
                 )
                 .authorizeHttpRequests(authorizeRequests ->
                         authorizeRequests
+
                                 // 퍼블릭 URL은 인증 없이 허용
                                 .requestMatchers(PUBLIC_URLS).permitAll()
                                 // 그 외의 요청은 인증 필요
@@ -51,6 +52,14 @@ public class SecurityConfig {
                         .accessDeniedHandler(jwtAccessDeniedHandler)
                 )
                 .addFilterBefore(new JwtAuthenticationFilter(PUBLIC_URLS, jwtUtil), UsernamePasswordAuthenticationFilter.class)
+
+                                .requestMatchers("/api/email/**", "/member/**", "/**")
+                                .permitAll()
+                                .requestMatchers("/logout/kakao", "/user-profile", "/home")
+                                .authenticated()
+                                .anyRequest().permitAll())
+                .csrf(AbstractHttpConfigurer::disable)
+                .oauth2Login(oauth2Login -> oauth2Login.successHandler(authLoginSuccessHandler))
                 .build();
     }
 

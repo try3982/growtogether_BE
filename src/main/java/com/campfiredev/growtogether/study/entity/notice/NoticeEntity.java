@@ -1,15 +1,23 @@
 package com.campfiredev.growtogether.study.entity.notice;
 
+import com.campfiredev.growtogether.common.entity.BaseEntity;
+import com.campfiredev.growtogether.study.entity.Study;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 @Entity
 @Getter
@@ -18,7 +26,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @Table(name = "study_notice")
 //BaseEntity 상속 예정
-public class NoticeEntity {
+public class NoticeEntity extends BaseEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,23 +34,15 @@ public class NoticeEntity {
   private Long id;
 
   @Column(nullable = false)
+  @Setter
   private String title;
 
   @Column(columnDefinition = "TEXT", nullable = false)
+  @Setter
   private String content;
 
-//  @ManyToOne(fetch = FetchType.LAZY)
-//  @JoinColumn(name = "study_id", nullable = false)
-//  @OnDelete(action = OnDeleteAction.CASCADE)
-//  private StudyEntity study;
-
-  //임시
-  private Long studyId;
-
-  public NoticeEntity updateNotice(String title, String content){
-    this.title = title;
-    this.content = content;
-
-    return this;
-  }
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "study_id", nullable = false)
+  @OnDelete(action = OnDeleteAction.CASCADE)
+  private Study study;
 }
