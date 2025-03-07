@@ -35,7 +35,7 @@ import org.hibernate.annotations.OnDeleteAction;
 @Builder
 @Table(name = "study_member",
     uniqueConstraints = {
-        @UniqueConstraint(name = "unique_study_user", columnNames = {"study_id", "user_id"})
+        @UniqueConstraint(name = "unique_study_user", columnNames = {"study_id", "member_id"})
     }
 )
 public class StudyMemberEntity extends BaseEntity {
@@ -58,7 +58,7 @@ public class StudyMemberEntity extends BaseEntity {
   private Study study;
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "user_id", nullable = false)
+  @JoinColumn(name = "member_id", nullable = false)
   @OnDelete(action = OnDeleteAction.CASCADE)
   private MemberEntity member;
 
