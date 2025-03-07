@@ -6,13 +6,16 @@ import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.campfiredev.growtogether.exception.custom.CustomException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.UUID;
+
+import static com.campfiredev.growtogether.exception.response.ErrorCode.FILE_UPLOAD_FAILED;
+import static com.campfiredev.growtogether.exception.response.ErrorCode.STUDY_MEMBER_ONLY;
 
 @Service
 @RequiredArgsConstructor
@@ -25,20 +28,22 @@ public class S3Service {
 
     // 파일 업로드 (파일 키 반환)
     public String uploadFile(MultipartFile file) {
-        String fileKey = generateFileKey(file.getOriginalFilename());
+        String fileName = file.getOriginalFilename();
 
         try {
             ObjectMetadata metadata = new ObjectMetadata();
             metadata.setContentType(file.getContentType());
             metadata.setContentLength(file.getSize());
 
-            amazonS3.putObject(new PutObjectRequest(bucket, fileKey, file.getInputStream(), metadata)
+            amazonS3.putObject(new PutObjectRequest(bucket, fileName, file.getInputStream(), metadata)
                     .withCannedAcl(CannedAccessControlList.PublicRead));
 
-            return fileKey;  // 파일 키 반환
+            // 파일 주소 반환
+            return this.getFileUrl(fileName);
 
         } catch (IOException e) {
-            throw new RuntimeException("파일 업로드 실패: " + e.getMessage()); // 커스텀 예외 처리로 변경 필요
+            throw new CustomException(FILE_UPLOAD_FAILED);
+
         }
     }
 
@@ -50,22 +55,10 @@ public class S3Service {
         }
     }
 
-
     // S3 URL 반환
     public String getFileUrl(String fileKey) {
         return amazonS3.getUrl(bucket, fileKey).toString();
     }
 
 
-    //   URL → 파일 키 변환
-    public String extractFileKeyFromUrl(String fileUrl) {
-        String prefix = amazonS3.getUrl(bucket, "").toString();
-        return fileUrl.replace(prefix, "");
-    }
-
-    // 파일 키 생성
-    private String generateFileKey(String originalFilename) {
-        String extension = originalFilename.substring(originalFilename.lastIndexOf("."));
-        return UUID.randomUUID() + extension;
-    }
 }

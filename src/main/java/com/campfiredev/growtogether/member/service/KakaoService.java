@@ -31,14 +31,14 @@ public class KakaoService {
 
     @Transactional
     public String getAccessToken(String accessCode) {
-        KakaoTokenDto kakaoToken = getKakaoToken(accessCode);
-        KakaoUserDto kakaoUserInfo = getKakaoUserInfo(kakaoToken.getAccessToken());
+        KakaoTokenDto kakaoToken = this.getKakaoToken(accessCode);
+        KakaoUserDto kakaoUserInfo = this.getKakaoUserInfo(kakaoToken.getAccessToken());
         MemberEntity memberEntity = memberService.kakaoLogin(kakaoUserInfo);
-        return jwtUtil.generateAccessToken(memberEntity.getMemberId());
+        return jwtUtil.generateAccessToken(memberEntity.getEmail());
     }
 
     // 카카오 Token 요청
-    public KakaoTokenDto getKakaoToken(String accessCode) {
+    private KakaoTokenDto getKakaoToken(String accessCode) {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
@@ -59,7 +59,7 @@ public class KakaoService {
     }
 
     // 카카오 사용자 정보 가져오기
-    public KakaoUserDto getKakaoUserInfo(String accessToken) {
+    private KakaoUserDto getKakaoUserInfo(String accessToken) {
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Bearer " + accessToken);
 

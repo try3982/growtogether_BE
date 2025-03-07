@@ -7,6 +7,10 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.LocalDate;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 @Configuration
 @EnableConfigurationProperties({
         ProviderConfig.class,
@@ -25,5 +29,9 @@ public class BeanConfig {
         return new BCryptPasswordEncoder();
     }
 
+    @Bean
+    public Map<String, LocalDate> lastLoginMap() {
+        return new ConcurrentHashMap<>();
+    }
 
 }

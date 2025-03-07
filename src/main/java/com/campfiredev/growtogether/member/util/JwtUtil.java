@@ -1,5 +1,6 @@
 package com.campfiredev.growtogether.member.util;
 
+import com.campfiredev.growtogether.exception.custom.CustomException;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
@@ -11,6 +12,9 @@ import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
+
+import static com.campfiredev.growtogether.exception.response.ErrorCode.EXPIRED_TOKEN;
+import static com.campfiredev.growtogether.exception.response.ErrorCode.NOT_VALID_TOKEN;
 
 @Slf4j
 @Component
@@ -28,29 +32,16 @@ public class JwtUtil {
     }
 
     // 액세스 토큰을 발급하는 메서드
-    public String generateAccessToken(Long memberId) {
+    public String generateAccessToken(String email) {
         log.info("액세스 토큰이 발행되었습니다.");
 
         return Jwts.builder()
-                   .claim("memberId",memberId.toString()) // 클레임에memberId 추가
-                   .issuedAt(new Date())
-                   .expiration(new Date(System.currentTimeMillis() + expirationTime))
-                   .signWith(this.getSigningKey())
-                   .compact();
+                .claim("email", email) // 클레임에 user email을 추가
+                .issuedAt(new Date())
+                .expiration(new Date(System.currentTimeMillis() + expirationTime))
+                .signWith(this.getSigningKey())
+                .compact();
     }
-
-    // 리프레쉬 토큰을 발급하는 메서드
-    public String generateRefreshToken(Long memberId) {
-        log.info("리프레쉬 토큰이 발행되었습니다.");
-
-        return Jwts.builder()
-                   .claim("memberId",memberId.toString()) // 클레임에memberId 추가
-                   .issuedAt(new Date())
-                   .expiration(new Date(System.currentTimeMillis() + expirationTime))
-                   .signWith(this.getSigningKey())
-                   .compact();
-    }
-
 
     // 응답 헤더에서 액세스 토큰을 반환하는 메서드
     public String getTokenFromHeader(HttpServletRequest request) {
@@ -62,38 +53,32 @@ public class JwtUtil {
     }
 
     // 토큰에서 유저 id를 반환하는 메서드
-    public String getMemberIdFromToken(String token) {
+    public String getMemberEmailFromToken(String token) {
         try {
-            String memberId = Jwts.parser()
-                                .verifyWith(this.getSigningKey())
-                                .build()
-                                .parseSignedClaims(token)
-                                .getPayload()
-                                .get("memberId", String.class);
-            log.info("유저 id를 반환합니다.");
-            return memberId;
+            return Jwts.parser()
+                    .verifyWith(this.getSigningKey())
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload()
+                    .get("email", String.class);
         } catch (JwtException | IllegalArgumentException e) {
-            // 토큰이 유효하지 않은 경우
-            log.warn("유효하지 않은 토큰입니다.");
-            throw new RuntimeException();
+            throw new CustomException(NOT_VALID_TOKEN);
         }
     }
 
     // Jwt 토큰의 유효기간을 확인하는 메서드
     public boolean isTokenValid(String token) {
         try {
-            Date expirationDate = Jwts.parser()
-                                      .verifyWith(this.getSigningKey())
-                                      .build()
-                                      .parseSignedClaims(token)
-                                      .getPayload()
-                                      .getExpiration();
-            log.info("토큰의 유효기간을 확인합니다.");
-            return expirationDate.before(new Date());
+            return Jwts.parser()
+                    .verifyWith(this.getSigningKey())
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload()
+                    .getExpiration()
+                    .before(new Date());
         } catch (JwtException | IllegalArgumentException e) {
-            // 토큰이 유효하지 않은 경우
-            log.warn("유효하지 않은 토큰입니다.");
-            throw new RuntimeException();
+            throw new CustomException(EXPIRED_TOKEN);
         }
     }
+
 }

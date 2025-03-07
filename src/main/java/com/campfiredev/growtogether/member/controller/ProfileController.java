@@ -1,7 +1,7 @@
 package com.campfiredev.growtogether.member.controller;
 
-import com.campfiredev.growtogether.member.service.S3Service;
 import com.campfiredev.growtogether.member.service.MemberService;
+import com.campfiredev.growtogether.member.service.S3Service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -29,7 +29,7 @@ public class ProfileController {
         String fileUrl = s3Service.getFileUrl(fileKey);
         return ResponseEntity.ok(Map.of("profileImageUrl", fileUrl));
     }
-  // 사용자 ID로 프로필 이미지 조회
+    // 사용자 ID로 프로필 이미지 조회
     @GetMapping("/image/{memberId}")
     public ResponseEntity<?> getProfileImageBymemberId(@PathVariable Long memberId) {
         String fileUrl = memberService.getProfileImageUrl(memberId);

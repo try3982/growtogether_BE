@@ -27,6 +27,16 @@ public enum ErrorCode {
   CANNOT_DELETE_MAIN_SCHEDULE("메인 일정은 삭제할 수 없습니다.",HttpStatus.BAD_REQUEST),
   ALREADY_EXISTS_SCHEDULE("겹치는 일정이 존재합니다.",BAD_REQUEST),
 
+  // 파일 업로드 관련 예외
+  FILE_UPLOAD_FAILED("파일 업로드에 실패했습니다.", HttpStatus.BAD_REQUEST),
+  FILE_SIZE_EXCEEDED("파일 크기 제한을 초과했습니다.", HttpStatus.PAYLOAD_TOO_LARGE),
+  UNSUPPORTED_FILE_TYPE("지원되지 않는 파일 형식입니다.", HttpStatus.UNSUPPORTED_MEDIA_TYPE),
+  FILE_STORAGE_ERROR("파일 저장 중 오류가 발생했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
+
+  //jwt exception
+  NOT_VALID_TOKEN("토큰이 유효하지 않습니다.", UNAUTHORIZED),
+  EXPIRED_TOKEN("토큰이 만료되었습니다.", UNAUTHORIZED),
+
 
   ALREADY_DELETED_STUDY("이미 삭제된 게시글 입니다.",BAD_REQUEST),
 
@@ -60,4 +70,3 @@ public enum ErrorCode {
 
   private final HttpStatus status;
 }
-
