@@ -1,5 +1,6 @@
 package com.campfiredev.growtogether.study.dto.notice;
 
+import com.campfiredev.growtogether.study.entity.Study;
 import com.campfiredev.growtogether.study.entity.notice.NoticeEntity;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -23,11 +24,11 @@ public class NoticeCreateDto {
     @NotBlank
     private String content;
 
-    public NoticeEntity toEntity(Long studyId){
+    public NoticeEntity toEntity(Study study){
       return NoticeEntity.builder()
           .title(title)
           .content(content)
-          .studyId(studyId) // 임시
+          .study(study)
           .build();
 
     }
