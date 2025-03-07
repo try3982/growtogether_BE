@@ -26,7 +26,7 @@ public class S3Service {
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
 
-    // 파일 업로드 (파일 키 반환)
+    // 파일 업로드
     public String uploadFile(MultipartFile file) {
         String fileName = file.getOriginalFilename();
 
