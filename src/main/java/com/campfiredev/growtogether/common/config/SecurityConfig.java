@@ -22,7 +22,7 @@ public class SecurityConfig {
     private static final String[] PUBLIC_URLS = {
             // spring default url
             "/error",
-            "/favicon.ico",
+            "favicon.ico",
 
             // login & kakao oauth
             "/login",

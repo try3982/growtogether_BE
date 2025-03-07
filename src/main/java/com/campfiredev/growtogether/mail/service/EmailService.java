@@ -74,4 +74,23 @@ public class EmailService {
 
         return storedCode != null && storedCode.equals(code);
     }
+    public void sendPasswordResetEmail(String toEmail, String resetUrl) {
+        String subject = "GrowTogether 비밀번호 재설정 안내";
+        String content = "<h3>비밀번호 재설정 링크:</h3>" +
+                "<p>아래 링크를 클릭하여 새로운 비밀번호를 설정하세요.</p>" +
+                "<a href='" + resetUrl + "'>" + resetUrl + "</a>";
+
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, false, "UTF-8");
+
+            helper.setTo(toEmail);
+            helper.setSubject(subject);
+            helper.setText(content, true);
+
+            mailSender.send(message);
+        } catch (MessagingException e) {
+            throw new RuntimeException("이메일 전송에 실패했습니다.");
+        }
+    }
 }

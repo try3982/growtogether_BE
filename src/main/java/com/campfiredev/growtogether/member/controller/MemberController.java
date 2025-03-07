@@ -33,5 +33,17 @@ public class MemberController {
         String accessToken = memberService.userLogin(memberLoginDto);
         return ResponseEntity.ok(Map.of("message", "로그인이 완료되었습니다.", "accessToken", accessToken));
     }
+    // 비밀번호 재설정 요청 (이메일 전송)
+    @PostMapping("/forgot-password")
+    public ResponseEntity<?> forgotPassword(@RequestParam String email) {
+        memberService.sendPasswordResetEmail(email);
+        return ResponseEntity.ok(Map.of("message", "비밀번호 재설정 이메일이 전송되었습니다."));
+    }
+    // 비밀번호 재설정 처리
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> resetPassword(@RequestParam String token, @RequestParam String newPassword) {
+        memberService.resetPassword(token, newPassword);
+        return ResponseEntity.ok(Map.of("message", "비밀번호가 성공적으로 변경되었습니다."));
+    }
 
 }
