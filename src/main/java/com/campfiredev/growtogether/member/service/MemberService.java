@@ -224,4 +224,29 @@ public class MemberService {
         redisTemplate.delete(RESET_PASSWORD_PREFIX + token);
     }
 
+    // 이메일 찾기 (마스킹 처리 후 반환)
+    public String findEmail(String email) {
+        MemberEntity member = memberRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("가입된 이메일이 없습니다."));
+
+        return maskEmail(member.getEmail());
+    }
+
+    // 이메일 마스킹 처리
+    private String maskEmail(String email) {
+        int atIndex = email.indexOf("@"); // @ 위치 찾기
+        if (atIndex < 2) {  // 이메일이 너무 짧으면 최소한만 마스킹
+            return "*".repeat(atIndex) + email.substring(atIndex);
+        }
+
+        String firstPart = email.substring(0, 2);  // 앞 2글자 유지
+        String maskedPart = "*".repeat(Math.max(atIndex - 4, 2)); // 중간 부분 마스킹 (최소 2개)
+        String lastPart = email.substring(atIndex - 2, atIndex); // @ 앞 2글자 유지
+        String domain = email.substring(atIndex); // 도메인은 그대로
+
+        return firstPart + maskedPart + lastPart + domain;
+    }
+
+
+
 }

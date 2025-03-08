@@ -77,8 +77,12 @@ public class EmailService {
     public void sendPasswordResetEmail(String toEmail, String resetUrl) {
         String subject = "GrowTogether 비밀번호 재설정 안내";
         String content = "<h3>비밀번호 재설정 링크:</h3>" +
+                "<p>안녕하세요. 이 메일은 귀하의 이요예정 비밀번호 요청에 의해 발송되었습습니다.<p>"+
                 "<p>아래 링크를 클릭하여 새로운 비밀번호를 설정하세요.</p>" +
-                "<a href='" + resetUrl + "'>" + resetUrl + "</a>";
+                "<a href='" + resetUrl + "'>" + resetUrl + "</a>" +
+                "<p>해당 링크는 5분 후 만료됩니다.</p>"+
+                "<p></p>"+
+                "<p>감사합니다.</p>";
 
         try {
             MimeMessage message = mailSender.createMimeMessage();
