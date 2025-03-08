@@ -4,6 +4,7 @@ import com.campfiredev.growtogether.study.entity.schedule.ScheduleEntity;
 import com.campfiredev.growtogether.study.type.ScheduleType;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -13,29 +14,25 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ScheduleDto {
+public class ScheduleAttendeeDto {
 
   private Long scheduleId;
-
   private String title;
-
   private LocalDate date;
-
   private LocalTime time;
-
-  private ScheduleType scheduleType;
-
+  private ScheduleType type;
   private String creator;
+  private List<String> attendedNicknames;
 
-  public static ScheduleDto fromEntity(ScheduleEntity scheduleEntity) {
-    return ScheduleDto.builder()
-        .scheduleId(scheduleEntity.getId())
-        .title(scheduleEntity.getTitle())
-        .date(scheduleEntity.getDate())
-        .time(scheduleEntity.getTime())
-        .scheduleType(scheduleEntity.getType())
-        .creator(scheduleEntity.getStudyMember().getMember().getNickName())
+  public static ScheduleAttendeeDto create(ScheduleEntity schedule, String nickName, List<String> attendedNicknames) {
+    return ScheduleAttendeeDto.builder()
+        .scheduleId(schedule.getId())
+        .title(schedule.getTitle())
+        .date(schedule.getDate())
+        .time(schedule.getTime())
+        .type(schedule.getType())
+        .creator(nickName)
+        .attendedNicknames(attendedNicknames)
         .build();
   }
-
 }

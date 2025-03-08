@@ -1,5 +1,7 @@
 package com.campfiredev.growtogether.study.controller.schedule;
 
+import com.campfiredev.growtogether.study.dto.schedule.ScheduleAttendeeDto;
+import com.campfiredev.growtogether.study.dto.schedule.ScheduleAttendeeMonthDto;
 import com.campfiredev.growtogether.study.dto.schedule.ScheduleCreateDto;
 import com.campfiredev.growtogether.study.dto.schedule.ScheduleDto;
 import com.campfiredev.growtogether.study.dto.schedule.ScheduleMonthDto;
@@ -29,8 +31,7 @@ public class ScheduleController {
   private final ScheduleService scheduleService;
 
   /**
-   * 일정 추가
-   * 로그인 이후 사용자 id도 넘길 예정
+   * 일정 추가 로그인 이후 사용자 id도 넘길 예정
    */
   @PostMapping("/{studyId}/schedule")
   public void createSchedule(@PathVariable Long studyId,
@@ -39,8 +40,7 @@ public class ScheduleController {
   }
 
   /**
-   * 일정 수정
-   * 로그인 이후 사용자 id도 넘길 예정
+   * 일정 수정 로그인 이후 사용자 id도 넘길 예정
    */
   @PutMapping("/schedule/{scheduleId}")
   public void updateSchedule(@PathVariable Long scheduleId,
@@ -49,8 +49,7 @@ public class ScheduleController {
   }
 
   /**
-   * 일정 삭제
-   * 로그인 이후 사용자 id도 넘길 예정
+   * 일정 삭제 로그인 이후 사용자 id도 넘길 예정
    */
   @DeleteMapping("/schedule/{scheduleId}")
   public void deleteSchedule(@PathVariable Long scheduleId) {
@@ -79,5 +78,20 @@ public class ScheduleController {
       date = String.valueOf(YearMonth.now());
     }
     return ResponseEntity.ok(scheduleService.getMonthSchedules(studyId, date));
+  }
+
+  /**
+   * 해당 달의 일정 + 일정별 출석자 같이 조회
+   * @param studyId
+   * @param date
+   * @return
+   */
+  @GetMapping("/{studyId}/schedules_attendee")
+  public ResponseEntity<ScheduleAttendeeMonthDto> getScheduleAttendee(@PathVariable Long studyId,
+      @RequestParam(required = false) String date){
+    if (date == null) {
+      date = String.valueOf(YearMonth.now());
+    }
+    return ResponseEntity.ok(scheduleService.getMonthSchedulesAttendees(studyId, date));
   }
 }
