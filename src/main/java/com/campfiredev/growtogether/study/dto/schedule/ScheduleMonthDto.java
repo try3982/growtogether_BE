@@ -26,6 +26,6 @@ public class ScheduleMonthDto {
   @AllArgsConstructor
   public static class ScheduleGroup {
     private LocalDate date;
-    private List<ScheduleDto> events;
+    private List<ScheduleDto> schedule;
   }
 }

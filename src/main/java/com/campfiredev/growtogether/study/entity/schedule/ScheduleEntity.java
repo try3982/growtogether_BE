@@ -3,6 +3,7 @@ package com.campfiredev.growtogether.study.entity.schedule;
 import static com.campfiredev.growtogether.study.type.ScheduleType.*;
 
 import com.campfiredev.growtogether.study.entity.Study;
+import com.campfiredev.growtogether.study.entity.attendance.AttendanceEntity;
 import com.campfiredev.growtogether.study.entity.join.StudyMemberEntity;
 import com.campfiredev.growtogether.study.type.ScheduleType;
 import jakarta.persistence.Column;
@@ -15,14 +16,17 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.BatchSize;
 
 @Entity
 @Getter
@@ -59,6 +63,9 @@ public class ScheduleEntity {
 
   @Enumerated(EnumType.STRING)
   private ScheduleType type;
+
+  @OneToMany(mappedBy = "schedule")
+  private List<AttendanceEntity> attendance;
 
   public static ScheduleEntity create(StudyMemberEntity studyMember, String title, LocalDate date,
       LocalTime time) {

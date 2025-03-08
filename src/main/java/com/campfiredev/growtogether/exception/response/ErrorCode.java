@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
+import static org.springframework.http.HttpStatus.*;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
@@ -24,8 +25,10 @@ public enum ErrorCode {
   VOTE_ALREADY_COMPLETE("이미 종료된 투표입니다.",BAD_REQUEST),
   SCHEDULE_NOT_FOUND("존재하지 않는 일정입니다.",BAD_REQUEST),
   NOT_AUTHOR("작성자가 아닙니다.",BAD_REQUEST),
-  CANNOT_DELETE_MAIN_SCHEDULE("메인 일정은 삭제할 수 없습니다.",HttpStatus.BAD_REQUEST),
+  CANNOT_DELETE_MAIN_SCHEDULE("메인 일정은 삭제할 수 없습니다.", BAD_REQUEST),
   ALREADY_EXISTS_SCHEDULE("겹치는 일정이 존재합니다.",BAD_REQUEST),
+  INVALID_ATTENDANCE_TIME("출석 가능 시간이 아닙니다.", BAD_REQUEST),
+  ALREADY_ATTENDANCE("이미 출석했습니다.",BAD_REQUEST),
 
   // 파일 업로드 관련 예외
   FILE_UPLOAD_FAILED("파일 업로드에 실패했습니다.", HttpStatus.BAD_REQUEST),
