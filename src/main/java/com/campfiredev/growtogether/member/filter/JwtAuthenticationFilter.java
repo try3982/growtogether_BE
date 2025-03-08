@@ -40,7 +40,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         // 요청에서 JWT를 추출
         String jwtToken = jwtUtil.getTokenFromHeader(request);
-        log.info("🔍 추출된 JWT: {}", jwtToken);
+        log.info(" 추출된 JWT: {}", jwtToken);
         // 토큰이 없거나 유효하지 않으면 인증 실패 처리
         if (jwtToken == null || !jwtUtil.isTokenValid(jwtToken)) {
             // 401 Unauthorized 상태 코드 설정
