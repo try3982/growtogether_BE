@@ -32,8 +32,7 @@ public class KickVoteProcessor implements VoteProcessor {
 
       studyMemberEntity.setStatus(KICK);
       log.info("KICK 투표 통과: " + studyMemberEntity.getId() + " 강퇴됨");
-
-      redisTemplate.delete("vote" + voteEntity.getId());
     }
+    redisTemplate.delete("vote" + voteEntity.getId());
   }
 }

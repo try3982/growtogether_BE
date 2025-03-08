@@ -22,6 +22,7 @@ import com.campfiredev.growtogether.study.repository.vote.ChangeVoteRepository;
 import com.campfiredev.growtogether.study.repository.vote.KickVoteRepository;
 import com.campfiredev.growtogether.study.repository.vote.VoteRepository;
 import com.campfiredev.growtogether.study.repository.vote.VotingRepository;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -68,8 +69,7 @@ public class VoteService {
     String title = scheduleId + "번 스케줄 시간 변경 투표입니다.";
 
     ChangeVoteEntity save = changeVoteRepository.save(
-        ChangeVoteEntity.create(title, studyMemberEntity, scheduleUpdateDto.getTitle(),
-            scheduleUpdateDto.getDate(), scheduleUpdateDto.getTime(), scheduleId));
+        ChangeVoteEntity.create(title, studyMemberEntity, scheduleUpdateDto, scheduleId));
 
     scheduleJob(ChangeVoteJob.class, "changeJob", "changeGroup", 3, save.getId());
   }

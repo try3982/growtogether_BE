@@ -25,17 +25,17 @@ public class ChangeVoteProcessor implements VoteProcessor {
   public void processVote(VoteEntity voteEntity, int votes, int totalSize) {
     if (votes >= totalSize) {
       ChangeVoteEntity changeVoteEntity = (ChangeVoteEntity) voteEntity;
-      log.info("CHANGE 투표 통과: " + changeVoteEntity.getDate());
-      log.info("시간 변경: " + changeVoteEntity.getTime());
+      log.info("CHANGE 투표 통과: " + changeVoteEntity.getStart());
+      log.info("시간 변경: " + changeVoteEntity.getEnd());
 
       ScheduleEntity scheduleEntity = scheduleRepository.findById(changeVoteEntity.getScheduleId())
           .orElseThrow(() -> new CustomException(ErrorCode.SCHEDULE_NOT_FOUND));
 
       scheduleEntity.setTitle(changeVoteEntity.getContent());
-      scheduleEntity.setDate(changeVoteEntity.getDate());
-      scheduleEntity.setTime(changeVoteEntity.getTime());
-
-      redisTemplate.delete("vote" + voteEntity.getId());
+      scheduleEntity.setStart(changeVoteEntity.getStart());
+      scheduleEntity.setEnd(changeVoteEntity.getEnd());
+      scheduleEntity.setTotalTime(changeVoteEntity.getTotal());
     }
+    redisTemplate.delete("vote" + voteEntity.getId());
   }
 }
