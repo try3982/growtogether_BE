@@ -24,7 +24,7 @@ public class KickVoteProcessor implements VoteProcessor {
 
   @Override
   @Transactional
-  public void processVote(VoteEntity voteEntity, int votes, int totalSize) {
+  public void processVote(VoteEntity voteEntity, Long votes, Long totalSize) {
     if (votes > totalSize / 2) {
       KickVoteEntity kickVoteEntity = (KickVoteEntity) voteEntity;
       StudyMemberEntity studyMemberEntity = joinRepository.findById(kickVoteEntity.getTarget().getId())

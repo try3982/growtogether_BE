@@ -197,7 +197,7 @@ public class ScheduleService {
   }
 
   private StudyMemberEntity getStudyMemberEntity(Long studyId, Long memberId) {
-    return joinRepository.findByMemberIdAndStudyIdInStatus(memberId,
+    return joinRepository.findByMember_MemberIdAndStudy_StudyIdAndStatusIn(memberId,
             studyId, List.of(LEADER, NORMAL))
         .orElseThrow(() -> new CustomException(NOT_A_STUDY_MEMBER));
   }
