@@ -2,6 +2,7 @@ package com.campfiredev.growtogether.bootcamp.entity;
 
 import com.campfiredev.growtogether.bootcamp.type.ProgramCourse;
 import com.campfiredev.growtogether.common.entity.BaseEntity;
+import com.campfiredev.growtogether.member.entity.MemberEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -21,8 +22,7 @@ public class BootCampReview extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name="boot_camp_review_id")
-    private Long bootCampReviewId;
+    private Long bootCampId;
 
     @Column(nullable = false)
     private String title;
@@ -57,11 +57,29 @@ public class BootCampReview extends BaseEntity {
     @Column(nullable = false)
     private Integer programSatisfaction;
 
+    @OneToMany(mappedBy = "bootCampReview", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<BootCampSkill> bootCampSkills;
 
-    //user 추가 예정
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name="user_id",nullable = false)
+    private MemberEntity member;
 
     //후기 삭제시 댓글도 같이 삭제되도록
-    @OneToMany(mappedBy = "bootCampReview",cascade = CascadeType.ALL,orphanRemoval = true)
+    @OneToMany(mappedBy = "bootCampReview", cascade = CascadeType.ALL,orphanRemoval = true)
     private List<BootCampComment> comments;
 
+    @OneToMany(mappedBy = "bootCampReview", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ReviewLike> likes;
+
+    public void increaseLikeCount(){
+        this.likeCount++;
+    }
+
+    public void decreaseLikeCount(){
+        this.likeCount--;
+    }
+
+    public void increaseViewCount() {
+        this.viewCount++;
+    }
 }

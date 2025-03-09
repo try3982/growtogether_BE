@@ -22,48 +22,48 @@ public class JoinController {
    * 스터디 참가 신청
    * 로그인 구현 이후
    * @AuthenticationPrincipal로 사용자 정보 가져와 넘길 예정
-   * @param id 스터디 id
+   * @param studyId 스터디 id
    */
-  @PostMapping("{id}/join")
-  public void join(@PathVariable Long id) {
-    joinService.join(9L,id);
+  @PostMapping("{studyId}/join")
+  public void join(@PathVariable Long studyId) {
+    joinService.join(3L,studyId);
   }
 
   /**
    * 스터디 참가 확정
    * 로그인 구현 이후
    * @AuthenticationPrincipal로 사용자 정보 가져와 넘길 예정
-   * @param id 스터디멤버 id
+   * @param joinId 스터디멤버 id
    */
-  @PutMapping("/join/{id}")
-  public void confirmJoin(@PathVariable Long id) {
-    joinService.confirmJoin(id);
+  @PutMapping("/join/{joinId}")
+  public void confirmJoin(@PathVariable Long joinId) {
+    joinService.confirmJoin(joinId);
   }
 
   /**
    * 스터디 참가 신청 취소
    * 로그인 구현 이후
    * @AuthenticationPrincipal로 사용자 정보 가져와 넘길 예정
-   * @param id 스터디멤버 id
+   * @param joinId 스터디멤버 id
    */
-  @DeleteMapping("/join/{id}")
-  public void cancelJoin(@PathVariable Long id) {
-    joinService.cancelJoin(id);
+  @DeleteMapping("/join/{joinId}")
+  public void cancelJoin(@PathVariable Long joinId) {
+    joinService.cancelJoin(joinId);
   }
 
   /**
    * 스터디 신청자 리스트(status = PENDING인 사람들만)
-   * @param id 스터디 id
+   * @param studyId 스터디 id
    * @return
    */
-  @GetMapping("/{id}/pending")
-  public StudyMemberListDto pendingList(@PathVariable Long id) {
-    return joinService.getPendingList(id);
+  @GetMapping("/{studyId}/pending")
+  public StudyMemberListDto pendingList(@PathVariable Long studyId) {
+    return joinService.getPendingList(studyId);
   }
 
-  @GetMapping("/{id}/join")
-  public StudyMemberListDto joinList(@PathVariable Long id) {
-    return joinService.getJoinList(id);
+  @GetMapping("/{studyId}/join")
+  public StudyMemberListDto joinList(@PathVariable Long studyId) {
+    return joinService.getJoinList(studyId);
   }
 }
 

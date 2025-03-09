@@ -10,65 +10,74 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.List;
 
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class BootCampReviewUpdateDto {
 
-    @Getter
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @Builder
-    public static class Request {
-        @NotBlank(message = "제목은 필수 입력값입니다.")
-        private String title;
 
-        @NotBlank(message = "내용은 필수 입력값입니다.")
-        private String content;
+    @NotBlank(message = "제목은 필수 입력값입니다.")
+    private String title;
 
-        @NotBlank(message = "부트캠프 이름은 필수 입력값입니다.")
-        private String bootCampName;
+    @NotBlank(message = "내용은 필수 입력값입니다.")
+    private String content;
 
-        @NotNull(message = "학습난이도는 필수 입력값입니다.")
-        private Integer learningLevel;
+    @NotBlank(message = "부트캠프 이름은 필수 입력값입니다.")
+    private String bootCampName;
 
-        @NotNull(message = "취업 지원 만족도는 필수 입력값입니다.")
-        private Integer assistantSatisfaction;
+    @NotNull(message = "학습난이도는 필수 입력값입니다.")
+    private Integer learningLevel;
 
-        @NotNull(message = "강의 만족도는 필수 입력값입니다.")
-        private Integer programSatisfaction;
+    @NotNull(message = "취업 지원 만족도는 필수 입력값입니다.")
+    private Integer assistantSatisfaction;
 
-        @NotNull(message = "프로그램 과정은 필수 입력값 입니다.")
-        private ProgramCourse programCourse;
+    @NotNull(message = "강의 만족도는 필수 입력값입니다.")
+    private Integer programSatisfaction;
 
-        @NotNull(message = "부트캠프 시작 날짜는 필수 입력값입니다.")
-        private LocalDate bootCampStartDate;
+    @NotNull(message = "프로그램 과정은 필수 입력값 입니다.")
+    private ProgramCourse programCourse;
 
-        @NotNull(message = "부트캠프 종료날짜는 필수 입력값입니다.")
-        private LocalDate bootCampEndDate;
+    @NotNull(message = "부트캠프 시작 날짜는 필수 입력값입니다.")
+    private LocalDate bootCampStartDate;
 
-        public void updateEntity(BootCampReview review) {
-            review.setTitle(title);
-            review.setContent(content);
-            review.setBootCampName(bootCampName);
-            review.setLearningLevel(learningLevel);
-            review.setAssistantSatisfaction(assistantSatisfaction);
-            review.setProgramSatisfaction(programSatisfaction);
-            review.setProgramCourse(programCourse);
-            review.setBootCampStartDate(bootCampStartDate);
-            review.setBootCampEndDate(bootCampEndDate);
-        }
+    @NotNull(message = "부트캠프 종료날짜는 필수 입력값입니다.")
+    private LocalDate bootCampEndDate;
 
-        public BootCampReview toEntity(){
-            return BootCampReview.builder()
-                    .title(title)
-                    .content(content)
-                    .bootCampName(bootCampName)
-                    .learningLevel(learningLevel)
-                    .assistantSatisfaction(assistantSatisfaction)
-                    .programSatisfaction(programSatisfaction)
-                    .programCourse(programCourse)
-                    .bootCampStartDate(bootCampStartDate)
-                    .bootCampEndDate(bootCampEndDate)
-                    .build();
-        }
+    private List<String> skillNames;
+
+    public void updateEntity(BootCampReview review) {
+        review.setTitle(title);
+        review.setContent(content);
+        review.setBootCampName(bootCampName);
+        review.setLearningLevel(learningLevel);
+        review.setAssistantSatisfaction(assistantSatisfaction);
+        review.setProgramSatisfaction(programSatisfaction);
+        review.setProgramCourse(programCourse);
+        review.setBootCampStartDate(bootCampStartDate);
+        review.setBootCampEndDate(bootCampEndDate);
     }
+
+    public static BootCampReviewUpdateDto fromEntity(BootCampReview review){
+
+        List<String> skillNames = review.getBootCampSkills().stream()
+                .map(skill -> skill.getSkill().getSkillName())
+                .toList();
+
+        return BootCampReviewUpdateDto.builder()
+                .title(review.getTitle())
+                .content(review.getContent())
+                .bootCampName(review.getBootCampName())
+                .learningLevel(review.getLearningLevel())
+                .assistantSatisfaction(review.getAssistantSatisfaction())
+                .programSatisfaction(review.getProgramSatisfaction())
+                .programCourse(review.getProgramCourse())
+                .bootCampStartDate(review.getBootCampStartDate())
+                .bootCampEndDate(review.getBootCampEndDate())
+                .skillNames(skillNames)
+                .build();
+    }
+
 }

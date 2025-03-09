@@ -28,14 +28,18 @@ public class BootCampReviewResponseDto {
         private int assistantSatisfaction;
         private int programSatisfaction;
         private int likeCount;
-        private int viewCount;
+        private Long viewCount;
         private int commentCount;
-        private List<String> skills;
+        private List<String> skillNames;
 
         public static Response fromEntity(BootCampReview review) {
 
+            List<String> skillNames = review.getBootCampSkills().stream()
+                    .map(skill -> skill.getSkill().getSkillName())
+                    .toList();
+
             return Response.builder()
-                    .id(review.getBootCampReviewId())
+                    .id(review.getBootCampId())
                     .title(review.getTitle())
                     .content(review.getContent())
                     .bootCampName(review.getBootCampName())
@@ -44,9 +48,9 @@ public class BootCampReviewResponseDto {
                     .assistantSatisfaction(review.getAssistantSatisfaction())
                     .programSatisfaction(review.getProgramSatisfaction())
                     .likeCount(review.getLikeCount())
-                    .viewCount(review.getLikeCount())
+                    .viewCount(review.getViewCount())
                     .commentCount(review.getLikeCount())
-                    //.skills....
+                    .skillNames(skillNames)
                     .build();
         }
     }

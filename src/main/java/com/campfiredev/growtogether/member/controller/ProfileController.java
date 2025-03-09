@@ -29,25 +29,25 @@ public class ProfileController {
         String fileUrl = s3Service.getFileUrl(fileKey);
         return ResponseEntity.ok(Map.of("profileImageUrl", fileUrl));
     }
-  // 사용자 ID로 프로필 이미지 조회
-    @GetMapping("/image/{userId}")
-    public ResponseEntity<?> getProfileImageByUserId(@PathVariable Long userId) {
-        String fileUrl = memberService.getProfileImageUrl(userId);
+    // 사용자 ID로 프로필 이미지 조회
+    @GetMapping("/image/{memberId}")
+    public ResponseEntity<?> getProfileImageBymemberId(@PathVariable Long memberId) {
+        String fileUrl = memberService.getProfileImageUrl(memberId);
         return ResponseEntity.ok(Map.of("profileImageUrl", fileUrl));
     }
     // 프로필 이미지 삭제
     @DeleteMapping("image/delete")
-    public ResponseEntity<?> deleteProfileImage(@RequestParam("userId") Long userId) {
-        memberService.deleteProfileImage(userId);
+    public ResponseEntity<?> deleteProfileImage(@RequestParam("memberId") Long memberId) {
+        memberService.deleteProfileImage(memberId);
         return ResponseEntity.ok(Map.of("message", "프로필 이미지가 삭제되었습니다."));
     }
 
     @PutMapping("image/update")
     public ResponseEntity<?> updateProfileImage(
-            @RequestParam("userId") Long userId,
+            @RequestParam("memberId") Long memberId,
             @RequestPart("profileImage") MultipartFile profileImage) {
 
-        String newImageKey = memberService.updateProfileImage(userId, profileImage);
+        String newImageKey = memberService.updateProfileImage(memberId, profileImage);
         return ResponseEntity.ok(Map.of("message", "프로필 이미지가 업데이트되었습니다.", "imageKey", newImageKey));
     }
 }
