@@ -7,15 +7,17 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Collections;
 
 import static com.campfiredev.growtogether.exception.response.ErrorCode.NOT_VALID_TOKEN;
-
+@Slf4j
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
@@ -30,6 +32,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         for (String publicUrl : PUBLIC_URLS) {
             if (antPathMatcher.match(publicUrl, requestUri)) {
                 // 퍼블릭 URL인 경우, 필터를 건너뛰고 다음 필터로 넘김
+                log.info("퍼블릭 URL - JWT 인증 생략: {}", requestUri);
                 filterChain.doFilter(request, response);
                 return;
             }
@@ -37,7 +40,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         // 요청에서 JWT를 추출
         String jwtToken = jwtUtil.getTokenFromHeader(request);
-
+        log.info(" 추출된 JWT: {}", jwtToken);
         // 토큰이 없거나 유효하지 않으면 인증 실패 처리
         if (jwtToken == null || !jwtUtil.isTokenValid(jwtToken)) {
             // 401 Unauthorized 상태 코드 설정
@@ -48,9 +51,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String email = jwtUtil.getMemberEmailFromToken(jwtToken);
 
         // 사용자 인증 처리
-        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(email, jwtToken);
+        //UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(email, jwtToken);
+        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(email,null, Collections.emptyList());
         SecurityContextHolder.getContext().setAuthentication(authentication);
-
+        log.info(" Security Context에 저장된 인증 정보: {}", SecurityContextHolder.getContext().getAuthentication());
         // 요청을 필터 체인에 전달
         filterChain.doFilter(request, response);
     }

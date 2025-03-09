@@ -69,14 +69,17 @@ public class JwtUtil {
     // Jwt 토큰의 유효기간을 확인하는 메서드
     public boolean isTokenValid(String token) {
         try {
-            return Jwts.parser()
+            Date expiration = Jwts.parser()
                     .verifyWith(this.getSigningKey())
                     .build()
                     .parseSignedClaims(token)
                     .getPayload()
-                    .getExpiration()
-                    .before(new Date());
+                    .getExpiration();
+            log.info("토큰 만료 시간: {}", expiration);
+            log.info("현재 시간: {}", new Date());
+            return expiration.after(new Date());
         } catch (JwtException | IllegalArgumentException e) {
+            log.error("토큰 검증 실패: {}", e.getMessage());
             throw new CustomException(EXPIRED_TOKEN);
         }
     }

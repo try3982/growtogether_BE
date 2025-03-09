@@ -37,7 +37,7 @@ public class MemberEntity {
     @Column(name = "phone_number", nullable = true, length = 20)
     private String phone;
 
-    // 비밀번호 변경 메서드 추가
+
     // 카카오 로그인 경우 null
     @Setter
     @Column(name = "password", nullable = true, length = 100)

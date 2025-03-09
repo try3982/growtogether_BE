@@ -45,5 +45,11 @@ public class MemberController {
         memberService.resetPassword(token, newPassword);
         return ResponseEntity.ok(Map.of("message", "비밀번호가 성공적으로 변경되었습니다."));
     }
+    // 이메일 찾기 API (사용자 요청 시 마스킹된 이메일 반환)
+    @PostMapping("/find-email")
+    public ResponseEntity<?> findEmail(@RequestParam String email) {
+        String maskedEmail = memberService.findEmail(email);
+        return ResponseEntity.ok(Map.of("maskedEmail", maskedEmail));
+    }
 
 }
