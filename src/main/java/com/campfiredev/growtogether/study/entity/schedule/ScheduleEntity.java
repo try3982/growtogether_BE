@@ -2,6 +2,7 @@ package com.campfiredev.growtogether.study.entity.schedule;
 
 import static com.campfiredev.growtogether.study.type.ScheduleType.*;
 
+import com.campfiredev.growtogether.study.dto.schedule.ScheduleCreateDto;
 import com.campfiredev.growtogether.study.entity.Study;
 import com.campfiredev.growtogether.study.entity.attendance.AttendanceEntity;
 import com.campfiredev.growtogether.study.entity.join.StudyMemberEntity;
@@ -18,15 +19,13 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import java.time.LocalDate;
-import java.time.LocalTime;
+import java.time.LocalDateTime;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.BatchSize;
 
 @Entity
 @Getter
@@ -47,11 +46,15 @@ public class ScheduleEntity {
 
   @Column(nullable = false)
   @Setter
-  private LocalDate date;
+  private LocalDateTime start;
 
   @Column(nullable = false)
   @Setter
-  private LocalTime time;
+  private LocalDateTime end;
+
+  @Column(nullable = false)
+  @Setter
+  private Integer totalTime;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "study_member_id", nullable = false)
@@ -67,14 +70,18 @@ public class ScheduleEntity {
   @OneToMany(mappedBy = "schedule")
   private List<AttendanceEntity> attendance;
 
-  public static ScheduleEntity create(StudyMemberEntity studyMember, String title, LocalDate date,
-      LocalTime time) {
+  public static ScheduleEntity create(StudyMemberEntity studyMember, ScheduleCreateDto scheduleCreateDto) {
+
+    LocalDateTime start = LocalDateTime.of(scheduleCreateDto.getStartDate(), scheduleCreateDto.getStartTime());
+    LocalDateTime end = start.plusMinutes(scheduleCreateDto.getTotalTime());
+
     return ScheduleEntity.builder()
-        .title(title)
-        .date(date)
-        .time(time)
+        .title(scheduleCreateDto.getTitle())
+        .start(start)
+        .end(end)
         .studyMember(studyMember)
         .study(studyMember.getStudy())
+        .totalTime(scheduleCreateDto.getTotalTime())
         .type(OTHER)
         .build();
   }

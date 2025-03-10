@@ -1,7 +1,6 @@
 package com.campfiredev.growtogether.study.dto.attendance;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
+import java.time.LocalDateTime;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -14,7 +13,6 @@ import lombok.NoArgsConstructor;
 @Builder
 public class AttendanceDto {
   private Long scheduleId;
-  private LocalDate date;
-  private LocalTime time;
+  private LocalDateTime date;
   private List<String> attendees;
 }

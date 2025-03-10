@@ -1,8 +1,11 @@
 package com.campfiredev.growtogether.study.repository.schedule;
 
+import com.campfiredev.growtogether.study.entity.Study;
 import com.campfiredev.growtogether.study.entity.schedule.ScheduleEntity;
 import com.campfiredev.growtogether.study.type.ScheduleType;
+import jakarta.ejb.Schedule;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
@@ -14,29 +17,28 @@ public interface ScheduleRepository extends JpaRepository<ScheduleEntity, Long> 
 
   @Query("SELECT sc FROM ScheduleEntity sc JOIN FETCH sc.studyMember sm "
       + "JOIN FETCH sm.member m "
-      + "WHERE sc.study.studyId = :studyId AND sc.date = :date")
+      + "WHERE sc.study.studyId = :studyId "
+      + "AND sc.start BETWEEN :startOfDay AND :endOfDay")
   List<ScheduleEntity> findWithMemberByStudyIdAndDate(
       @Param("studyId") Long studyId,
-      @Param("date") LocalDate date
+      @Param("startOfDay") LocalDateTime startOfDay,
+      @Param("endOfDay") LocalDateTime endOfDay
   );
 
-  List<ScheduleEntity> findByStudyStudyIdAndTypeAndDateBetween(
-      Long studyId, ScheduleType type, LocalDate startDate, LocalDate endDate);
 
-
-  Optional<ScheduleEntity> findFirstByTypeAndDateAndTimeBetween(ScheduleType type, LocalDate date,
-      LocalTime startTime, LocalTime endTime);
+  Optional<ScheduleEntity> findFirstByTypeAndStartBetween(ScheduleType type,
+      LocalDateTime start, LocalDateTime end);
 
 
   @Query("SELECT DISTINCT sc FROM ScheduleEntity sc " +
       "JOIN FETCH sc.studyMember sm " +
       "JOIN FETCH sm.member m " +
       "WHERE sc.study.studyId = :studyId " +
-      "AND sc.date BETWEEN :startDate AND :endDate")
+      "AND sc.start BETWEEN :startDate AND :endDate")
   List<ScheduleEntity> findWithMemberByStudyIdAndDateBetween(
       @Param("studyId") Long studyId,
-      @Param("startDate") LocalDate startDate,
-      @Param("endDate") LocalDate endDate
+      @Param("startDate") LocalDateTime start,
+      @Param("endDate") LocalDateTime end
   );
 
   @Query("SELECT DISTINCT s FROM ScheduleEntity s "
@@ -45,11 +47,14 @@ public interface ScheduleRepository extends JpaRepository<ScheduleEntity, Long> 
       + "LEFT JOIN FETCH s.attendance a "
       + "LEFT JOIN FETCH a.studyMember asm "
       + "LEFT JOIN FETCH asm.member attendee "
-      + "WHERE s.study.studyId = :studyId AND s.date BETWEEN :startDate AND :endDate")
+      + "WHERE s.study.studyId = :studyId AND s.start BETWEEN :start AND :end")
   List<ScheduleEntity> findSchedulesWithAttendee(
       @Param("studyId") Long studyId,
-      @Param("startDate") LocalDate startDate,
-      @Param("endDate") LocalDate endDate);
+      @Param("start") LocalDateTime start,
+      @Param("end") LocalDateTime end);
+
+  List<ScheduleEntity> findByStudyAndStartBetweenAndType(Study study, LocalDateTime start,
+      LocalDateTime end, ScheduleType type);
 
 
 }
