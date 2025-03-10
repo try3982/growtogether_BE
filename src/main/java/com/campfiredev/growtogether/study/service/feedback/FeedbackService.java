@@ -68,7 +68,7 @@ public class FeedbackService {
 
   private StudyMemberEntity getStudyMemberEntity(Long memberId, Long studyId) {
     return joinRepository.findByStudyAndMemberWithStudyInStatus(
-            memberId, studyId, List.of(NORMAL, LEADER))
+            studyId, memberId, List.of(NORMAL, LEADER))
         .orElseThrow(() -> new CustomException(NOT_A_STUDY_MEMBER));
   }
 

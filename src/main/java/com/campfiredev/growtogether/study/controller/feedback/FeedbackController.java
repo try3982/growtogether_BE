@@ -1,6 +1,7 @@
 package com.campfiredev.growtogether.study.controller.feedback;
 
 import com.campfiredev.growtogether.study.dto.feedback.FeedbackCreateDto;
+import com.campfiredev.growtogether.study.dto.feedback.FeedbackRequestDto;
 import com.campfiredev.growtogether.study.service.feedback.FeedbackService;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.Path;
@@ -21,8 +22,8 @@ public class FeedbackController {
   private final FeedbackService feedbackService;
 
   @PostMapping("/{studyId}/feedback")
-  public void feedback(@PathVariable Long studyId, @RequestBody @Valid List<FeedbackCreateDto> feedbackCreateDtos){
-    feedbackService.feedback(1L,studyId,feedbackCreateDtos);
+  public void feedback(@PathVariable Long studyId, @RequestBody @Valid FeedbackRequestDto feedbackRequestDto){
+    feedbackService.feedback(2L,studyId,feedbackRequestDto.getFeedbacks());
   }
 
 }
