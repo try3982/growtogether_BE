@@ -20,7 +20,10 @@ public class BootCampReviewResponseDto {
     public static class Response {
         private Long id;
         private String title;
+        private String author;
+        private String profileImageKey;
         private String content;
+        private String imageUrl;
         private String bootCampName;
         private LocalDate bootCampStartDate;
         private LocalDate bootCampEndDate;
@@ -41,7 +44,10 @@ public class BootCampReviewResponseDto {
             return Response.builder()
                     .id(review.getBootCampId())
                     .title(review.getTitle())
+                    .author(review.getMember().getNickName())
+                    .profileImageKey(review.getMember().getProfileImageUrl())
                     .content(review.getContent())
+                    .imageUrl(review.getImageUrl())
                     .bootCampName(review.getBootCampName())
                     .bootCampStartDate(review.getBootCampStartDate())
                     .bootCampEndDate(review.getBootCampEndDate())
@@ -49,7 +55,7 @@ public class BootCampReviewResponseDto {
                     .programSatisfaction(review.getProgramSatisfaction())
                     .likeCount(review.getLikeCount())
                     .viewCount(review.getViewCount())
-                    .commentCount(review.getLikeCount())
+                    .commentCount(review.getComments().size())
                     .skillNames(skillNames)
                     .build();
         }

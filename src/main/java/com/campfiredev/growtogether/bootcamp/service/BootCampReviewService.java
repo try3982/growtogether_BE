@@ -2,29 +2,34 @@ package com.campfiredev.growtogether.bootcamp.service;
 
 import com.campfiredev.growtogether.bootcamp.dto.BootCampReviewCreateDto;
 import com.campfiredev.growtogether.bootcamp.dto.BootCampReviewResponseDto;
+import com.campfiredev.growtogether.bootcamp.dto.BootCampReviewSearchRequest;
 import com.campfiredev.growtogether.bootcamp.dto.BootCampReviewUpdateDto;
 import com.campfiredev.growtogether.bootcamp.entity.BootCampReview;
 import com.campfiredev.growtogether.bootcamp.entity.BootCampSkill;
 import com.campfiredev.growtogether.bootcamp.entity.ReviewLike;
 import com.campfiredev.growtogether.bootcamp.repository.BootCampReviewRepository;
+import com.campfiredev.growtogether.bootcamp.repository.BootCampReviewRepositoryCustom;
 import com.campfiredev.growtogether.bootcamp.repository.BootCampSkillRepository;
 import com.campfiredev.growtogether.bootcamp.repository.ReviewLikeRepository;
+import com.campfiredev.growtogether.bootcamp.strategy.WeightCalculateStrategy;
 import com.campfiredev.growtogether.exception.custom.CustomException;
 import com.campfiredev.growtogether.exception.response.ErrorCode;
 import com.campfiredev.growtogether.member.entity.MemberEntity;
 import com.campfiredev.growtogether.member.repository.MemberRepository;
+import com.campfiredev.growtogether.member.service.S3Service;
 import com.campfiredev.growtogether.skill.entity.SkillEntity;
 import com.campfiredev.growtogether.skill.repository.SkillRepository;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -34,22 +39,39 @@ public class BootCampReviewService {
 
     private final BootCampReviewRepository bootCampReviewRepository;
     private final BootCampSkillRepository bootCampSkillRepository;
+    private final BootCampReviewRepositoryCustom bootCampReviewRepositoryCustom;
     private final MemberRepository memberRepository;
     private final SkillRepository skillRepository;
+    private final S3Service s3Service;
 
     private static final String CREATED_AT = "createdAt";
     private static final String LIKE_COUNT = "likeCount";
     private static final String NEW = "new";
     private final ReviewLikeRepository reviewLikeRepository;
 
+    private final List<WeightCalculateStrategy> strategies;
+    private Map<String , WeightCalculateStrategy> strategyMap;
+
+    @PostConstruct
+    private void initializeStrategyMap() {
+        this.strategyMap = strategies.stream()
+                .collect(Collectors.toMap(strategy -> strategy.getClass().getSimpleName(), strategy -> strategy));
+    }
+
     //후기 등록
     @Transactional
-    public BootCampReviewCreateDto createReview(BootCampReviewCreateDto request) {
+    public BootCampReviewCreateDto createReview(BootCampReviewCreateDto request ,MultipartFile imageKey,Authentication authentication) {
 
-        MemberEntity member = memberRepository.findById(request.getUserId())
-                        .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        MemberEntity member = memberRepository.findByEmail(authentication.getName())
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         BootCampReview review = request.toEntity(member);
+
+        if (imageKey != null && !imageKey.isEmpty()) {
+            String imageUrl = s3Service.uploadFile(imageKey);
+            review.setImageUrl(imageUrl);
+        }
+
         bootCampReviewRepository.save(review);
 
         if(request.getSkillNames() != null && !request.getSkillNames().isEmpty()){
@@ -69,12 +91,25 @@ public class BootCampReviewService {
 
     //후기 수정
     @Transactional
-    public BootCampReviewUpdateDto updateReview(Long bootCampId,BootCampReviewUpdateDto request) {
+    public BootCampReviewUpdateDto updateReview(Long bootCampId, BootCampReviewUpdateDto request ,MultipartFile imageKey, Authentication authentication) {
 
         BootCampReview review = bootCampReviewRepository.findById(bootCampId)
                 .orElseThrow(() -> new CustomException(ErrorCode.REVIEW_NOT_FOUND));
 
-        // 자기 자신 이외에 사람은 수정을 할 수 없게 예외처리 예정
+        MemberEntity member = memberRepository.findByEmail(authentication.getName())
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        if(!review.getMember().equals(member)){
+            throw new CustomException(ErrorCode.NOT_AUTHOR);
+        }
+
+        if (imageKey != null && !imageKey.isEmpty()) {
+            if (review.getImageUrl() != null) {
+                s3Service.deleteFile(review.getImageUrl());
+            }
+            String imageUrl = s3Service.uploadFile(imageKey);
+            review.setImageUrl(imageUrl);
+        }
 
         request.updateEntity(review);
         bootCampReviewRepository.save(review);
@@ -112,7 +147,7 @@ public class BootCampReviewService {
     //후기 조회
     public BootCampReviewResponseDto.PageResponse getBootCampReviews(int page, String sortType){
 
-        Pageable pageable ;
+        Pageable pageable;
 
         if(NEW.equalsIgnoreCase(sortType)){
             pageable = PageRequest.of(page,9, Sort.by(Sort.Order.desc(CREATED_AT)));
@@ -122,7 +157,6 @@ public class BootCampReviewService {
 
         List<BootCampReview> reviews = bootCampReviewRepository.findAllWithSkills(pageable);
 
-        //댓글 개수 추가 예정
 
         return BootCampReviewResponseDto.PageResponse.fromEntityPage(new PageImpl<>(reviews, pageable, reviews.size()));
     }
@@ -130,6 +164,7 @@ public class BootCampReviewService {
     //후기 상세 조회
     @Transactional
     public BootCampReviewResponseDto.Response getBootCampReviewDetail(Long bootCampId){
+
 
         BootCampReview bootCampReview = bootCampReviewRepository.findByIdWithSkills(bootCampId)
                 .orElseThrow(() -> new CustomException(ErrorCode.REVIEW_NOT_FOUND));
@@ -141,8 +176,9 @@ public class BootCampReviewService {
 
     //게시글 좋아요
     @Transactional
-    public void toggleLike(Long reviewId , Long userId) {
-        MemberEntity member = memberRepository.findById(userId)
+    public void toggleLike(Long reviewId , Authentication authentication) {
+
+        MemberEntity member = memberRepository.findByEmail(authentication.getName())
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         BootCampReview review = bootCampReviewRepository.findById(reviewId)
@@ -166,6 +202,38 @@ public class BootCampReviewService {
         bootCampReviewRepository.save(review);
     }
 
+    //검색 기능
+    public BootCampReviewResponseDto.PageResponse searchBootCamps(BootCampReviewSearchRequest request){
 
+        Sort sort;
+
+        if(NEW.equalsIgnoreCase(request.getSortType())){
+            sort = Sort.by(Sort.Order.desc(CREATED_AT));
+        } else {
+            sort = Sort.by(Sort.Order.desc(LIKE_COUNT));
+        }
+
+        Pageable pageable = PageRequest.of(request.getPage(),request.getSize(),sort);
+
+        Page<BootCampReview> bootCampReviews = bootCampReviewRepositoryCustom.searchBootCamps(
+                request.getBootCampName(),
+                request.getTitle(),
+                request.getProgramCourse(),
+                request.getSkillName(),
+                pageable
+        );
+
+        return BootCampReviewResponseDto.PageResponse.fromEntityPage(bootCampReviews);
+    }
+
+    public List<BootCampReviewResponseDto.Response> getTopBootCampReviews(String strategyType , int limit){
+        WeightCalculateStrategy strategy = strategyMap.getOrDefault(strategyType,strategyMap.get("WeightStrategy"));
+
+        List<BootCampReview> topReviews = bootCampReviewRepositoryCustom.findTopRankedReviews(strategy,limit);
+
+        return topReviews.stream()
+                .map(BootCampReviewResponseDto.Response::fromEntity)
+                .collect(Collectors.toList());
+    }
 
 }

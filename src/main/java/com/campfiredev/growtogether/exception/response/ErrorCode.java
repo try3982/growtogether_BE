@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
-import static org.springframework.http.HttpStatus.*;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
@@ -67,7 +66,8 @@ public enum ErrorCode {
 
   COMMENT_ACCESS_DENIED("해당 댓글에 접근 권한이 없습니다.",BAD_REQUEST),
 
-  NOTI_NOT_FOUND("해당 알림을 찾을 수 없습니다.",BAD_REQUEST);
+  NOTI_NOT_FOUND("해당 알림을 찾을 수 없습니다.",BAD_REQUEST),
+  COMMENT_DEPTH_EXCEED("댓글 뎁스 초과입니다.",BAD_REQUEST);
 
   private final String description;
 

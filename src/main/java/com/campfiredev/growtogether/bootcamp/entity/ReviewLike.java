@@ -18,7 +18,7 @@ public class ReviewLike {
     private Long likeId;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name="user_id",nullable = false)
+    @JoinColumn(name="member_id",nullable = false)
     private MemberEntity member;
 
     @ManyToOne(fetch = FetchType.LAZY)
