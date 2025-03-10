@@ -21,7 +21,9 @@ import com.campfiredev.growtogether.study.entity.Study;
 import com.campfiredev.growtogether.study.entity.join.StudyMemberEntity;
 import com.campfiredev.growtogether.study.repository.StudyRepository;
 import com.campfiredev.growtogether.study.repository.join.JoinRepository;
+import com.campfiredev.growtogether.study.type.StudyMemberType;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -117,6 +119,34 @@ public class JoinService {
         List.of(NORMAL, LEADER, KICK));
 
     return StudyMemberListDto.fromEntity(list);
+  }
+
+  /**
+   * 원하는 타입의 참여자 리스트 조회
+   * 팀장(LEADER), 일반 멤버(NORMAL), 참여 대기자(PENDING), 강퇴자(KICK)
+   */
+  public StudyMemberListDto getStudyMember(Long studyId, List<StudyMemberType> types) {
+
+    List<StudyMemberEntity> list = joinRepository.findByStudyWithMembersInStatus(studyId,
+        types);
+
+    return StudyMemberListDto.fromEntity(list);
+  }
+
+  /**
+   * 피드백용 참여자 리스트 조회
+   * 자기 자신 제외
+   */
+  public StudyMemberListDto getStudyMemberForFeedback(Long studyId, Long memberId) {
+
+    List<StudyMemberEntity> list = joinRepository.findByStudyWithMembersInStatus(studyId,
+        List.of(LEADER, NORMAL, KICK));
+
+    List<StudyMemberEntity> collect = list.stream()
+        .filter(studyMember -> !studyMember.getMember().getMemberId().equals(memberId))
+        .collect(Collectors.toList());
+
+    return StudyMemberListDto.fromEntity(collect);
   }
 
   /**

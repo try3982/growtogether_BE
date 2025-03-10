@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class StudyMemberListDto {
 
-  private List<Info> pending;
+  private List<Info> studyMember;
 
   @Getter
   @NoArgsConstructor

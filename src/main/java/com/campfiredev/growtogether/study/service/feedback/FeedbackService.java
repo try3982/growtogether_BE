@@ -1,5 +1,12 @@
 package com.campfiredev.growtogether.study.service.feedback;
 
+import static com.campfiredev.growtogether.exception.response.ErrorCode.*;
+import static com.campfiredev.growtogether.study.entity.StudyStatus.PROGRESS;
+import static com.campfiredev.growtogether.study.type.StudyMemberType.LEADER;
+import static com.campfiredev.growtogether.study.type.StudyMemberType.NORMAL;
+
+import com.campfiredev.growtogether.exception.custom.CustomException;
+import com.campfiredev.growtogether.exception.response.ErrorCode;
 import com.campfiredev.growtogether.member.entity.MemberEntity;
 import com.campfiredev.growtogether.study.dto.feedback.FeedbackCreateDto;
 import com.campfiredev.growtogether.study.entity.feedback.FeedbackContentEntity;
@@ -16,9 +23,11 @@ import lombok.RequiredArgsConstructor;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class FeedbackService {
 
   private final FeedbackRepository feedbackRepository;
@@ -26,25 +35,45 @@ public class FeedbackService {
   private final JoinRepository joinRepository;
   private final RedissonClient redissonClient;
 
-  public void feedback(Long userId, Long studyId, List<FeedbackCreateDto> feedbacks) {
-    //userId, studyId로 studyMemberEntity 조회
-    //joinRepository.findByMemberIdAndStudyIdInStatus()
-    StudyMemberEntity studyMemberEntity = new StudyMemberEntity();
+  public void feedback(Long memberId, Long studyId, List<FeedbackCreateDto> feedbacks) {
+    StudyMemberEntity studyMemberEntity = getStudyMemberEntity(memberId, studyId);
 
-    FeedbackEntity save = feedbackRepository.save(FeedbackEntity.builder()
-        .studyMember(studyMemberEntity)
-        .build());
+    validationFeedback(studyMemberEntity);
 
+    FeedbackEntity save = saveFeedback(studyMemberEntity);
+
+    Map<Long, StudyMemberEntity> studyMemberMap = extractStudyMemberMap(feedbacks);
+
+    saveFeedbacks(feedbacks, save, studyMemberMap);
+
+    averageRating(feedbacks, studyMemberMap);
+  }
+
+  private Map<Long, StudyMemberEntity> extractStudyMemberMap(List<FeedbackCreateDto> feedbacks) {
     List<Long> ids = feedbacks.stream()
-        .map(feedback -> feedback.getStudyMemberId())
+        .map(feedbackCreateDto -> feedbackCreateDto.getStudyMemberId())
         .collect(Collectors.toList());
 
-    //fetchjoin으로 member 같이 가져올 것
-    List<StudyMemberEntity> studyMembers = joinRepository.findAllById(ids);
+    List<StudyMemberEntity> studyMembers = joinRepository.findAllWithMembersInIds(ids);
 
-    Map<Long, StudyMemberEntity> studyMemberMap = studyMembers.stream()
-        .collect(Collectors.toMap(sm -> sm.getId(), s -> s));
+    return studyMembers.stream()
+        .collect(Collectors.toMap(studyMemberEntity -> studyMemberEntity.getId(), s -> s));
+  }
 
+  private FeedbackEntity saveFeedback(StudyMemberEntity studyMemberEntity) {
+    return feedbackRepository.save(FeedbackEntity.builder()
+        .studyMember(studyMemberEntity)
+        .build());
+  }
+
+  private StudyMemberEntity getStudyMemberEntity(Long memberId, Long studyId) {
+    return joinRepository.findByStudyAndMemberWithStudyInStatus(
+            memberId, studyId, List.of(NORMAL, LEADER))
+        .orElseThrow(() -> new CustomException(NOT_A_STUDY_MEMBER));
+  }
+
+  private void saveFeedbacks(List<FeedbackCreateDto> feedbacks, FeedbackEntity save,
+      Map<Long, StudyMemberEntity> studyMemberMap) {
     List<FeedbackContentEntity> entities = feedbacks.stream()
         .map(dto -> FeedbackContentEntity.builder()
             .feedback(save)
@@ -55,8 +84,16 @@ public class FeedbackService {
         .collect(Collectors.toList());
 
     feedbackContentRepository.saveAll(entities);
+  }
 
-    averageRating(feedbacks, studyMemberMap);
+  private void validationFeedback(StudyMemberEntity studyMemberEntity) {
+    if(PROGRESS.equals(studyMemberEntity.getStatus())){
+      throw new CustomException(INVALID_FEEDBACK_PERIOD);
+    }
+
+    if(feedbackRepository.existsByStudyMember(studyMemberEntity)){
+      throw new CustomException(ALREADY_FEEDBACK);
+    }
   }
 
   private void averageRating(List<FeedbackCreateDto> feedbacks,
@@ -70,17 +107,17 @@ public class FeedbackService {
       boolean isLocked = false;
       try {
         isLocked = lock.tryLock(5, 10, TimeUnit.SECONDS);
-        if(isLocked){
+        if (isLocked) {
           MemberEntity member = studyMember.getMember();
 
           Long count = feedbackContentRepository.countByStudyMember(studyMember);
 
-          member.setRating((member.getRating() * (count+1) + feedback.getScore()) / (count + 2));
+          member.setRating((member.getRating() * (count + 1) + feedback.getScore()) / (count + 2));
         }
       } catch (InterruptedException e) {
         Thread.currentThread().interrupt();
-      }finally{
-        if(isLocked){
+      } finally {
+        if (isLocked) {
           lock.unlock();
         }
       }
