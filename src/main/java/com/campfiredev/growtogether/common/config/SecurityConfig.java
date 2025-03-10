@@ -29,7 +29,7 @@ public class SecurityConfig {
             "/oauth2/authorization/kakao",
             "/oauth2/code/kakao",
             "/api/email/**",
-
+            "/api/study/**",
             "/member/**",
             "/payment/**"
     };
