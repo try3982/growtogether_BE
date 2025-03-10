@@ -14,6 +14,8 @@ import lombok.NoArgsConstructor;
 @Builder
 public class JoinDetailsDto {
 
+  private Long studyMemberId;
+
   private String nickName;
 
   private List<String> skills;
@@ -22,6 +24,7 @@ public class JoinDetailsDto {
 
   public static JoinDetailsDto from(StudyMemberEntity studyMemberEntity, String content) {
     return JoinDetailsDto.builder()
+        .studyMemberId(studyMemberEntity.getId())
         .nickName(studyMemberEntity.getMember().getNickName())
         .content(content)
         .skills(studyMemberEntity.getMember().getUserSkills().stream()
