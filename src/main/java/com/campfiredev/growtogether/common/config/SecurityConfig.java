@@ -31,7 +31,8 @@ public class SecurityConfig {
             "/api/email/**",
 
             "/member/**",
-            "/payment/**"
+            "/payment/**",
+        "/**"
     };
 
     @Bean
