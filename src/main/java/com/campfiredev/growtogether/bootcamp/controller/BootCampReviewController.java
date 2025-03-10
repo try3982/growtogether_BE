@@ -7,6 +7,8 @@ import com.campfiredev.growtogether.bootcamp.dto.BootCampReviewUpdateDto;
 import com.campfiredev.growtogether.bootcamp.service.BootCampReviewService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -117,5 +119,32 @@ public class BootCampReviewController {
             @RequestParam(defaultValue = "5") int limit) {
 
         return bootCampReviewService.getTopBootCampReviews(strategyType, limit);
+    }
+
+    /**
+     * 내가 좋아요한 게시글 모음
+     */
+    @GetMapping("/myLikes")
+    public ResponseEntity<BootCampReviewResponseDto.PageResponse> getLikedReviews(
+            Authentication authentication,
+            @RequestParam(defaultValue = "0") int page ,
+            @RequestParam(defaultValue = "9") int size) {
+
+        Pageable pageable = PageRequest.of(page,size);
+
+        BootCampReviewResponseDto.PageResponse likedReviews = bootCampReviewService.getLikeReviews(authentication, pageable);
+        return ResponseEntity.ok(likedReviews);
+    }
+
+    @GetMapping("/programCourses")
+    public List<String> getProgramCourse(){
+
+        return bootCampReviewService.getProgramCourse();
+    }
+
+    @GetMapping("/skillName")
+    public List<String> getSkillName(){
+
+        return bootCampReviewService.getSkillName();
     }
 }

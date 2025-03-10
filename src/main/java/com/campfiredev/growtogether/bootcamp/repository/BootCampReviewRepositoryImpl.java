@@ -46,6 +46,7 @@ public class BootCampReviewRepositoryImpl implements BootCampReviewRepositoryCus
         }
 
         if(programCourse != null){
+            programCourse = ProgramCourse.valueOf(programCourse.name().toUpperCase());
             builder.and(bootCamp.programCourse.eq(programCourse));
         }
 

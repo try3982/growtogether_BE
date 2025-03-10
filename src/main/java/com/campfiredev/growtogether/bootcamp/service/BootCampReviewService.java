@@ -236,4 +236,25 @@ public class BootCampReviewService {
                 .collect(Collectors.toList());
     }
 
+    public BootCampReviewResponseDto.PageResponse getLikeReviews(Authentication authentication, Pageable pageable) {
+
+        MemberEntity member = memberRepository.findByEmail(authentication.getName())
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        Page<ReviewLike> reviewLikes = reviewLikeRepository.findByMember(member, pageable);
+        Page<BootCampReview> bootCampReviews = reviewLikes.map(ReviewLike::getBootCampReview);
+
+        return BootCampReviewResponseDto.PageResponse.fromEntityPage(bootCampReviews);
+    }
+
+
+    public List<String> getProgramCourse(){
+
+        return skillRepository.findDistinctCategories();
+    }
+
+    public List<String> getSkillName(){
+
+        return skillRepository.findDistinctSkillName();
+    }
 }
