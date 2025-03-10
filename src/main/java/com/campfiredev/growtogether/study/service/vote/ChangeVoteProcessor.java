@@ -22,7 +22,7 @@ public class ChangeVoteProcessor implements VoteProcessor {
 
   @Override
   @Transactional
-  public void processVote(VoteEntity voteEntity, int votes, int totalSize) {
+  public void processVote(VoteEntity voteEntity, Long votes, Long totalSize) {
     if (votes >= totalSize) {
       ChangeVoteEntity changeVoteEntity = (ChangeVoteEntity) voteEntity;
       log.info("CHANGE 투표 통과: " + changeVoteEntity.getStart());

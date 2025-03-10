@@ -17,7 +17,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.YearMonth;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -36,7 +35,7 @@ public class AttendanceService {
 
   public void attendance(Long memberId, Long studyId) {
 
-    StudyMemberEntity studyMemberEntity = joinRepository.findByMemberIdAndStudyIdInStatus(memberId,
+    StudyMemberEntity studyMemberEntity = joinRepository.findByMember_MemberIdAndStudy_StudyIdAndStatusIn(memberId,
             studyId, List.of(NORMAL, LEADER))
         .orElseThrow(() -> new CustomException(ErrorCode.NOT_A_STUDY_MEMBER));
 
