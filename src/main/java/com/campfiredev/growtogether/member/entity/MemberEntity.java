@@ -70,6 +70,10 @@ public class MemberEntity {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<MemberSkillEntity> userSkills;
 
+    @Column(nullable = false)
+    @Setter
+    private Double rating;
+
     @Builder
     public MemberEntity(Long memberId, String kakaoId, String nickName, String phone, String password, String email, Integer points, String githubUrl, String profileImageUrl, LocalDateTime createdAt, LocalDateTime updatedAt, List<MemberSkillEntity> userSkills) {
         this.memberId =memberId;

@@ -41,6 +41,10 @@ public class AttendanceService {
 
     LocalDateTime now = LocalDateTime.now();
 
+    /**
+     * 고쳐야 함
+     * studyId도 사용해서 조회
+     */
     ScheduleEntity scheduleEntity = scheduleRepository.findFirstByTypeAndStartBetween(
             MAIN, now.minusMinutes(10), now.plusMinutes(10))
         .orElseThrow(() -> new CustomException(ErrorCode.INVALID_ATTENDANCE_TIME));
