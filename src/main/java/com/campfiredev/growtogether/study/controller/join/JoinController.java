@@ -61,7 +61,7 @@ public class JoinController {
    * @return
    */
   @GetMapping("/{studyId}/studyMember")
-  public StudyMemberListDto studyMemberList(@PathVariable Long studyId, @RequestBody List<StudyMemberType> types) {
+  public List<StudyMemberListDto> studyMemberList(@PathVariable Long studyId, @RequestBody List<StudyMemberType> types) {
     return joinService.getStudyMember(studyId, types);
   }
 
@@ -71,7 +71,7 @@ public class JoinController {
    * @AuthenticationPrincipal로 사용자 정보 가져와 넘길 예정
    */
   @GetMapping("/{studyId}/studyMember_feedback")
-  public StudyMemberListDto studyMemberListFeedback(@PathVariable Long studyId) {
+  public List<StudyMemberListDto> studyMemberListFeedback(@PathVariable Long studyId) {
     return joinService.getStudyMemberForFeedback(studyId, 1L);
   }
 }
