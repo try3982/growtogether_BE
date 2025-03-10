@@ -32,7 +32,7 @@ public class NoticeService {
    * @return NoticeListDto
    */
   public NoticeListDto getNotices(Long studyId, Pageable pageable) {
-    return NoticeListDto.fromEntityPage(noticeRepository.findByStudyId(studyId, pageable));
+    return NoticeListDto.fromEntityPage(noticeRepository.findByStudy_StudyId(studyId, pageable));
   }
 
   /**

@@ -2,11 +2,11 @@ package com.campfiredev.growtogether.study.entity.vote;
 
 import static com.campfiredev.growtogether.study.type.VoteStatus.PROGRESS;
 
+import com.campfiredev.growtogether.study.dto.schedule.ScheduleUpdateDto;
 import com.campfiredev.growtogether.study.entity.join.StudyMemberEntity;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
-import java.time.LocalDate;
-import java.time.LocalTime;
+import java.time.LocalDateTime;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
@@ -24,21 +24,28 @@ public class ChangeVoteEntity extends VoteEntity {
 
   private String content;
 
-  private LocalDate date;
+  private LocalDateTime start;
 
-  private LocalTime time;
+  private LocalDateTime end;
+
+  private Integer total;
 
   public static ChangeVoteEntity create(String title, StudyMemberEntity studyMemberEntity,
-      String content, LocalDate date, LocalTime time, Long scheduleId) {
+     ScheduleUpdateDto scheduleUpdateDto, Long scheduleId) {
+
+    LocalDateTime start = LocalDateTime.of(scheduleUpdateDto.getStartDate(),
+        scheduleUpdateDto.getStartTime());
+
     return ChangeVoteEntity.builder()
         .title(title)
         .scheduleId(scheduleId)
         .studyMember(studyMemberEntity)
         .study(studyMemberEntity.getStudy())
         .status(PROGRESS)
-        .content(content)
-        .date(date)
-        .time(time)
+        .content(scheduleUpdateDto.getTitle())
+        .start(start)
+        .end(start.plusMinutes(scheduleUpdateDto.getTotalTime()))
+        .total(scheduleUpdateDto.getTotalTime())
         .build();
   }
 }

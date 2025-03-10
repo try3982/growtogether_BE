@@ -22,12 +22,18 @@ import com.campfiredev.growtogether.study.repository.vote.ChangeVoteRepository;
 import com.campfiredev.growtogether.study.repository.vote.KickVoteRepository;
 import com.campfiredev.growtogether.study.repository.vote.VoteRepository;
 import com.campfiredev.growtogether.study.repository.vote.VotingRepository;
+import jakarta.persistence.DiscriminatorValue;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.quartz.Job;
+import org.quartz.JobKey;
+import org.quartz.Scheduler;
+import org.quartz.SchedulerException;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,6 +41,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 @Transactional
+@Slf4j
 public class VoteService {
 
   private final JoinRepository joinRepository;
@@ -45,6 +52,7 @@ public class VoteService {
   private final ChangeVoteRepository changeVoteRepository;
   private final RedisTemplate<String, Object> redisTemplate;
   private final VoteProcessorFactory voteProcessorFactory;
+  private final Scheduler scheduler;
 
   public void createKickVote(Long memberId, Long studyId, VoteCreateDto voteCreateDto) {
 
@@ -58,7 +66,9 @@ public class VoteService {
     KickVoteEntity save = kickVoteRepository.save(
         KickVoteEntity.create(title, studyMemberEntity, voted));
 
-    scheduleJob(KickVoteJob.class, "kickJob", "kickGroup", 3, save.getId());
+    settingVote(studyId, save.getId());
+
+    scheduleJob(KickVoteJob.class, "job"+save.getId(), "job", 3, save.getId());
   }
 
   public void createChangeVote(Long memberId, Long studyId, Long scheduleId,
@@ -68,10 +78,11 @@ public class VoteService {
     String title = scheduleId + "번 스케줄 시간 변경 투표입니다.";
 
     ChangeVoteEntity save = changeVoteRepository.save(
-        ChangeVoteEntity.create(title, studyMemberEntity, scheduleUpdateDto.getTitle(),
-            scheduleUpdateDto.getDate(), scheduleUpdateDto.getTime(), scheduleId));
+        ChangeVoteEntity.create(title, studyMemberEntity, scheduleUpdateDto, scheduleId));
 
-    scheduleJob(ChangeVoteJob.class, "changeJob", "changeGroup", 3, save.getId());
+    settingVote(studyId, save.getId());
+
+    scheduleJob(ChangeVoteJob.class, "job"+save.getId(), "job", 3, save.getId());
   }
 
   private void scheduleJob(Class<? extends Job> jobClass, String jobName, String jobGroup,
@@ -93,11 +104,11 @@ public class VoteService {
 
     votingRepository.save(VotingEntity.create(voteEntity, studyMemberEntity));
 
-    saveInRedis(voteId, votingDto);
+    saveInRedis(voteEntity, votingDto);
   }
 
   private StudyMemberEntity getStudyMemberEntity(Long memberId, Long studyId) {
-    return joinRepository.findByMemberIdAndStudyIdInStatus(memberId, studyId,
+    return joinRepository.findByMember_MemberIdAndStudy_StudyIdAndStatusIn(memberId, studyId,
             List.of(LEADER, NORMAL))
         .orElseThrow(() -> new CustomException(NOT_A_STUDY_MEMBER));
   }
@@ -117,41 +128,68 @@ public class VoteService {
     }
   }
 
-  private void saveInRedis(Long voteId, VotingDto votingDto) {
-    String key = "vote" + voteId;
+  private void settingVote(Long studyId, Long voteId) {
+    long count = joinRepository.countByStudy_StudyIdAndStatusIn(studyId, List.of(LEADER, NORMAL));
+    redisTemplate.opsForHash().increment("vote" + voteId, "size", count);
+  }
 
+  private void saveInRedis(VoteEntity voteEntity, VotingDto votingDto) {
+    String key = "vote" + voteEntity.getId();
+    Long agree = 0L;
     if (votingDto.isAgree()) {
-      redisTemplate.opsForHash().increment(key, "agree", 1);
+      agree = redisTemplate.opsForHash().increment(key, "agree", 1);
     }
-    redisTemplate.opsForHash().increment(key, "total", 1);
+    Long total = redisTemplate.opsForHash().increment(key, "total", 1);
+
+    Long size = Optional.ofNullable(redisTemplate.opsForHash().get(key, "size"))
+        .map(obj -> ((Number) obj).longValue())
+        .orElse(0L);
+
+    if(total >= size){
+      log.info("즉시 실행");
+      sumKickVote(voteEntity.getId());
+      return;
+    }
+
+    if(voteEntity.getClass().getAnnotation(DiscriminatorValue.class).value().equals("KICK")){
+      if(agree > size / 2){
+        log.info("강퇴 즉시 실행");
+        sumKickVote(voteEntity.getId());
+      }
+    }
   }
 
   public void sumKickVote(Long voteId) {
     VoteEntity voteEntity = voteRepository.findVoteAndStudyById(voteId)
         .orElseThrow(() -> new CustomException(ErrorCode.VOTE_NOT_FOUND));
 
-    List<StudyMemberEntity> find = joinRepository.findByStudyWithMembersInStatus(
-        voteEntity.getStudy().getStudyId(),
-        List.of(NORMAL, LEADER));
+    String key = "vote" + voteId;
 
-    Map<Object, Object> entries = redisTemplate.opsForHash().entries("vote" + voteId);
+    Long size = Optional.ofNullable(redisTemplate.opsForHash().get(key, "size"))
+        .map(obj -> ((Number) obj).longValue())
+        .orElse(0L);
+
+    Long agree = Optional.ofNullable(redisTemplate.opsForHash().get(key, "agree"))
+        .map(obj -> ((Number) obj).longValue())
+        .orElse(0L);
 
     VoteProcessor processor = voteProcessorFactory.getProcessor(voteEntity.getClass());
 
-    for (Map.Entry<Object, Object> entry : entries.entrySet()) {
-      String field = entry.getKey().toString();
-      String value = entry.getValue().toString();
-
-      if (field != null && !field.equals("total")) {
-        processor.processVote(voteEntity, Integer.parseInt(value), find.size());
-      }
+    if (size > 0) {
+        processor.processVote(voteEntity, agree, size);
     }
     voteEntity.setStatus(COMPLETE);
     redisTemplate.delete("vote" + voteId);
+
+    try {
+      scheduler.deleteJob(new JobKey("job" + voteEntity.getId(), "job"));
+    } catch (SchedulerException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   public List<VoteDto> getVotes(Long studyId) {
-    return voteRepository.findVoteInProgressByStudyId(studyId,
+    return voteRepository.findByStudy_StudyIdAndStatus(studyId,
             PROGRESS).stream()
         .map(v -> VoteDto.fromEntity(v))
         .collect(Collectors.toList());

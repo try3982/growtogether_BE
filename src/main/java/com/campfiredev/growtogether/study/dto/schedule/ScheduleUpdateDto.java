@@ -19,9 +19,12 @@ public class ScheduleUpdateDto {
   private String title;
 
   @NotNull
-  private LocalDate date;
+  private LocalDate startDate;
 
   @NotNull
-  private LocalTime time;
+  private LocalTime startTime;
+
+  @NotNull
+  private Integer totalTime;
 
 }
