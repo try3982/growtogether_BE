@@ -2,6 +2,7 @@ package com.campfiredev.growtogether.study.repository.attendance;
 
 import com.campfiredev.growtogether.study.entity.attendance.AttendanceEntity;
 import com.campfiredev.growtogether.study.entity.schedule.ScheduleEntity;
+import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -19,6 +20,14 @@ public interface AttendanceRepository extends JpaRepository<AttendanceEntity, Lo
       + "WHERE a.schedule IN :schedules")
   List<AttendanceEntity> findAttendancesBySchedules(
       @Param("schedules") List<ScheduleEntity> schedules);
+
+  @Query("SELECT a FROM AttendanceEntity a "
+      + "JOIN FETCH a.studyMember sm "
+      + "JOIN FETCH sm.member m "
+      + "JOIN FETCH a.schedule s "
+      + "WHERE sm.study.studyId = :studyId AND s.start BETWEEN :start AND :end")
+  List<AttendanceEntity> findAttendancesBetween(@Param("studyId") Long studyId, @Param("start") LocalDateTime start,
+      @Param("end") LocalDateTime end);
 
 
 }

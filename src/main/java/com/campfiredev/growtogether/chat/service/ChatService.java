@@ -109,7 +109,7 @@ public class ChatService {
     return SliceMessageDto.builder()
         .lastIndex((int) lastPk)
         .chatMessages(redisMessages)
-        .lastDate(redisMessages.get(redisMessages.size()-1).getDate())
+        .lastDate(redisMessages.size() > 0 ? redisMessages.get(redisMessages.size()-1).getDate() : null)
         .build();
   }
 

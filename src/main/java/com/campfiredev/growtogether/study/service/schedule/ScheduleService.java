@@ -21,9 +21,9 @@ import com.campfiredev.growtogether.study.entity.schedule.ScheduleEntity;
 import com.campfiredev.growtogether.study.repository.schedule.ScheduleRepository;
 import com.campfiredev.growtogether.study.service.vote.VoteService;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.YearMonth;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -50,23 +50,21 @@ public class ScheduleService {
       MainScheduleDto prev = mainList.get(i - 1);
       MainScheduleDto current = mainList.get(i);
 
-      if (!current.getStartTime().isAfter(prev.getStartTime())) {
+      if (!current.getStartTime().isAfter(prev.getEndTime())) {
         throw new CustomException(ALREADY_EXISTS_SCHEDULE);
       }
     }
 
     StudyMemberEntity studyMemberEntity = getStudyMemberEntity(study.getStudyId(), memberId);
 
-    DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-    DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
-
     List<ScheduleEntity> schedules = mainList.stream()
         .map(main -> ScheduleEntity.builder()
             .title("메인 일정입니다.")
             .studyMember(studyMemberEntity)
             .study(study)
-            .date(LocalDate.parse(main.getStartTime().format(dateFormatter)))
-            .time(LocalTime.parse(main.getStartTime().format(timeFormatter)))
+            .start(main.getStartTime())
+            .end(main.getEndTime())
+            .totalTime(main.getTotal())
             .type(MAIN)
             .build())
         .collect(Collectors.toList());
@@ -77,27 +75,45 @@ public class ScheduleService {
   public void createSchedule(Long studyId, Long memberId, ScheduleCreateDto scheduleCreateDto) {
     StudyMemberEntity studyMemberEntity = getStudyMemberEntity(studyId, memberId);
 
-    scheduleRepository.save(ScheduleEntity.create(studyMemberEntity, scheduleCreateDto.getTitle(),
-        scheduleCreateDto.getDate(), scheduleCreateDto.getTime()));
+    scheduleRepository.save(ScheduleEntity.create(studyMemberEntity, scheduleCreateDto));
   }
 
-  public void updateSchedule(Long memberId, Long scheduleId, ScheduleUpdateDto scheduleUpdateDto) {
+  public void updateSchedule(Long memberId, Long scheduleId, ScheduleUpdateDto updateDto) {
     ScheduleEntity scheduleEntity = getScheduleEntity(scheduleId);
 
-    if(validateCreateVote(memberId, scheduleId, scheduleUpdateDto, scheduleEntity)) return;
+    LocalDateTime start = LocalDateTime.of(updateDto.getStartDate(), updateDto.getStartTime());
+    LocalDateTime end = start.plusMinutes(updateDto.getTotalTime());
+
+    List<ScheduleEntity> mainSchedules = scheduleRepository.findByStudyAndStartBetweenAndType(
+        scheduleEntity.getStudy(), start, end, MAIN);
+
+    for (ScheduleEntity schedule : mainSchedules) {
+      if (schedule.getId().equals(scheduleId)) {
+        continue;
+      }
+
+      if (start.isAfter(schedule.getStart()) && start.isBefore(schedule.getEnd())) {
+        throw new CustomException(ALREADY_EXISTS_SCHEDULE);
+      }
+    }
+
+    if (validateCreateVote(memberId, scheduleId, updateDto, scheduleEntity, start, end)) {
+      return;
+    }
 
     validateSameUser(memberId, scheduleEntity);
 
-    scheduleEntity.setTitle(scheduleUpdateDto.getTitle());
-    scheduleEntity.setDate(scheduleUpdateDto.getDate());
-    scheduleEntity.setTime(scheduleUpdateDto.getTime());
+    scheduleEntity.setTitle(updateDto.getTitle());
+    scheduleEntity.setStart(start);
+    scheduleEntity.setEnd(end);
+    scheduleEntity.setTotalTime(updateDto.getTotalTime());
   }
 
 
   public void deleteSchedule(Long memberId, Long scheduleId) {
     ScheduleEntity scheduleEntity = getScheduleEntity(scheduleId);
 
-    if(MAIN.equals(scheduleEntity.getType())){
+    if (MAIN.equals(scheduleEntity.getType())) {
       throw new CustomException(CANNOT_DELETE_MAIN_SCHEDULE);
     }
 
@@ -107,7 +123,8 @@ public class ScheduleService {
   }
 
   public List<ScheduleDto> getSchedules(Long studyId, LocalDate date) {
-    return scheduleRepository.findWithMemberByStudyIdAndDate(studyId, date).stream()
+    return scheduleRepository.findWithMemberByStudyIdAndDate(studyId, date.atStartOfDay(),
+            date.atTime(LocalTime.MAX)).stream()
         .map(entity -> ScheduleDto.fromEntity(entity))
         .collect(Collectors.toList());
   }
@@ -119,10 +136,10 @@ public class ScheduleService {
     LocalDate endDate = yearMonth.atEndOfMonth();
 
     Map<LocalDate, List<ScheduleDto>> collect = scheduleRepository.findWithMemberByStudyIdAndDateBetween(
-            studyId, startDate, endDate)
+            studyId, startDate.atStartOfDay(), endDate.atTime(LocalTime.MAX))
         .stream()
         .map(scheduleEntity -> ScheduleDto.fromEntity(scheduleEntity))
-        .collect(Collectors.groupingBy(scheduleDto -> scheduleDto.getDate()));
+        .collect(Collectors.groupingBy(scheduleDto -> scheduleDto.getStart().toLocalDate()));
 
     return ScheduleMonthDto.from(collect);
   }
@@ -132,15 +149,17 @@ public class ScheduleService {
     LocalDate startDate = yearMonth.atDay(1);
     LocalDate endDate = yearMonth.atEndOfMonth();
 
-    List<ScheduleEntity> schedules = scheduleRepository.findSchedulesWithAttendee(studyId, startDate, endDate);
+    List<ScheduleEntity> schedules = scheduleRepository.findSchedulesWithAttendee(studyId,
+        startDate.atStartOfDay(), endDate.atTime(LocalTime.MAX));
 
     Map<Long, List<String>> attendanceMap = schedules.stream()
         .flatMap(schedule -> schedule.getAttendance().stream()
-            .map(attendance -> Map.entry(schedule.getId(), attendance.getStudyMember().getMember().getNickName()))
+            .map(attendance -> Map.entry(schedule.getId(),
+                attendance.getStudyMember().getMember().getNickName()))
         )
         .collect(Collectors.groupingBy(
-            Map.Entry::getKey,
-            Collectors.mapping(Map.Entry::getValue, Collectors.toList())
+            id -> id.getKey(),
+            Collectors.mapping(attend -> attend.getValue(), Collectors.toList())
         ));
 
     Map<LocalDate, List<ScheduleAttendeeDto>> groupedSchedules = schedules.stream()
@@ -149,16 +168,18 @@ public class ScheduleService {
             schedule.getStudyMember().getMember().getNickName(),
             attendanceMap.getOrDefault(schedule.getId(), new ArrayList<>())
         ))
-        .collect(Collectors.groupingBy(ScheduleAttendeeDto::getDate));
+        .collect(Collectors.groupingBy(
+            (ScheduleAttendeeDto scheduleAttendeeDto) -> scheduleAttendeeDto.getStart().toLocalDate()));
 
     return ScheduleAttendeeMonthDto.from(groupedSchedules);
   }
 
-  private boolean validateCreateVote(Long memberId, Long scheduleId, ScheduleUpdateDto scheduleUpdateDto,
-      ScheduleEntity scheduleEntity) {
-    if (MAIN.equals(scheduleEntity.getType()) && (
-        !scheduleEntity.getDate().equals(scheduleUpdateDto.getDate()) || !scheduleEntity.getTime()
-            .equals(scheduleUpdateDto.getTime()))) {
+  private boolean validateCreateVote(Long memberId, Long scheduleId,
+      ScheduleUpdateDto scheduleUpdateDto,
+      ScheduleEntity scheduleEntity, LocalDateTime start, LocalDateTime end) {
+
+    if (MAIN.equals(scheduleEntity.getType()) && (!start.equals(scheduleEntity.getStart()))
+        || !end.equals(scheduleEntity.getEnd())) {
       voteService.createChangeVote(memberId, scheduleEntity.getStudy().getStudyId(), scheduleId,
           scheduleUpdateDto);
       return true;
@@ -170,13 +191,13 @@ public class ScheduleService {
     StudyMemberEntity studyMemberEntity = getStudyMemberEntity(memberId,
         scheduleEntity.getStudy().getStudyId());
 
-    if(!memberId.equals(studyMemberEntity.getId())) {
+    if (!memberId.equals(studyMemberEntity.getId())) {
       throw new CustomException(NOT_AUTHOR);
     }
   }
 
   private StudyMemberEntity getStudyMemberEntity(Long studyId, Long memberId) {
-    return joinRepository.findByMemberIdAndStudyIdInStatus(memberId,
+    return joinRepository.findByMember_MemberIdAndStudy_StudyIdAndStatusIn(memberId,
             studyId, List.of(LEADER, NORMAL))
         .orElseThrow(() -> new CustomException(NOT_A_STUDY_MEMBER));
   }
