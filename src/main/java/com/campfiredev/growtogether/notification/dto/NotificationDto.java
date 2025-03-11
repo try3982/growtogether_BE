@@ -12,6 +12,8 @@ import lombok.Setter;
 @AllArgsConstructor
 public class NotificationDto {
 
+    private Long id;
     private String content;
     private NotiType type;
+    private Boolean read;
 }
