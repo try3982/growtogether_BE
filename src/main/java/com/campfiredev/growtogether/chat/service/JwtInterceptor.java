@@ -1,5 +1,6 @@
 package com.campfiredev.growtogether.chat.service;
 
+import com.campfiredev.growtogether.member.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.Message;
@@ -14,6 +15,8 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class JwtInterceptor implements ChannelInterceptor {
 
+  private final JwtUtil jwtUtil;
+
   @Override
   public Message<?> preSend(Message<?> message, MessageChannel channel) {
     log.info("presend");
@@ -27,6 +30,8 @@ public class JwtInterceptor implements ChannelInterceptor {
       }
 
       token = token.substring(7);
+
+      jwtUtil.isTokenValid(token);
 
       log.info("jwt 검증 로직 추가할 예정");
 
