@@ -92,7 +92,7 @@ public class ScheduleService {
         continue;
       }
 
-      if (start.isAfter(schedule.getStart()) && start.isBefore(schedule.getEnd())) {
+      if (!(end.isBefore(schedule.getStart()) || start.isAfter(schedule.getEnd()))) {
         throw new CustomException(ALREADY_EXISTS_SCHEDULE);
       }
     }

@@ -1,5 +1,7 @@
 package com.campfiredev.growtogether.study.controller.join;
 
+import com.campfiredev.growtogether.study.dto.join.JoinCreateDto;
+import com.campfiredev.growtogether.study.dto.join.JoinDetailsDto;
 import com.campfiredev.growtogether.study.dto.join.StudyMemberListDto;
 import com.campfiredev.growtogether.study.service.join.JoinService;
 import com.campfiredev.growtogether.study.type.StudyMemberType;
@@ -28,30 +30,35 @@ public class JoinController {
    * @param studyId 스터디 id
    */
   @PostMapping("{studyId}/join")
-  public void join(@PathVariable Long studyId) {
-    joinService.join(3L,studyId);
+  public void join(@PathVariable Long studyId, @RequestBody JoinCreateDto joinCreateDto) {
+    joinService.join(5L,studyId, joinCreateDto);
   }
 
   /**
    * 스터디 참가 확정
    * 로그인 구현 이후
    * @AuthenticationPrincipal로 사용자 정보 가져와 넘길 예정
-   * @param joinId 스터디멤버 id
+   * @param studyMemberId 스터디멤버 id
    */
-  @PutMapping("/join/{joinId}")
-  public void confirmJoin(@PathVariable Long joinId) {
-    joinService.confirmJoin(joinId);
+  @PutMapping("/join/{studyMemberId}")
+  public void confirmJoin(@PathVariable Long studyMemberId) {
+    joinService.confirmJoin(studyMemberId);
   }
 
   /**
    * 스터디 참가 신청 취소
    * 로그인 구현 이후
    * @AuthenticationPrincipal로 사용자 정보 가져와 넘길 예정
-   * @param joinId 스터디멤버 id
+   * @param studyMemberId 스터디멤버 id
    */
-  @DeleteMapping("/join/{joinId}")
-  public void cancelJoin(@PathVariable Long joinId) {
-    joinService.cancelJoin(joinId);
+  @DeleteMapping("/join/{studyMemberId}")
+  public void cancelJoin(@PathVariable Long studyMemberId) {
+    joinService.cancelJoin(studyMemberId);
+  }
+
+  @GetMapping("/join/{studyMemberId}")
+  public JoinDetailsDto getJoinDetails(@PathVariable Long studyMemberId) {
+    return joinService.getJoin(studyMemberId);
   }
 
   /**
