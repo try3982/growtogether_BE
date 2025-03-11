@@ -20,13 +20,15 @@ import java.util.List;
 public class BootCampReviewCreateDto {
 
 
-    private Long userId;
+    private Long memberId;
 
     @NotBlank(message = "제목은 필수 입력값입니다.")
     private String title;
 
     @NotBlank(message = "내용은 필수 입력값입니다.")
     private String content;
+
+    private String imageUrl;
 
     @NotBlank(message = "부트캠프 이름은 필수 입력값입니다.")
     private String bootCampName;
@@ -41,7 +43,7 @@ public class BootCampReviewCreateDto {
     private Integer programSatisfaction;
 
     @NotNull(message = "프로그램 과정은 필수 입력값 입니다.")
-    private ProgramCourse programCourse;
+    private String programCourse;
 
     @NotNull(message = "부트캠프 시작 날짜는 필수 입력값입니다.")
     private LocalDate bootCampStartDate;
@@ -58,11 +60,12 @@ public class BootCampReviewCreateDto {
                 .member(member)
                 .title(this.title)
                 .content(this.content)
+                .imageUrl(this.imageUrl)
                 .bootCampName(this.bootCampName)
                 .learningLevel(this.learningLevel)
                 .assistantSatisfaction(this.assistantSatisfaction)
                 .programSatisfaction(this.programSatisfaction)
-                .programCourse(this.programCourse)
+                .programCourse(getProgramCourseEnum())
                 .bootCampStartDate(this.bootCampStartDate)
                 .bootCampEndDate(this.bootCampEndDate)
                 .viewCount(0L) // 기본값 설정
@@ -78,17 +81,22 @@ public class BootCampReviewCreateDto {
                 .toList();
 
         return BootCampReviewCreateDto.builder()
-                .userId(review.getMember().getMemberId())
+                .memberId(review.getMember().getMemberId())
                 .title(review.getTitle())
                 .content(review.getContent())
+                .imageUrl(review.getImageUrl())
                 .bootCampName(review.getBootCampName())
                 .learningLevel(review.getLearningLevel())
                 .assistantSatisfaction(review.getAssistantSatisfaction())
                 .programSatisfaction(review.getProgramSatisfaction())
-                .programCourse(review.getProgramCourse())
+                .programCourse(review.getProgramCourse().name())
                 .bootCampStartDate(review.getBootCampStartDate())
                 .bootCampEndDate(review.getBootCampEndDate())
                 .skillNames(skillNames)
                 .build();
+    }
+
+    public ProgramCourse getProgramCourseEnum(){
+        return ProgramCourse.valueOf(programCourse.toUpperCase());
     }
 }

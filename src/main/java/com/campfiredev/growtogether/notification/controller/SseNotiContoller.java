@@ -51,7 +51,7 @@ public class SseNotiContoller {
         MemberEntity member = memberRepository.findById(id)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
-        notificationService.sendNotification(member,msg, NotiType.BOOTCAMP);
+        notificationService.sendNotification(member,msg,"https://www.naver.com/",NotiType.BOOTCAMP);
     }
 
 

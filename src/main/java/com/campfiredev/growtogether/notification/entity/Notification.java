@@ -28,6 +28,8 @@ public class Notification extends BaseEntity {
     @Column(nullable = false)
     private NotiType type;
 
+    private String url;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="user_id",nullable = false)
     private MemberEntity member;
