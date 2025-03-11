@@ -21,7 +21,9 @@ import com.campfiredev.growtogether.study.entity.Study;
 import com.campfiredev.growtogether.study.entity.join.StudyMemberEntity;
 import com.campfiredev.growtogether.study.repository.StudyRepository;
 import com.campfiredev.growtogether.study.repository.join.JoinRepository;
+import com.campfiredev.growtogether.study.type.StudyMemberType;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -94,29 +96,31 @@ public class JoinService {
   }
 
   /**
-   * 참여 신청자 리스트 조회
-   * @param studyId 스터디 id
-   * @return
+   * 원하는 타입의 참여자 리스트 조회
+   * 팀장(LEADER), 일반 멤버(NORMAL), 참여 대기자(PENDING), 강퇴자(KICK)
    */
-  public StudyMemberListDto getPendingList(Long studyId) {
+  public List<StudyMemberListDto> getStudyMember(Long studyId, List<StudyMemberType> types) {
 
-    List<StudyMemberEntity> list = joinRepository.findByStudyWithMembersInStatus(studyId,
-        List.of(PENDING));
+    List<StudyMemberEntity> studyMemberList = joinRepository.findByStudyWithMembersInStatus(studyId,
+        types);
 
-    return StudyMemberListDto.fromEntity(list);
+    return getStudyMemberListDtos(studyMemberList);
   }
 
   /**
-   * 참여자 리스트 조회(팀장(LEADER), 일반 멤버(NORMAL), 강퇴자(KICK))
-   * @param studyId
-   * @return
+   * 피드백용 참여자 리스트 조회
+   * 자기 자신 제외
    */
-  public StudyMemberListDto getJoinList(Long studyId) {
+  public List<StudyMemberListDto> getStudyMemberForFeedback(Long studyId, Long memberId) {
 
     List<StudyMemberEntity> list = joinRepository.findByStudyWithMembersInStatus(studyId,
-        List.of(NORMAL, LEADER, KICK));
+        List.of(LEADER, NORMAL, KICK));
 
-    return StudyMemberListDto.fromEntity(list);
+    List<StudyMemberEntity> studyMemberList = list.stream()
+        .filter(studyMember -> !studyMember.getMember().getMemberId().equals(memberId))
+        .collect(Collectors.toList());
+
+    return getStudyMemberListDtos(studyMemberList);
   }
 
   /**
@@ -168,6 +172,12 @@ public class JoinService {
         .ifPresent(studyMember -> {
           throw new CustomException(ALREADY_JOINED_STUDY);
         });
+  }
+
+  private static List<StudyMemberListDto> getStudyMemberListDtos(List<StudyMemberEntity> studyMemberList) {
+    return studyMemberList.stream()
+        .map(studyMember -> StudyMemberListDto.fromEntity(studyMember))
+        .collect(Collectors.toList());
   }
 
 }
