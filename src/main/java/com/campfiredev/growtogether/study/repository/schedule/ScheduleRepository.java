@@ -26,7 +26,7 @@ public interface ScheduleRepository extends JpaRepository<ScheduleEntity, Long> 
   );
 
 
-  Optional<ScheduleEntity> findFirstByTypeAndStartBetween(ScheduleType type,
+  Optional<ScheduleEntity> findFirstByTypeAndStudy_StudyIdAndStartBetween(ScheduleType type, Long studyId,
       LocalDateTime start, LocalDateTime end);
 
 
