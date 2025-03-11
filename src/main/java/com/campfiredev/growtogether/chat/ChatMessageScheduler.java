@@ -29,7 +29,7 @@ public class ChatMessageScheduler {
   private final ChatRepository chatMessageRepository;
   private final StudyRepository studyRepository;
 
-  @Scheduled(fixedRate = 60000)
+  //@Scheduled(fixedRate = 60000)
   public void persistOldMessages() {
 
     List<Study> studies = studyRepository.findByStudyStatus(PROGRESS);
