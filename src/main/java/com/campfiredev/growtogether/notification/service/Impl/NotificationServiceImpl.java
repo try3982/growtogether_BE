@@ -53,7 +53,7 @@ public class NotificationServiceImpl implements NotificationService {
      * @param type 알림 유형
      */
     @Override
-    public void sendNotification(MemberEntity member, String content, NotiType type) {
+    public void sendNotification(MemberEntity member, String content,String url ,NotiType type) {
 
         Notification notification = null;
 
@@ -64,6 +64,7 @@ public class NotificationServiceImpl implements NotificationService {
                     .content(content)
                     .isCheck(false)
                     .type(type)
+                    .url(url)
                     .build();
 
             notificationRepository.save(notification);
@@ -74,7 +75,8 @@ public class NotificationServiceImpl implements NotificationService {
                 notification != null ? notification.getNotiId() : null, // ✅ DB에 저장된 경우 ID 포함
                 content,
                 type,
-                false
+                false,
+                url
         ));
     }
 
@@ -95,7 +97,8 @@ public class NotificationServiceImpl implements NotificationService {
                 notification.getNotiId(),
                 notification.getContent(),
                 notification.getType(),
-                false
+                false,
+                notification.getUrl()
         )).toList();
     }
 

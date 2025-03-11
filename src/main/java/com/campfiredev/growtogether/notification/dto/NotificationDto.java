@@ -16,4 +16,5 @@ public class NotificationDto {
     private String content;
     private NotiType type;
     private Boolean read;
+    private String url;
 }
