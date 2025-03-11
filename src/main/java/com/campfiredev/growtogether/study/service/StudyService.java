@@ -1,6 +1,7 @@
 package com.campfiredev.growtogether.study.service;
 
 import com.campfiredev.growtogether.exception.custom.CustomException;
+import com.campfiredev.growtogether.exception.response.ErrorCode;
 import com.campfiredev.growtogether.member.entity.MemberEntity;
 import com.campfiredev.growtogether.member.repository.MemberRepository;
 import com.campfiredev.growtogether.skill.entity.SkillEntity;
@@ -130,5 +131,12 @@ public class StudyService {
         }
 
         return skills;
+    }
+
+    public void deleteStudy(Long studyId) {
+        Study study = studyRepository.findById(studyId)
+                .orElseThrow(() -> new CustomException(ErrorCode.STUDY_NOT_FOUND));
+        study.setIsDeleted(true);
+        studyRepository.save(study);
     }
 }
