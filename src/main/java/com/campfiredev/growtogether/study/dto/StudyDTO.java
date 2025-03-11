@@ -6,10 +6,7 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.Date;
@@ -56,6 +53,11 @@ public class StudyDTO {
     @NotEmpty(message = "스터디 진행시 사용할 기술스택을 입력해 주세요.")
     private List<String> skillNames;
 
+    private String nickName;
+
+    @Setter
+    private Integer commentCount;
+
     public static StudyDTO fromEntity(Study study) {
         List<String> skillNames = study.getSkillStudies().stream()
                 .map(skillStudy -> skillStudy.getSkill().getSkillName())
@@ -76,6 +78,7 @@ public class StudyDTO {
                 .type(study.getType())
                 .studyCount(study.getStudyCount())
                 .skillNames(skillNames)
+                .nickName(study.getMember().getNickName())
                 .build();
     }
 

@@ -10,6 +10,7 @@ import com.campfiredev.growtogether.study.dto.StudyDTO;
 import com.campfiredev.growtogether.study.entity.SkillStudy;
 import com.campfiredev.growtogether.study.entity.Study;
 import com.campfiredev.growtogether.study.repository.SkillStudyRepository;
+import com.campfiredev.growtogether.study.repository.StudyCommentRepository;
 import com.campfiredev.growtogether.study.repository.StudyRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -32,6 +33,8 @@ public class StudyService {
     private final SkillStudyRepository skillStudyRepository;
 
     private final MemberRepository memberRepository;
+
+    private final StudyCommentRepository studyCommentRepository;
 
     public StudyDTO createStudy(StudyDTO dto, long userId) {
         List<SkillEntity> skills = validateDates(dto);
@@ -67,6 +70,7 @@ public class StudyService {
     public List<StudyDTO> getAllStudies() {
         return studyRepository.findByIsDeletedFalseOrderByCreatedAtDesc().stream()
                 .map(StudyDTO::fromEntity)
+                .peek(studyDTO -> studyDTO.setCommentCount(studyCommentRepository.countAllByStudyId(studyDTO.getStudyId())))
                 .toList();
     }
 

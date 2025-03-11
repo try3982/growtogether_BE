@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface StudyCommentRepository extends JpaRepository<StudyComment, Long> {
     List<StudyComment> findByStudyId(Long studyId);
+    Integer countAllByStudyId(Long studyId);
 }
