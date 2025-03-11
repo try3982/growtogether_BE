@@ -57,11 +57,14 @@ public class BootCampReview extends BaseEntity {
     @Column(nullable = false)
     private Integer programSatisfaction;
 
+    @Column(name = "image_url")
+    private String imageUrl;
+
     @OneToMany(mappedBy = "bootCampReview", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<BootCampSkill> bootCampSkills;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name="user_id",nullable = false)
+    @JoinColumn(name="member_id",nullable = false)
     private MemberEntity member;
 
     //후기 삭제시 댓글도 같이 삭제되도록

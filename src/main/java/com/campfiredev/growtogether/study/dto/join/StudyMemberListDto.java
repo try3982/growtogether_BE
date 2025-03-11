@@ -13,29 +13,16 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class StudyMemberListDto {
+  private String nickname;
 
-  private List<Info> pending;
+  private Long studyMemberId;
 
-  @Getter
-  @NoArgsConstructor
-  @AllArgsConstructor
-  @Builder
-  public static class Info {
-    private Long userId;
+  public static StudyMemberListDto fromEntity(StudyMemberEntity studyMemberEntity){
 
-    private String nickname;
-
-    private Long studyMemberId;
-  }
-
-  public static StudyMemberListDto fromEntity(List<StudyMemberEntity> list){
-
-    return new StudyMemberListDto(list.stream()
-        .map(a -> Info.builder()
-            .userId(a.getMember().getMemberId())
-            .nickname(a.getMember().getNickName())
-            .studyMemberId(a.getId())
-            .build())
-        .collect(Collectors.toList()));
+    return StudyMemberListDto.builder()
+        .nickname(studyMemberEntity.getMember().getNickName())
+        .studyMemberId(studyMemberEntity.getId())
+        .build();
   }
 }
+

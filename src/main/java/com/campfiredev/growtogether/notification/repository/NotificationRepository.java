@@ -12,6 +12,4 @@ public interface NotificationRepository extends JpaRepository<Notification , Lon
 
     // 특정 사용자 읽지 않는 알림 조회
     List<Notification> findByMemberAndIsCheckFalseOrderByCreatedAtDesc(MemberEntity member);
-
-
 }

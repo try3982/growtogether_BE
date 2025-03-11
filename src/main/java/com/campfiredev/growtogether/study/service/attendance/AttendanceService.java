@@ -41,6 +41,7 @@ public class AttendanceService {
 
     LocalDateTime now = LocalDateTime.now();
 
+
     ScheduleEntity scheduleEntity = scheduleRepository.findFirstByTypeAndStudy_StudyIdAndStartBetween(
             MAIN, studyId, now.minusMinutes(10), now.plusMinutes(10))
         .orElseThrow(() -> new CustomException(ErrorCode.INVALID_ATTENDANCE_TIME));

@@ -33,6 +33,11 @@ public class StudyController {
     public StudyDTO updateStudy(@PathVariable Long studyId, @Valid @RequestBody StudyDTO dto) {
         return studyService.updateStudy(studyId, dto);
     }
+
+    @DeleteMapping("/{studyId}")
+    public void deleteStudy(@PathVariable Long studyId) {
+        studyService.deleteStudy(studyId);
+    }
 }
 
 

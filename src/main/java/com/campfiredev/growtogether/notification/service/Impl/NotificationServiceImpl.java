@@ -36,10 +36,12 @@ public class NotificationServiceImpl implements NotificationService {
      */
     @Override
     public SseEmitter subscribe(Long userId) {
+
         SseEmitter emitter = createEmitter(userId);
 
         // 클라이언트가 처음 구독할 때 기본 메시지 전송 (연결 안정성 확보)
         sendToClient(userId, "Connected to SSE stream. [userId=" + userId + "]");
+
 
         return emitter;
     }
@@ -51,21 +53,31 @@ public class NotificationServiceImpl implements NotificationService {
      * @param type 알림 유형
      */
     @Override
-    public void sendNotification(MemberEntity member, String content, NotiType type) {
-        // SSE 실시간 알림 전송
-        notifyUser(member.getMemberId(), new NotificationDto(content, type));
+    public void sendNotification(MemberEntity member, String content,String url ,NotiType type) {
+
+        Notification notification = null;
 
         // 중요 알림만 DB에 저장
         if (importNoti(type)) {
-            Notification notification = Notification.builder()
+            notification = Notification.builder()
                     .member(member)
                     .content(content)
                     .isCheck(false)
                     .type(type)
+                    .url(url)
                     .build();
 
             notificationRepository.save(notification);
         }
+
+        // SSE 실시간 알림 전송
+        notifyUser(member.getMemberId(), new NotificationDto(
+                notification != null ? notification.getNotiId() : null, // ✅ DB에 저장된 경우 ID 포함
+                content,
+                type,
+                false,
+                url
+        ));
     }
 
     /**
@@ -81,8 +93,13 @@ public class NotificationServiceImpl implements NotificationService {
 
         List<Notification> notifications = notificationRepository.findByMemberAndIsCheckFalseOrderByCreatedAtDesc(member);
 
-        return notifications.stream().map(notification -> new NotificationDto(notification.getContent(),notification.getType()))
-                .toList();
+        return notifications.stream().map(notification -> new NotificationDto(
+                notification.getNotiId(),
+                notification.getContent(),
+                notification.getType(),
+                false,
+                notification.getUrl()
+        )).toList();
     }
 
     /**
@@ -96,6 +113,7 @@ public class NotificationServiceImpl implements NotificationService {
 
         notification.markAsRead();
         notificationRepository.save(notification);
+
     }
 
     /**
@@ -136,11 +154,13 @@ public class NotificationServiceImpl implements NotificationService {
                         .id(String.valueOf(id))
                         .name("SSE first Connection")
                         .data(data));
+
+                log.info("✅ SSE 메시지 전송 완료: {}", data);
             } catch (IOException e) {
 
                 emitter.completeWithError(e);
                 failedEmitters.add(emitter);
-                log.error("Failed to send data to SSE client: {} ", e.getMessage());
+                log.error("SSE 메시지 전송 실패: {} ", e.getMessage());
             }
         });
 
