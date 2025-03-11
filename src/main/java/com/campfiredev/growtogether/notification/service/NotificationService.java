@@ -13,7 +13,7 @@ public interface NotificationService {
     SseEmitter subscribe(Long userId);
 
     //알림 전송
-    void sendNotification(MemberEntity member, String content, NotiType type);
+    void sendNotification(MemberEntity member,String content, String url, NotiType type);
 
     // 읽지 않는 알림 조회
     List<NotificationDto> getUnReadNotifiactions(Long member);

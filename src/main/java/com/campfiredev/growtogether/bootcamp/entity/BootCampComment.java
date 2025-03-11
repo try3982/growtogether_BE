@@ -39,9 +39,12 @@ public class BootCampComment extends BaseEntity {
     private BootCampReview bootCampReview;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name="user_id",nullable = false)
+    @JoinColumn(name="member_id",nullable = false)
     private MemberEntity member;
 
     @Column(nullable = false)
     private Boolean isDeleted = false;
+
+    @Column(nullable = false)
+    private int depth;
 }

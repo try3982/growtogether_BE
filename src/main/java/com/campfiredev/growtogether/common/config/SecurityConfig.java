@@ -31,7 +31,8 @@ public class SecurityConfig {
             "/api/email/**",
             "/api/study/**",
             "/member/**",
-            "/payment/**"
+            "/payment/**",
+        "/**"
     };
 
     @Bean
@@ -44,7 +45,7 @@ public class SecurityConfig {
                         authorizeRequests
                                 // 퍼블릭 URL은 인증 없이 허용
                                 .requestMatchers(PUBLIC_URLS).permitAll()
-                                .requestMatchers("/api/bootcamp").authenticated()
+                                .requestMatchers("/api/bootcamp","/sse").authenticated()
                                 // 그 외의 요청은 인증 필요
                                 .anyRequest().authenticated()
                 )

@@ -29,6 +29,9 @@ public enum ErrorCode {
   ALREADY_EXISTS_SCHEDULE("겹치는 일정이 존재합니다.",BAD_REQUEST),
   INVALID_ATTENDANCE_TIME("출석 가능 시간이 아닙니다.", BAD_REQUEST),
   ALREADY_ATTENDANCE("이미 출석했습니다.",BAD_REQUEST),
+  ALREADY_FEEDBACK("이미 피드백을 했습니다.", BAD_REQUEST),
+  INVALID_FEEDBACK_PERIOD("피드백 기간이 아닙니다.", BAD_REQUEST),
+
 
   // 파일 업로드 관련 예외
   FILE_UPLOAD_FAILED("파일 업로드에 실패했습니다.", HttpStatus.BAD_REQUEST),
@@ -65,7 +68,8 @@ public enum ErrorCode {
 
   COMMENT_ACCESS_DENIED("해당 댓글에 접근 권한이 없습니다.",BAD_REQUEST),
 
-  NOTI_NOT_FOUND("해당 알림을 찾을 수 없습니다.",BAD_REQUEST);
+  NOTI_NOT_FOUND("해당 알림을 찾을 수 없습니다.",BAD_REQUEST),
+  COMMENT_DEPTH_EXCEED("댓글 뎁스 초과입니다.",BAD_REQUEST);
 
   private final String description;
 

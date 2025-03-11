@@ -7,6 +7,7 @@ import static com.campfiredev.growtogether.exception.response.ErrorCode.STUDY_NO
 import static com.campfiredev.growtogether.exception.response.ErrorCode.USER_NOT_APPLIED;
 import static com.campfiredev.growtogether.exception.response.ErrorCode.USER_NOT_FOUND;
 import static com.campfiredev.growtogether.study.entity.StudyStatus.COMPLETE;
+import static com.campfiredev.growtogether.study.entity.StudyStatus.RECRUIT;
 import static com.campfiredev.growtogether.study.type.StudyMemberType.KICK;
 import static com.campfiredev.growtogether.study.type.StudyMemberType.LEADER;
 import static com.campfiredev.growtogether.study.type.StudyMemberType.NORMAL;
@@ -16,13 +17,19 @@ import com.campfiredev.growtogether.exception.custom.CustomException;
 import com.campfiredev.growtogether.member.entity.MemberEntity;
 import com.campfiredev.growtogether.member.repository.MemberRepository;
 import com.campfiredev.growtogether.point.service.PointService;
+import com.campfiredev.growtogether.study.dto.join.JoinCreateDto;
+import com.campfiredev.growtogether.study.dto.join.JoinDetailsDto;
 import com.campfiredev.growtogether.study.dto.join.StudyMemberListDto;
 import com.campfiredev.growtogether.study.entity.Study;
 import com.campfiredev.growtogether.study.entity.join.StudyMemberEntity;
 import com.campfiredev.growtogether.study.repository.StudyRepository;
 import com.campfiredev.growtogether.study.repository.join.JoinRepository;
+import com.campfiredev.growtogether.study.type.StudyMemberType;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,6 +42,7 @@ public class JoinService {
   private final MemberRepository memberRepository;
   private final StudyRepository studyRepository;
   private final PointService pointService;
+  private final RedisTemplate<String, Object> redisTemplate;
 
   /**
    * 참가 신청
@@ -42,7 +50,7 @@ public class JoinService {
    * @param memberId 로그인한 사용자 id
    * @param studyId  스터디 id
    */
-  public void join(Long memberId, Long studyId) {
+  public void join(Long memberId, Long studyId, JoinCreateDto joinCreateDto) {
     MemberEntity memberEntity = memberRepository.findById(memberId)
         .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
 
@@ -53,7 +61,11 @@ public class JoinService {
     validateJoin(memberEntity, studyEntity);
 
     // 참가 정보 저장
-    joinRepository.save(StudyMemberEntity.create(studyEntity, memberEntity));
+    StudyMemberEntity save = joinRepository.save(
+        StudyMemberEntity.create(studyEntity, memberEntity));
+
+    redisTemplate.opsForValue()
+        .set("join" + save.getId(), joinCreateDto.getContent(), 7, TimeUnit.DAYS);
 
     // 추후 참가 신청 메일 발송 로직 추가
   }
@@ -94,29 +106,47 @@ public class JoinService {
   }
 
   /**
-   * 참여 신청자 리스트 조회
-   * @param studyId 스터디 id
-   * @return
+   * 참가신청 세부사항 조히
    */
-  public StudyMemberListDto getPendingList(Long studyId) {
+  public JoinDetailsDto getJoin(Long studyMemberId){
+    StudyMemberEntity studyMemberEntity = joinRepository.findWithSkillsById(studyMemberId)
+        .orElseThrow(() -> new CustomException(USER_NOT_APPLIED));
 
-    List<StudyMemberEntity> list = joinRepository.findByStudyWithMembersInStatus(studyId,
-        List.of(PENDING));
+    String content = (String) redisTemplate.opsForValue().get("join" + studyMemberId);
 
-    return StudyMemberListDto.fromEntity(list);
+    return JoinDetailsDto.from(studyMemberEntity, content);
   }
 
   /**
-   * 참여자 리스트 조회(팀장(LEADER), 일반 멤버(NORMAL), 강퇴자(KICK))
-   * @param studyId
+   * 참여 신청자 리스트 조회
+   *
+   * @param studyId 스터디 id
    * @return
+   * 원하는 타입의 참여자 리스트 조회
+   * 팀장(LEADER), 일반 멤버(NORMAL), 참여 대기자(PENDING), 강퇴자(KICK)
    */
-  public StudyMemberListDto getJoinList(Long studyId) {
+  public List<StudyMemberListDto> getStudyMember(Long studyId, List<StudyMemberType> types) {
+
+    List<StudyMemberEntity> studyMemberList = joinRepository.findByStudyWithMembersInStatus(studyId,
+        types);
+
+    return getStudyMemberListDtos(studyMemberList);
+  }
+
+  /**
+   * 피드백용 참여자 리스트 조회
+   * 자기 자신 제외
+   */
+  public List<StudyMemberListDto> getStudyMemberForFeedback(Long studyId, Long memberId) {
 
     List<StudyMemberEntity> list = joinRepository.findByStudyWithMembersInStatus(studyId,
-        List.of(NORMAL, LEADER, KICK));
+        List.of(LEADER, NORMAL, KICK));
 
-    return StudyMemberListDto.fromEntity(list);
+    List<StudyMemberEntity> studyMemberList = list.stream()
+        .filter(studyMember -> !studyMember.getMember().getMemberId().equals(memberId))
+        .collect(Collectors.toList());
+
+    return getStudyMemberListDtos(studyMemberList);
   }
 
   /**
@@ -160,7 +190,7 @@ public class JoinService {
    * @param studyEntity
    */
   private void validateJoin(MemberEntity memberEntity, Study studyEntity) {
-    if (COMPLETE.equals(studyEntity.getStudyStatus())) {
+    if (RECRUIT.equals(studyEntity.getStudyStatus())) {
       throw new CustomException(STUDY_FULL);
     }
 
@@ -168,6 +198,12 @@ public class JoinService {
         .ifPresent(studyMember -> {
           throw new CustomException(ALREADY_JOINED_STUDY);
         });
+  }
+
+  private static List<StudyMemberListDto> getStudyMemberListDtos(List<StudyMemberEntity> studyMemberList) {
+    return studyMemberList.stream()
+        .map(studyMember -> StudyMemberListDto.fromEntity(studyMember))
+        .collect(Collectors.toList());
   }
 
 }
