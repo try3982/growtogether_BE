@@ -27,6 +27,8 @@ public class StudyCommentDto {
     @Min(value = 0, message = "게시글 번호는 0보다 큰 숫자여야 합니다.")
     private Long studyId;
 
+    private String nickName;
+
 
     public static StudyCommentDto fromEntity(StudyComment comment) {
         return StudyCommentDto.builder()
@@ -34,6 +36,7 @@ public class StudyCommentDto {
                 .commentContent(comment.getCommentContent())
                 .parentCommentId(comment.getParentCommentId())
                 .studyId((comment.getStudyId()))
+                .nickName(comment.getMember().getNickName())
                 .build();
     }
 }
