@@ -3,10 +3,12 @@ package com.campfiredev.growtogether.study.entity;
 import com.campfiredev.growtogether.common.entity.BaseEntity;
 import com.campfiredev.growtogether.member.entity.MemberEntity;
 import com.campfiredev.growtogether.study.dto.StudyDTO;
+import com.campfiredev.growtogether.study.dto.schedule.MainScheduleDto;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.Date;
+import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 
 @Entity
@@ -27,9 +29,9 @@ public class Study extends BaseEntity {
 
     private Integer maxParticipant;
 
-    private Date studyStartDate;
+    private LocalDateTime studyStartDate;
 
-    private Date studyEndDate;
+    private LocalDateTime studyEndDate;
 
     @Setter
     private Boolean isDeleted;
@@ -43,6 +45,8 @@ public class Study extends BaseEntity {
 
     private Integer studyCount;
 
+    private LocalDateTime studyClosingDate;
+
     @OneToMany(mappedBy = "study", cascade = CascadeType.ALL)
     private List<SkillStudy> skillStudies;
 
@@ -51,18 +55,24 @@ public class Study extends BaseEntity {
     private MemberEntity member;
 
     public static Study fromDTO(StudyDTO dto) {
+        List<LocalDateTime> scheduleList = dto.getMainScheduleList().stream().map(MainScheduleDto::getStartTime).toList();
+
+        LocalDateTime studyStartDate = Collections.min(scheduleList);
+        LocalDateTime studyEndDate = Collections.max(scheduleList);
+
         return Study.builder()
                 .title(dto.getTitle())
                 .description(dto.getDescription())
                 .viewCount(0L)
                 .maxParticipant(dto.getMaxParticipant())
-                .studyStartDate(dto.getStudyStartDate())
-                .studyEndDate(dto.getStudyEndDate())
+                .studyStartDate(studyStartDate)
+                .studyEndDate(studyEndDate)
                 .isDeleted(false)
                 .studyStatus(StudyStatus.PROGRESS)
                 .participant(1)
                 .type(dto.getType())
-                .studyCount(0)
+                .studyCount(dto.getMainScheduleList().size())
+                .studyClosingDate(dto.getStudyClosingDate())
                 .build();
     }
 
