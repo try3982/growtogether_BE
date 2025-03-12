@@ -6,6 +6,7 @@ import static com.campfiredev.growtogether.exception.response.ErrorCode.STUDY_FU
 import static com.campfiredev.growtogether.exception.response.ErrorCode.STUDY_NOT_FOUND;
 import static com.campfiredev.growtogether.exception.response.ErrorCode.USER_NOT_APPLIED;
 import static com.campfiredev.growtogether.exception.response.ErrorCode.USER_NOT_FOUND;
+import static com.campfiredev.growtogether.notification.type.NotiType.STUDY;
 import static com.campfiredev.growtogether.study.entity.StudyStatus.COMPLETE;
 import static com.campfiredev.growtogether.study.entity.StudyStatus.RECRUIT;
 import static com.campfiredev.growtogether.study.type.StudyMemberType.KICK;
@@ -16,6 +17,7 @@ import static com.campfiredev.growtogether.study.type.StudyMemberType.PENDING;
 import com.campfiredev.growtogether.exception.custom.CustomException;
 import com.campfiredev.growtogether.member.entity.MemberEntity;
 import com.campfiredev.growtogether.member.repository.MemberRepository;
+import com.campfiredev.growtogether.notification.service.NotificationService;
 import com.campfiredev.growtogether.point.service.PointService;
 import com.campfiredev.growtogether.study.dto.join.JoinCreateDto;
 import com.campfiredev.growtogether.study.dto.join.JoinDetailsDto;
@@ -43,6 +45,7 @@ public class JoinService {
   private final StudyRepository studyRepository;
   private final PointService pointService;
   private final RedisTemplate<String, Object> redisTemplate;
+  private final NotificationService notificationService;
 
   /**
    * 참가 신청
@@ -68,6 +71,13 @@ public class JoinService {
         .set("join" + save.getId(), joinCreateDto.getContent(), 7, TimeUnit.DAYS);
 
     // 추후 참가 신청 메일 발송 로직 추가
+
+    List<StudyMemberEntity> find = joinRepository.findByStudyWithMembersInStatus(
+        studyId, List.of(LEADER));
+
+    StudyMemberEntity studyMemberEntity = find.get(0);
+
+    notificationService.sendNotification(studyMemberEntity.getMember(),"참가 신청함", null,STUDY);
   }
 
   /**

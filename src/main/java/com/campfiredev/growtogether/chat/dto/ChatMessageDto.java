@@ -1,6 +1,7 @@
 package com.campfiredev.growtogether.chat.dto;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -23,5 +24,7 @@ public class ChatMessageDto {
   private String imageUrl;
 
   private LocalDateTime date;
+
+  private List<String> to;
 
 }

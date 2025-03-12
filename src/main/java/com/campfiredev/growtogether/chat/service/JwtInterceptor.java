@@ -1,6 +1,7 @@
 package com.campfiredev.growtogether.chat.service;
 
 import com.campfiredev.growtogether.member.util.JwtUtil;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.Message;
@@ -24,6 +25,8 @@ public class JwtInterceptor implements ChannelInterceptor {
 
     if (StompCommand.CONNECT.equals(accessor.getCommand())) {
       String token = accessor.getFirstNativeHeader("Authorization");
+      String studyId = accessor.getFirstNativeHeader("studyId");
+      String username = accessor.getFirstNativeHeader("username");
 
       if (token == null || !token.startsWith("Bearer ")) {
         throw new IllegalArgumentException("JWT 토큰이 필요합니다.");
@@ -35,7 +38,13 @@ public class JwtInterceptor implements ChannelInterceptor {
 
       log.info("jwt 검증 로직 추가할 예정");
 
-      accessor.getSessionAttributes().put("username", "임시 닉네임");
+      System.out.println(studyId);
+      Map<String, Object> sessionAttributes = accessor.getSessionAttributes();
+      System.out.println(sessionAttributes);
+
+      accessor.getSessionAttributes().put("studyId", studyId);
+
+      System.out.println(sessionAttributes);
     }
 
     return message;
