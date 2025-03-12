@@ -1,10 +1,7 @@
 package com.campfiredev.growtogether.member.entity;
 
 import jakarta.persistence.*;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -20,6 +17,8 @@ import java.util.List;
 })
 @Getter
 @NoArgsConstructor
+@AllArgsConstructor
+
 public class MemberEntity {
 
   @Id
@@ -74,24 +73,6 @@ public class MemberEntity {
   @Setter
   private Double rating;
 
-  @Builder
-  public MemberEntity(Long memberId, String kakaoId, String nickName, String phone, String password,
-      String email, Integer points, String githubUrl, String profileImageUrl,
-      LocalDateTime createdAt, LocalDateTime updatedAt, List<MemberSkillEntity> userSkills, Double rating) {
-    this.memberId = memberId;
-    this.kakaoId = kakaoId;
-    this.nickName = nickName;
-    this.phone = phone;
-    this.password = password;
-    this.email = email;
-    this.points = points;
-    this.githubUrl = githubUrl;
-    this.profileImageUrl = profileImageUrl;
-    this.createdAt = createdAt;
-    this.updatedAt = updatedAt;
-    this.userSkills = userSkills;
-    this.rating = rating;
-  }
 
   public void usePoints(int amount) {
     points -= amount;
