@@ -17,11 +17,11 @@ public class ProfileController {
     private final S3Service s3Service;
     private final MemberService memberService;
 
-    // 프로필 이미지 업로드
+    //  이미지 업로드
     @PostMapping("/upload")
     public ResponseEntity<?> uploadProfileImage(@RequestParam("file") MultipartFile file) {
         String fileUrl = s3Service.uploadFile(file);
-        return ResponseEntity.ok(Map.of("message", "프로필 이미지 업로드 성공", "imageUrl", fileUrl));
+        return ResponseEntity.ok(Map.of("message", "이미지 업로드 성공", "imageUrl", fileUrl));
     }
     // 프로필 이미지 URL 조회 API
     @GetMapping("/image/{fileKey}")

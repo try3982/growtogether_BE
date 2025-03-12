@@ -100,7 +100,7 @@ public class MemberService {
         }
 
         pointService.updatePoint(memberEntity, 1);
-        return jwtUtil.generateAccessToken(memberEntity.getEmail());
+        return jwtUtil.generateAccessToken(memberEntity.getEmail(),memberEntity.getMemberId(), memberEntity.getNickName());
     }
 
     // 프로필 이미지 삭제
