@@ -1,10 +1,10 @@
 package com.campfiredev.growtogether.notification.controller;
 
 import com.campfiredev.growtogether.notification.dto.NotificationDto;
-import com.campfiredev.growtogether.notification.dto.NotificationRequestDto;
 import com.campfiredev.growtogether.notification.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,13 +18,13 @@ public class NotificationController {
 
     /**
      * 사용자의 읽지 않는 알림 목록 조회
-     * @param request
+     *
      * @return 읽지 않는 알림 리스트
      */
     @GetMapping("/unread")
-    public ResponseEntity<List<NotificationDto>> getUnreadNotifications(@RequestBody NotificationRequestDto request){
+    public ResponseEntity<List<NotificationDto>> getUnreadNotifications(@AuthenticationPrincipal String email){
 
-        List<NotificationDto> notificationDtos = notificationService.getUnReadNotifiactions(request.getMemberId());
+        List<NotificationDto> notificationDtos = notificationService.getUnReadNotifiactions(email);
 
         return ResponseEntity.ok(notificationDtos);
     }
