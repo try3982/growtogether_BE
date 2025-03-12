@@ -2,10 +2,7 @@ package com.campfiredev.growtogether.member.entity;
 
 import com.campfiredev.growtogether.study.entity.StudyComment;
 import jakarta.persistence.*;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -21,6 +18,8 @@ import java.util.List;
 })
 @Getter
 @NoArgsConstructor
+@AllArgsConstructor
+
 public class MemberEntity {
 
   @Id

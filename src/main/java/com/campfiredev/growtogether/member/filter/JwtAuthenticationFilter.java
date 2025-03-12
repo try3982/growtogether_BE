@@ -1,6 +1,7 @@
 package com.campfiredev.growtogether.member.filter;
 
 import com.campfiredev.growtogether.exception.custom.CustomException;
+import com.campfiredev.growtogether.member.dto.CustomUserDetails;
 import com.campfiredev.growtogether.member.util.JwtUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -14,9 +15,11 @@ import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import static com.campfiredev.growtogether.exception.response.ErrorCode.NOT_VALID_TOKEN;
+
 @Slf4j
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -26,12 +29,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private static final AntPathMatcher antPathMatcher = new AntPathMatcher(); // 경로 패턴 매칭을 위한 AntPathMatcher
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal (HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         // 요청 URL이 퍼블릭 URL에 포함되는지 확인
         String requestUri = request.getRequestURI();
         for (String publicUrl : PUBLIC_URLS) {
             if (antPathMatcher.match(publicUrl, requestUri)) {
-                // 퍼블릭 URL인 경우, 필터를 건너뛰고 다음 필터로 넘김
                 log.info("퍼블릭 URL - JWT 인증 생략: {}", requestUri);
                 filterChain.doFilter(request, response);
                 return;
@@ -40,23 +42,35 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         // 요청에서 JWT를 추출
         String jwtToken = jwtUtil.getTokenFromHeader(request);
-        log.info(" 추출된 JWT: {}", jwtToken);
+        log.info("추출된 JWT: {}", jwtToken);
+
         // 토큰이 없거나 유효하지 않으면 인증 실패 처리
         if (jwtToken == null || !jwtUtil.isTokenValid(jwtToken)) {
-            // 401 Unauthorized 상태 코드 설정
             throw new CustomException(NOT_VALID_TOKEN);
         }
 
-        // JWT 토큰에서 사용자 정보 추출하여 인증 처리
+        // JWT 토큰에서 사용자 정보 추출
         String email = jwtUtil.getMemberEmailFromToken(jwtToken);
+        Long memberId = jwtUtil.getMemberIdFromToken(jwtToken); // memberId 추가
+        String nickName = jwtUtil.getNickNameFromToken(jwtToken);
 
-        // 사용자 인증 처리
-        //UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(email, jwtToken);
-        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(email,null, Collections.emptyList());
+
+        // 인증 객체 생성 (email과 memberId 함께 저장)
+//        Map<String, Object> principalDetails = new HashMap<>();
+//        principalDetails.put("email", email);
+//        principalDetails.put("memberId", memberId);
+
+        CustomUserDetails customerDetails = CustomUserDetails.builder().email(email).memberId(memberId).nickName(nickName).build();
+
+
+        UsernamePasswordAuthenticationToken authentication =
+                new UsernamePasswordAuthenticationToken(customerDetails, null, null);
+
+        // Security Context에 인증 정보 저장
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        log.info(" Security Context에 저장된 인증 정보: {}", SecurityContextHolder.getContext().getAuthentication());
+        log.info("Security Context에 저장된 인증 정보: {}", SecurityContextHolder.getContext().getAuthentication());
+
         // 요청을 필터 체인에 전달
         filterChain.doFilter(request, response);
     }
-
 }

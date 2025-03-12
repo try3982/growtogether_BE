@@ -1,11 +1,13 @@
 package com.campfiredev.growtogether.member.controller;
 
+import com.campfiredev.growtogether.member.dto.CustomUserDetails;
 import com.campfiredev.growtogether.member.dto.MemberLoginDto;
 import com.campfiredev.growtogether.member.dto.MemberRegisterDto;
 import com.campfiredev.growtogether.member.entity.MemberEntity;
 import com.campfiredev.growtogether.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -50,6 +52,12 @@ public class MemberController {
     public ResponseEntity<?> findEmail(@RequestParam String email) {
         String maskedEmail = memberService.findEmail(email);
         return ResponseEntity.ok(Map.of("maskedEmail", maskedEmail));
+    }
+    @GetMapping("/jwt-test")
+    public void test(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
+        System.out.println(customUserDetails.getEmail());
+        System.out.println(customUserDetails.getMemberId());
+        System.out.println(customUserDetails.getNickName());
     }
 
 }

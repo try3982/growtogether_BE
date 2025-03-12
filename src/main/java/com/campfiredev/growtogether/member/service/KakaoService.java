@@ -34,7 +34,7 @@ public class KakaoService {
         KakaoTokenDto kakaoToken = this.getKakaoToken(accessCode);
         KakaoUserDto kakaoUserInfo = this.getKakaoUserInfo(kakaoToken.getAccessToken());
         MemberEntity memberEntity = memberService.kakaoLogin(kakaoUserInfo);
-        return jwtUtil.generateAccessToken(memberEntity.getEmail());
+        return jwtUtil.generateAccessToken(memberEntity.getEmail(),memberEntity.getMemberId(), memberEntity.getNickName());
     }
 
     // 카카오 Token 요청
@@ -73,5 +73,6 @@ public class KakaoService {
 
         return response.getBody();
     }
+
 
 }
