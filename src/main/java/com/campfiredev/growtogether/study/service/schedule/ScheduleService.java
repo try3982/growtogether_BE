@@ -75,7 +75,13 @@ public class ScheduleService {
   public void createSchedule(Long studyId, Long memberId, ScheduleCreateDto scheduleCreateDto) {
     StudyMemberEntity studyMemberEntity = getStudyMemberEntity(studyId, memberId);
 
-    scheduleRepository.save(ScheduleEntity.create(studyMemberEntity, scheduleCreateDto));
+    ScheduleEntity save = scheduleRepository.save(
+        ScheduleEntity.create(studyMemberEntity, scheduleCreateDto));
+
+    LocalDateTime start = LocalDateTime.of(scheduleCreateDto.getStartDate(), scheduleCreateDto.getStartTime());
+    LocalDateTime end = start.plusMinutes(scheduleCreateDto.getTotalTime());
+
+    checkMainConflict(studyMemberEntity.getStudy(), start, end, save.getId());
   }
 
   public void updateSchedule(Long memberId, Long scheduleId, ScheduleUpdateDto updateDto) {
@@ -84,18 +90,7 @@ public class ScheduleService {
     LocalDateTime start = LocalDateTime.of(updateDto.getStartDate(), updateDto.getStartTime());
     LocalDateTime end = start.plusMinutes(updateDto.getTotalTime());
 
-    List<ScheduleEntity> mainSchedules = scheduleRepository.findByStudyAndStartBetweenAndType(
-        scheduleEntity.getStudy(), start, end, MAIN);
-
-    for (ScheduleEntity schedule : mainSchedules) {
-      if (schedule.getId().equals(scheduleId)) {
-        continue;
-      }
-
-      if (!(end.isBefore(schedule.getStart()) || start.isAfter(schedule.getEnd()))) {
-        throw new CustomException(ALREADY_EXISTS_SCHEDULE);
-      }
-    }
+    checkMainConflict(scheduleEntity.getStudy(), start, end, scheduleEntity.getId());
 
     if (validateCreateVote(memberId, scheduleId, updateDto, scheduleEntity, start, end)) {
       return;
@@ -172,6 +167,21 @@ public class ScheduleService {
             (ScheduleAttendeeDto scheduleAttendeeDto) -> scheduleAttendeeDto.getStart().toLocalDate()));
 
     return ScheduleAttendeeMonthDto.from(groupedSchedules);
+  }
+
+  private void checkMainConflict(Study study, LocalDateTime start, LocalDateTime end, Long scheduleId){
+    List<ScheduleEntity> mainSchedules = scheduleRepository.findByStudyAndStartBetweenAndType(
+        study, start, end, MAIN);
+
+    for (ScheduleEntity schedule : mainSchedules) {
+      if (schedule.getId().equals(scheduleId)) {
+        continue;
+      }
+
+      if (!(end.isBefore(schedule.getStart()) || start.isAfter(schedule.getEnd()))) {
+        throw new CustomException(ALREADY_EXISTS_SCHEDULE);
+      }
+    }
   }
 
   private boolean validateCreateVote(Long memberId, Long scheduleId,

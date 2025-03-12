@@ -84,6 +84,7 @@ public class JwtUtil {
 
     // Jwt 토큰의 유효기간을 확인하는 메서드
     public boolean isTokenValid(String token) {
+        System.out.println("valid Method");
         try {
             Date expiration = getClaimsFromToken(token).getExpiration();
             log.info("토큰 만료 시간: {}", expiration);

@@ -1,10 +1,12 @@
 package com.campfiredev.growtogether.study.controller.attendance;
 
+import com.campfiredev.growtogether.member.dto.CustomUserDetails;
 import com.campfiredev.growtogether.study.dto.attendance.AttendanceDto;
 import com.campfiredev.growtogether.study.service.attendance.AttendanceService;
 import java.time.YearMonth;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -24,8 +26,8 @@ public class AttendanceController {
    * @param studyId
    */
   @PostMapping("/{studyId}/attendance")
-  public void attendance(@PathVariable Long studyId){
-    attendanceService.attendance(1L, studyId);
+  public void attendance(@AuthenticationPrincipal CustomUserDetails customUserDetails,  @PathVariable Long studyId){
+    attendanceService.attendance(customUserDetails.getMemberId(), studyId);
   }
 
   @GetMapping("/{studyId}/attendance")
