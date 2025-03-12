@@ -31,7 +31,7 @@ public class JoinController {
    */
   @PostMapping("{studyId}/join")
   public void join(@PathVariable Long studyId, @RequestBody JoinCreateDto joinCreateDto) {
-    joinService.join(5L,studyId, joinCreateDto);
+    joinService.join(6L,studyId, joinCreateDto);
   }
 
   /**
