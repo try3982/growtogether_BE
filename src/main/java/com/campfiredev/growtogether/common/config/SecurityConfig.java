@@ -33,7 +33,6 @@ public class SecurityConfig {
             "/api/study/**",
             "/member/memberLogin",
             "/payment/**",
-        //"/**"
     };
 
     @Bean
