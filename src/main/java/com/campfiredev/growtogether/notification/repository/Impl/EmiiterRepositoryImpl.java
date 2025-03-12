@@ -41,4 +41,9 @@ public class EmiiterRepositoryImpl implements EmitterRepository {
         sseEmitters.remove(userId);
     }
 
+    @Override
+    public List<Long> getAllUserIds() {
+        return new ArrayList<>(sseEmitters.keySet());
+    }
+
 }

@@ -12,6 +12,7 @@ import com.campfiredev.growtogether.notification.service.NotificationService;
 import com.campfiredev.growtogether.notification.type.NotiType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -86,9 +87,9 @@ public class NotificationServiceImpl implements NotificationService {
      * @return 읽지 않는 알림 리스트
      */
     @Override
-    public List<NotificationDto> getUnReadNotifiactions(Long id) {
+    public List<NotificationDto> getUnReadNotifiactions(String email) {
 
-        MemberEntity member = memberRepository.findById(id)
+        MemberEntity member = memberRepository.findByEmail(email)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         List<Notification> notifications = notificationRepository.findByMemberAndIsCheckFalseOrderByCreatedAtDesc(member);
@@ -114,6 +115,19 @@ public class NotificationServiceImpl implements NotificationService {
         notification.markAsRead();
         notificationRepository.save(notification);
 
+    }
+    @Scheduled(fixedRate = 30_000)
+    @Override
+    public void sendHeartbeat() {
+        List<Long> userIds = emitterRepository.getAllUserIds();
+
+        for(Long userId : userIds){
+            try{
+                sendToClient(userId,"heartbeat message");
+            } catch(Exception e){
+                log.error("하트비트 전송 실패: {} ",e.getMessage());
+            }
+        }
     }
 
     /**
@@ -152,7 +166,7 @@ public class NotificationServiceImpl implements NotificationService {
             try {
                 emitter.send(SseEmitter.event()
                         .id(String.valueOf(id))
-                        .name("SSE first Connection")
+                        .name("SSE Connection")
                         .data(data));
 
                 log.info("✅ SSE 메시지 전송 완료: {}", data);
