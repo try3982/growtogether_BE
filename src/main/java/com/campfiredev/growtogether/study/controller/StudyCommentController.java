@@ -4,6 +4,7 @@ import com.campfiredev.growtogether.study.dto.StudyCommentDto;
 import com.campfiredev.growtogether.study.service.StudyCommentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,8 +17,8 @@ public class StudyCommentController {
     private final StudyCommentService studyCommentService;
 
     @PostMapping
-    public StudyCommentDto createComment(@Valid @RequestBody StudyCommentDto dto) {
-        return studyCommentService.createComment(dto);
+    public void createComment(@Valid @RequestBody StudyCommentDto dto, @AuthenticationPrincipal String email) {
+        studyCommentService.createComment(dto,email);
     }
 
     @GetMapping("/{studyId}")
@@ -26,12 +27,12 @@ public class StudyCommentController {
     }
 
     @PutMapping("/{commentId}")
-    public StudyCommentDto updateComment(@PathVariable Long commentId, @Valid @RequestBody StudyCommentDto dto) {
-        return studyCommentService.updateComment(commentId, dto);
+    public StudyCommentDto updateComment(@PathVariable Long commentId, @Valid @RequestBody StudyCommentDto dto, @AuthenticationPrincipal String email) {
+        return studyCommentService.updateComment(commentId, dto, email);
     }
 
     @DeleteMapping("/{commentId}")
-    public void deleteComment(@PathVariable Long commentId) {
-        studyCommentService.deleteComment(commentId);
+    public void deleteComment(@PathVariable Long commentId, @AuthenticationPrincipal String email) {
+        studyCommentService.deleteComment(commentId,email);
     }
 }

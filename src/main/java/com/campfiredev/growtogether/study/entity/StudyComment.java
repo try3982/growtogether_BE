@@ -1,6 +1,6 @@
 package com.campfiredev.growtogether.study.entity;
 
-import com.campfiredev.growtogether.study.dto.StudyCommentDto;
+import com.campfiredev.growtogether.member.entity.MemberEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -25,10 +25,7 @@ public class StudyComment {
     @Column(nullable = false)
     private long studyId;
 
-    public static StudyComment fromDto(StudyCommentDto dto) {
-        return StudyComment.builder()
-                .commentContent(dto.getCommentContent())
-                .parentCommentId(dto.getParentCommentId())
-                .build();
-    }
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id", nullable = false)
+    private MemberEntity member;
 }

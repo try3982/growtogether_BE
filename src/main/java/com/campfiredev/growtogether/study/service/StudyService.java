@@ -10,12 +10,12 @@ import com.campfiredev.growtogether.study.dto.StudyDTO;
 import com.campfiredev.growtogether.study.entity.SkillStudy;
 import com.campfiredev.growtogether.study.entity.Study;
 import com.campfiredev.growtogether.study.repository.SkillStudyRepository;
+import com.campfiredev.growtogether.study.repository.StudyCommentRepository;
 import com.campfiredev.growtogether.study.repository.StudyRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
 import java.util.List;
 
 import static com.campfiredev.growtogether.exception.response.ErrorCode.*;
@@ -33,8 +33,10 @@ public class StudyService {
 
     private final MemberRepository memberRepository;
 
+    private final StudyCommentRepository studyCommentRepository;
+
     public StudyDTO createStudy(StudyDTO dto, long userId) {
-        List<SkillEntity> skills = validateDates(dto);
+        List<SkillEntity> skills = validate(dto);
 
         Study study = Study.fromDTO(dto);
 
@@ -67,6 +69,7 @@ public class StudyService {
     public List<StudyDTO> getAllStudies() {
         return studyRepository.findByIsDeletedFalseOrderByCreatedAtDesc().stream()
                 .map(StudyDTO::fromEntity)
+                .peek(studyDTO -> studyDTO.setCommentCount(studyCommentRepository.countAllByStudyId(studyDTO.getStudyId())))
                 .toList();
     }
 
@@ -86,7 +89,7 @@ public class StudyService {
         Study study = studyRepository.findById(studyId)
                 .orElseThrow(() -> new CustomException(STUDY_NOT_FOUND));
 
-        List<SkillEntity> newSkills = validateDates(dto);
+        List<SkillEntity> newSkills = validate(dto);
         List<SkillStudy> existSkillStudies = study.getSkillStudies();
 
         List<SkillStudy> toRemove = existSkillStudies.stream()
@@ -111,19 +114,7 @@ public class StudyService {
         return StudyDTO.fromEntity(study);
     }
 
-    private List<SkillEntity> validateDates(StudyDTO dto) {
-        Date currentDate = new Date();
-        Date studyStartDate = dto.getStudyStartDate();
-        Date studyEndDate = dto.getStudyEndDate();
-
-        if (studyStartDate.before(currentDate)) {
-            throw new CustomException(START_DATE_PAST);
-        }
-
-        if (studyEndDate.before(studyStartDate)) {
-            throw new CustomException(END_DATE_AFTER_START_DATE);
-        }
-
+    private List<SkillEntity> validate(StudyDTO dto) {
         List<SkillEntity> skills = skillRepository.findBySkillNameIn(dto.getSkillNames());
 
         if (dto.getSkillNames().size() != skills.size()) {

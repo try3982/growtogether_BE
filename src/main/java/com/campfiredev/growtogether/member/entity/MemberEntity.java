@@ -1,5 +1,6 @@
 package com.campfiredev.growtogether.member.entity;
 
+import com.campfiredev.growtogether.study.entity.StudyComment;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -35,7 +36,6 @@ public class MemberEntity {
 
   @Column(name = "phone_number", nullable = true, length = 20)
   private String phone;
-
 
   // 카카오 로그인 경우 null
   @Setter
@@ -73,6 +73,28 @@ public class MemberEntity {
   @Setter
   private Double rating;
 
+  @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+  private List<StudyComment> comments;
+
+  @Builder
+  public MemberEntity(Long memberId, String kakaoId, String nickName, String phone, String password,
+      String email, Integer points, String githubUrl, String profileImageUrl,
+      LocalDateTime createdAt, LocalDateTime updatedAt, List<MemberSkillEntity> userSkills, Double rating, List<StudyComment> comments) {
+    this.memberId = memberId;
+    this.kakaoId = kakaoId;
+    this.nickName = nickName;
+    this.phone = phone;
+    this.password = password;
+    this.email = email;
+    this.points = points;
+    this.githubUrl = githubUrl;
+    this.profileImageUrl = profileImageUrl;
+    this.createdAt = createdAt;
+    this.updatedAt = updatedAt;
+    this.userSkills = userSkills;
+    this.rating = rating;
+    this.comments = comments;
+  }
 
   public void usePoints(int amount) {
     points -= amount;
