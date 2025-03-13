@@ -18,7 +18,9 @@ import java.util.List;
 })
 @Getter
 @NoArgsConstructor
+
 @AllArgsConstructor
+
 public class MemberEntity {
 
   @Id
@@ -80,8 +82,8 @@ public class MemberEntity {
   }
 
   // 비밀번호 변경
-  public void setPassword(String password) {
+/*  public void setPassword(String password) {
     this.password = password;
-  }
+  }*/
 
 }

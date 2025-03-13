@@ -33,6 +33,7 @@ public class SecurityConfig {
             "/api/study/**",
             "/member/memberLogin",
             "/payment/**",
+
         "/member/register",
         "/member/memberLogin",
         "/ws-chat/**",
@@ -40,6 +41,11 @@ public class SecurityConfig {
         "/queue/**",
         "/app/**",
         "/user/**"
+
+            "/swagger-ui/**",
+            "/v3/api-docs/**",
+            "/swagger-ui.html"
+
     };
 
     @Bean
