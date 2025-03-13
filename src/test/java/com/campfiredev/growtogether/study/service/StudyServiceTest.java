@@ -16,6 +16,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -45,8 +46,8 @@ class StudyServiceTest {
     void createStudy() {
         // Given
         List<String> skillNames = Arrays.asList("Java", "Spring");
-        Date validStartDate = new Date(System.currentTimeMillis() + 86400000); // 하루 뒤의 날짜
-        Date validEndDate = new Date(System.currentTimeMillis() + 172800000); // 이틀 뒤의 날짜
+        LocalDateTime validStartDate =LocalDateTime.now().plusDays(1); // 하루 뒤의 날짜
+        LocalDateTime validEndDate = LocalDateTime.now().plusDays(2); // 이틀 뒤의 날짜
 
         StudyDTO dto = StudyDTO.builder()
                 .title("New Study")
@@ -90,8 +91,8 @@ class StudyServiceTest {
     void createStudy_withInvalidDates() {
         // Given
         List<String> skillNames = Arrays.asList("Java", "Spring");
-        Date invalidStartDate = new Date(System.currentTimeMillis() - 86400000); // 하루 전의 날짜
-        Date validEndDate = new Date(System.currentTimeMillis() + 172800000); // 이틀 뒤의 날짜
+        LocalDateTime invalidStartDate = LocalDateTime.now().plusDays(1); // 하루 전의 날짜
+        LocalDateTime validEndDate = LocalDateTime.now().plusDays(2); // 이틀 뒤의 날짜
 
         StudyDTO dto = StudyDTO.builder()
                 .title("New Study")
