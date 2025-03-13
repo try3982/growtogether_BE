@@ -25,4 +25,7 @@ public interface EmitterRepository {
      * 특정 사용자 관련하여 모든 연결 삭제
      */
     void deleteAllByUserId(Long userId);
+
+    //현재 SSE에 연결된 모든 사용자 ID 조회
+    List<Long> getAllUserIds();
 }

@@ -1,6 +1,7 @@
 package com.campfiredev.growtogether.member.util;
 
 import com.campfiredev.growtogether.exception.custom.CustomException;
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
@@ -32,11 +33,13 @@ public class JwtUtil {
     }
 
     // 액세스 토큰을 발급하는 메서드
-    public String generateAccessToken(String email) {
+    public String generateAccessToken(String email, Long memberId, String nickName) {
         log.info("액세스 토큰이 발행되었습니다.");
 
         return Jwts.builder()
-                .claim("email", email) // 클레임에 user email을 추가
+                .claim("email", email) // 클레임에 email 추가
+                .claim("memberId", memberId) // memberId 추가
+                .claim("nickName",nickName)
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + expirationTime))
                 .signWith(this.getSigningKey())
@@ -52,29 +55,38 @@ public class JwtUtil {
         return null;
     }
 
-    // 토큰에서 유저 id를 반환하는 메서드
-    public String getMemberEmailFromToken(String token) {
+    // 토큰에서 Claims(클레임) 파싱하는 메서드
+    private Claims getClaimsFromToken(String token) {
         try {
             return Jwts.parser()
                     .verifyWith(this.getSigningKey())
                     .build()
                     .parseSignedClaims(token)
-                    .getPayload()
-                    .get("email", String.class);
+                    .getPayload();
         } catch (JwtException | IllegalArgumentException e) {
             throw new CustomException(NOT_VALID_TOKEN);
         }
     }
 
+    // 토큰에서 유저 email을 가져오는 메서드
+    public String getMemberEmailFromToken(String token) {
+        return getClaimsFromToken(token).get("email", String.class);
+    }
+
+    public String getNickNameFromToken (String token) {
+        return getClaimsFromToken(token).get("nickName", String.class);
+    }
+
+    // 토큰에서 memberId를 가져오는 메서드
+    public Long getMemberIdFromToken(String token) {
+        return getClaimsFromToken(token).get("memberId", Long.class);
+    }
+
     // Jwt 토큰의 유효기간을 확인하는 메서드
     public boolean isTokenValid(String token) {
+        System.out.println("valid Method");
         try {
-            Date expiration = Jwts.parser()
-                    .verifyWith(this.getSigningKey())
-                    .build()
-                    .parseSignedClaims(token)
-                    .getPayload()
-                    .getExpiration();
+            Date expiration = getClaimsFromToken(token).getExpiration();
             log.info("토큰 만료 시간: {}", expiration);
             log.info("현재 시간: {}", new Date());
             return expiration.after(new Date());
@@ -83,5 +95,4 @@ public class JwtUtil {
             throw new CustomException(EXPIRED_TOKEN);
         }
     }
-
 }

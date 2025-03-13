@@ -8,14 +8,17 @@ import com.campfiredev.growtogether.bootcamp.repository.BootCampCommentRepositor
 import com.campfiredev.growtogether.bootcamp.repository.BootCampReviewRepository;
 import com.campfiredev.growtogether.exception.custom.CustomException;
 import com.campfiredev.growtogether.exception.response.ErrorCode;
+import com.campfiredev.growtogether.member.dto.CustomUserDetails;
 import com.campfiredev.growtogether.member.entity.MemberEntity;
 import com.campfiredev.growtogether.member.repository.MemberRepository;
+import com.campfiredev.growtogether.notification.service.NotificationService;
+import com.campfiredev.growtogether.notification.type.NotiType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,11 +30,12 @@ public class BootCampCommentService {
     private final BootCampCommentRepository bootCampCommentRepository;
     private final BootCampReviewRepository bootCampReviewRepository;
     private final MemberRepository memberRepository;
+    private final NotificationService notificationService;
 
     @Transactional
-    public void addComment(CommentRequest request , Authentication authentication){
+    public void addComment(CommentRequest request , CustomUserDetails customUserDetails){
 
-        MemberEntity member = memberRepository.findByEmail(authentication.getName())
+        MemberEntity member = memberRepository.findByEmail(customUserDetails.getEmail())
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         BootCampReview review = bootCampReviewRepository.findById(request.getBootCampId())
@@ -60,15 +64,25 @@ public class BootCampCommentService {
                 .build();
 
         bootCampCommentRepository.save(comment);
+
+        String reviewUrl = ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/bootcamp/comments/{id}").buildAndExpand(review.getBootCampId()).toUriString();
+        // 추후에 수정 예정
+        if(parentComment == null){
+            notificationService.sendNotification(review.getMember(),"[부트캠프]"+review.getTitle() +" 새로운 답글이 달렸습니다.", reviewUrl , NotiType.BOOTCAMP);
+        }
+
+        if(parentComment != null){
+            notificationService.sendNotification(parentComment.getMember(),"[부트캠프]"+review.getTitle() + " 댓글에 새로운 답글이 달렸습니다.", reviewUrl , NotiType.BOOTCAMP);
+        }
     }
 
     @Transactional
-    public void updateComment(Long commentId , String newContent, Authentication authentication){
+    public void updateComment(Long commentId , String newContent, CustomUserDetails customUserDetails){
 
         BootCampComment comment = bootCampCommentRepository.findById(commentId)
                 .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
 
-        MemberEntity member = memberRepository.findByEmail(authentication.getName())
+        MemberEntity member = memberRepository.findByEmail(customUserDetails.getEmail())
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         if(!comment.getMember().equals(member)){
@@ -87,12 +101,12 @@ public class BootCampCommentService {
     }
 
     @Transactional
-    public void deleteComment(Long commentId, Authentication authentication){
+    public void deleteComment(Long commentId, CustomUserDetails customUserDetails){
 
         BootCampComment comment = bootCampCommentRepository.findById(commentId)
                 .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
 
-        MemberEntity member = memberRepository.findByEmail(authentication.getName())
+        MemberEntity member = memberRepository.findByEmail(customUserDetails.getEmail())
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         if(!comment.getMember().equals(member)){

@@ -14,6 +14,7 @@ import com.campfiredev.growtogether.bootcamp.repository.ReviewLikeRepository;
 import com.campfiredev.growtogether.bootcamp.strategy.WeightCalculateStrategy;
 import com.campfiredev.growtogether.exception.custom.CustomException;
 import com.campfiredev.growtogether.exception.response.ErrorCode;
+import com.campfiredev.growtogether.member.dto.CustomUserDetails;
 import com.campfiredev.growtogether.member.entity.MemberEntity;
 import com.campfiredev.growtogether.member.repository.MemberRepository;
 import com.campfiredev.growtogether.member.service.S3Service;
@@ -23,7 +24,6 @@ import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.*;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -60,9 +60,9 @@ public class BootCampReviewService {
 
     //후기 등록
     @Transactional
-    public BootCampReviewCreateDto createReview(BootCampReviewCreateDto request ,MultipartFile imageKey,Authentication authentication) {
+    public BootCampReviewCreateDto createReview(BootCampReviewCreateDto request , MultipartFile imageKey, CustomUserDetails customUserDetails) {
 
-        MemberEntity member = memberRepository.findByEmail(authentication.getName())
+        MemberEntity member = memberRepository.findByEmail(customUserDetails.getEmail())
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         BootCampReview review = request.toEntity(member);
@@ -91,12 +91,12 @@ public class BootCampReviewService {
 
     //후기 수정
     @Transactional
-    public BootCampReviewUpdateDto updateReview(Long bootCampId, BootCampReviewUpdateDto request ,MultipartFile imageKey, Authentication authentication) {
+    public BootCampReviewUpdateDto updateReview(Long bootCampId, BootCampReviewUpdateDto request ,MultipartFile imageKey, CustomUserDetails customUserDetails) {
 
         BootCampReview review = bootCampReviewRepository.findById(bootCampId)
                 .orElseThrow(() -> new CustomException(ErrorCode.REVIEW_NOT_FOUND));
 
-        MemberEntity member = memberRepository.findByEmail(authentication.getName())
+        MemberEntity member = memberRepository.findByEmail(customUserDetails.getEmail())
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         if(!review.getMember().equals(member)){
@@ -176,9 +176,9 @@ public class BootCampReviewService {
 
     //게시글 좋아요
     @Transactional
-    public void toggleLike(Long reviewId , Authentication authentication) {
+    public void toggleLike(Long reviewId , CustomUserDetails customUserDetails) {
 
-        MemberEntity member = memberRepository.findByEmail(authentication.getName())
+        MemberEntity member = memberRepository.findByEmail(customUserDetails.getEmail())
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         BootCampReview review = bootCampReviewRepository.findById(reviewId)
@@ -236,9 +236,9 @@ public class BootCampReviewService {
                 .collect(Collectors.toList());
     }
 
-    public BootCampReviewResponseDto.PageResponse getLikeReviews(Authentication authentication, Pageable pageable) {
+    public BootCampReviewResponseDto.PageResponse getLikeReviews(CustomUserDetails customUserDetails, Pageable pageable) {
 
-        MemberEntity member = memberRepository.findByEmail(authentication.getName())
+        MemberEntity member = memberRepository.findByEmail(customUserDetails.getEmail())
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         Page<ReviewLike> reviewLikes = reviewLikeRepository.findByMember(member, pageable);

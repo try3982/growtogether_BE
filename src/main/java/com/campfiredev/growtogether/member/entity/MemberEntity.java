@@ -2,10 +2,7 @@ package com.campfiredev.growtogether.member.entity;
 
 import com.campfiredev.growtogether.study.entity.StudyComment;
 import jakarta.persistence.*;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -21,6 +18,9 @@ import java.util.List;
 })
 @Getter
 @NoArgsConstructor
+
+@AllArgsConstructor
+
 public class MemberEntity {
 
   @Id
@@ -77,33 +77,13 @@ public class MemberEntity {
   @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<StudyComment> comments;
 
-  @Builder
-  public MemberEntity(Long memberId, String kakaoId, String nickName, String phone, String password,
-      String email, Integer points, String githubUrl, String profileImageUrl,
-      LocalDateTime createdAt, LocalDateTime updatedAt, List<MemberSkillEntity> userSkills, Double rating, List<StudyComment> comments) {
-    this.memberId = memberId;
-    this.kakaoId = kakaoId;
-    this.nickName = nickName;
-    this.phone = phone;
-    this.password = password;
-    this.email = email;
-    this.points = points;
-    this.githubUrl = githubUrl;
-    this.profileImageUrl = profileImageUrl;
-    this.createdAt = createdAt;
-    this.updatedAt = updatedAt;
-    this.userSkills = userSkills;
-    this.rating = rating;
-    this.comments = comments;
-  }
-
   public void usePoints(int amount) {
     points -= amount;
   }
 
   // 비밀번호 변경
-  public void setPassword(String password) {
+/*  public void setPassword(String password) {
     this.password = password;
-  }
+  }*/
 
 }

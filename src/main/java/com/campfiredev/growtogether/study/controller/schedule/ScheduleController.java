@@ -1,5 +1,6 @@
 package com.campfiredev.growtogether.study.controller.schedule;
 
+import com.campfiredev.growtogether.member.dto.CustomUserDetails;
 import com.campfiredev.growtogether.study.dto.schedule.ScheduleAttendeeDto;
 import com.campfiredev.growtogether.study.dto.schedule.ScheduleAttendeeMonthDto;
 import com.campfiredev.growtogether.study.dto.schedule.ScheduleCreateDto;
@@ -13,6 +14,7 @@ import java.time.YearMonth;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -31,29 +33,32 @@ public class ScheduleController {
   private final ScheduleService scheduleService;
 
   /**
-   * 일정 추가 로그인 이후 사용자 id도 넘길 예정
+   * 일정 추가
    */
   @PostMapping("/{studyId}/schedule")
-  public void createSchedule(@PathVariable Long studyId,
+  public void createSchedule(@AuthenticationPrincipal CustomUserDetails customUserDetails,
+      @PathVariable Long studyId,
       @RequestBody @Valid ScheduleCreateDto scheduleCreateDto) {
-    scheduleService.createSchedule(studyId, 1L, scheduleCreateDto);
+    scheduleService.createSchedule(studyId, customUserDetails.getMemberId(), scheduleCreateDto);
   }
 
   /**
-   * 일정 수정 로그인 이후 사용자 id도 넘길 예정
+   * 일정 수정
    */
   @PutMapping("/schedule/{scheduleId}")
-  public void updateSchedule(@PathVariable Long scheduleId,
+  public void updateSchedule(@AuthenticationPrincipal CustomUserDetails customUserDetails,
+      @PathVariable Long scheduleId,
       @RequestBody @Valid ScheduleUpdateDto scheduleUpdateDto) {
-    scheduleService.updateSchedule(1L, scheduleId, scheduleUpdateDto);
+    scheduleService.updateSchedule(customUserDetails.getMemberId(), scheduleId, scheduleUpdateDto);
   }
 
   /**
    * 일정 삭제 로그인 이후 사용자 id도 넘길 예정
    */
   @DeleteMapping("/schedule/{scheduleId}")
-  public void deleteSchedule(@PathVariable Long scheduleId) {
-    scheduleService.deleteSchedule(1L, scheduleId);
+  public void deleteSchedule(@AuthenticationPrincipal CustomUserDetails customUserDetails,
+      @PathVariable Long scheduleId) {
+    scheduleService.deleteSchedule(customUserDetails.getMemberId(), scheduleId);
   }
 
   /**
@@ -82,13 +87,14 @@ public class ScheduleController {
 
   /**
    * 해당 달의 일정 + 일정별 출석자 같이 조회
+   *
    * @param studyId
    * @param date
    * @return
    */
   @GetMapping("/{studyId}/schedules_attendee")
   public ResponseEntity<ScheduleAttendeeMonthDto> getScheduleAttendee(@PathVariable Long studyId,
-      @RequestParam(required = false) String date){
+      @RequestParam(required = false) String date) {
     if (date == null) {
       date = String.valueOf(YearMonth.now());
     }
