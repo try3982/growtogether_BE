@@ -1,12 +1,13 @@
 package com.campfiredev.growtogether.study.controller;
 
-import com.campfiredev.growtogether.study.dto.StudyDTO;
+import com.campfiredev.growtogether.study.dto.post.PagedStudyDTO;
+import com.campfiredev.growtogether.study.dto.post.StudyDTO;
 import com.campfiredev.growtogether.study.service.StudyService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -21,9 +22,11 @@ public class StudyController {
     }
 
     @GetMapping
-    public List<StudyDTO> getAllStudies() {
-        return studyService.getAllStudies();
+    public PagedStudyDTO getAllStudies(@RequestParam(defaultValue = "0") int page){
+        Pageable pageable = PageRequest.of(page-1, 9);
+        return studyService.getAllStudies(pageable);
     }
+
     @GetMapping("/{studyId}")
     public StudyDTO getStudyById(@PathVariable Long studyId) {
         return studyService.getStudyById(studyId);

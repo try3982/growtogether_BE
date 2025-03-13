@@ -1,4 +1,4 @@
-package com.campfiredev.growtogether.study.dto;
+package com.campfiredev.growtogether.study.dto.post;
 
 import com.campfiredev.growtogether.study.dto.schedule.MainScheduleDto;
 import com.campfiredev.growtogether.study.entity.Study;
@@ -36,15 +36,13 @@ public class StudyDTO {
     @Size(min = 1, message = "메인일정을 반드시 1개이상 입력해야 합니다.")
     private List<MainScheduleDto> mainScheduleList;
 
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
     private LocalDateTime studyStartDate;
 
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
     private LocalDateTime studyEndDate;
 
     private StudyStatus studyStatus;
-
-    private LocalDateTime createdAt;
-
-    private LocalDateTime updatedAt;
 
     private Integer participant;
 
@@ -75,8 +73,6 @@ public class StudyDTO {
                 .studyStartDate(study.getStudyStartDate())
                 .studyEndDate(study.getStudyEndDate())
                 .studyStatus(study.getStudyStatus())
-                .createdAt(study.getCreatedAt())
-                .updatedAt(study.getUpdatedAt())
                 .participant(study.getParticipant())
                 .type(study.getType())
                 .studyCount(study.getStudyCount())

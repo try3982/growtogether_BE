@@ -1,4 +1,4 @@
-package com.campfiredev.growtogether.study.dto;
+package com.campfiredev.growtogether.study.dto.comment;
 
 import com.campfiredev.growtogether.study.entity.StudyComment;
 import jakarta.validation.constraints.Min;

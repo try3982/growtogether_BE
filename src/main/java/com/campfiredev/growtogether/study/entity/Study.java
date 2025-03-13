@@ -2,7 +2,7 @@ package com.campfiredev.growtogether.study.entity;
 
 import com.campfiredev.growtogether.common.entity.BaseEntity;
 import com.campfiredev.growtogether.member.entity.MemberEntity;
-import com.campfiredev.growtogether.study.dto.StudyDTO;
+import com.campfiredev.growtogether.study.dto.post.StudyDTO;
 import com.campfiredev.growtogether.study.dto.schedule.MainScheduleDto;
 import jakarta.persistence.*;
 import lombok.*;

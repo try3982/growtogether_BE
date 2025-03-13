@@ -1,6 +1,6 @@
 package com.campfiredev.growtogether.study.controller;
 
-import com.campfiredev.growtogether.study.dto.StudyCommentDto;
+import com.campfiredev.growtogether.study.dto.comment.StudyCommentDto;
 import com.campfiredev.growtogether.study.service.StudyCommentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

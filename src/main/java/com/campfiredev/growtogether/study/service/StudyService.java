@@ -6,13 +6,16 @@ import com.campfiredev.growtogether.member.entity.MemberEntity;
 import com.campfiredev.growtogether.member.repository.MemberRepository;
 import com.campfiredev.growtogether.skill.entity.SkillEntity;
 import com.campfiredev.growtogether.skill.repository.SkillRepository;
-import com.campfiredev.growtogether.study.dto.StudyDTO;
+import com.campfiredev.growtogether.study.dto.post.PagedStudyDTO;
+import com.campfiredev.growtogether.study.dto.post.StudyDTO;
 import com.campfiredev.growtogether.study.entity.SkillStudy;
 import com.campfiredev.growtogether.study.entity.Study;
 import com.campfiredev.growtogether.study.repository.SkillStudyRepository;
 import com.campfiredev.growtogether.study.repository.StudyCommentRepository;
 import com.campfiredev.growtogether.study.repository.StudyRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -66,11 +69,17 @@ public class StudyService {
         return StudyDTO.fromEntity(study);
     }
     @Transactional(readOnly = true)
-    public List<StudyDTO> getAllStudies() {
-        return studyRepository.findByIsDeletedFalseOrderByCreatedAtDesc().stream()
-                .map(StudyDTO::fromEntity)
-                .peek(studyDTO -> studyDTO.setCommentCount(studyCommentRepository.countAllByStudyId(studyDTO.getStudyId())))
-                .toList();
+    public PagedStudyDTO getAllStudies(Pageable pageable) {
+        Page<Study> studyPage = studyRepository.findByIsDeletedFalseOrderByCreatedAtDesc(pageable);
+
+        List<StudyDTO> studyDtoList = studyPage.getContent().stream()
+                .map(study -> {
+                    StudyDTO studyDTO = StudyDTO.fromEntity(study);
+                    studyDTO.setCommentCount(studyCommentRepository.countAllByStudyId(study.getStudyId()));
+                    return studyDTO;
+                }).toList();
+
+        return PagedStudyDTO.from(studyPage, studyDtoList);
     }
 
     public StudyDTO getStudyById(Long studyId) {
