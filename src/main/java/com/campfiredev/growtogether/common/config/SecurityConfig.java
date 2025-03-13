@@ -33,6 +33,9 @@ public class SecurityConfig {
             "/api/study/**",
             "/member/memberLogin",
             "/payment/**",
+            "/swagger-ui/**",
+            "/v3/api-docs/**",
+            "/swagger-ui.html"
     };
 
     @Bean
