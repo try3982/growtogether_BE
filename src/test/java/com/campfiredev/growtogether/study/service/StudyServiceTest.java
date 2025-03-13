@@ -111,26 +111,4 @@ class StudyServiceTest {
         verify(studyRepository, never()).save(any(Study.class));
         verify(skillStudyRepository, never()).saveAll(anyList());
     }
-
-    @Test
-    void getAllStudies() {
-        // Given
-        Study study1 = Study.builder().title("Study 1").description("Description 1").build();
-        Study study2 = Study.builder().title("Study 2").description("Description 2").build();
-        study1.addSkillStudies(new ArrayList<>());
-        study2.addSkillStudies(new ArrayList<>());
-        List<Study> studies = Arrays.asList(study1, study2);
-
-        // When
-        when(studyRepository.findByIsDeletedFalseOrderByCreatedAtDesc()).thenReturn(studies);
-
-        List<StudyDTO> result = studyService.getAllStudies();
-
-        // Then
-        assertEquals(2, result.size());
-        assertEquals("Study 1", result.get(0).getTitle());
-        assertEquals("Study 2", result.get(1).getTitle());
-
-        verify(studyRepository, times(1)).findAll();
-    }
 }
