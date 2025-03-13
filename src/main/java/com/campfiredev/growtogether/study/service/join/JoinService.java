@@ -2,8 +2,11 @@ package com.campfiredev.growtogether.study.service.join;
 
 import static com.campfiredev.growtogether.exception.response.ErrorCode.ALREADY_CONFIRMED;
 import static com.campfiredev.growtogether.exception.response.ErrorCode.ALREADY_JOINED_STUDY;
+import static com.campfiredev.growtogether.exception.response.ErrorCode.CANCEL_PERMISSION_DENIED;
+import static com.campfiredev.growtogether.exception.response.ErrorCode.NOT_A_STUDY_MEMBER;
 import static com.campfiredev.growtogether.exception.response.ErrorCode.STUDY_FULL;
 import static com.campfiredev.growtogether.exception.response.ErrorCode.STUDY_NOT_FOUND;
+import static com.campfiredev.growtogether.exception.response.ErrorCode.TEAM_LEADER_ONLY_CONFIRMATION;
 import static com.campfiredev.growtogether.exception.response.ErrorCode.USER_NOT_APPLIED;
 import static com.campfiredev.growtogether.exception.response.ErrorCode.USER_NOT_FOUND;
 import static com.campfiredev.growtogether.notification.type.NotiType.STUDY;
@@ -77,19 +80,18 @@ public class JoinService {
 
     StudyMemberEntity studyMemberEntity = find.get(0);
 
-    notificationService.sendNotification(studyMemberEntity.getMember(),"참가 신청함", null,STUDY);
+    notificationService.sendNotification(studyMemberEntity.getMember(),memberEntity.getNickName() + "님이 참가 신청했습니다.", null,STUDY);
   }
 
   /**
    * 참가 신청 확정 로그인 구현 이후 현재 로그인 한 사용자 정보도 받을 예정
    *
-   * @param studyMemberId
    */
-  public void confirmJoin(Long studyMemberId) {
+  public void confirmJoin(Long memberId, Long studyMemberId) {
     StudyMemberEntity studyMemberEntity = joinRepository.findWithStudyAndMemberById(studyMemberId)
         .orElseThrow(() -> new CustomException(USER_NOT_APPLIED));
 
-    validateConfirmJoin(studyMemberEntity);
+    validateConfirmJoin(memberId, studyMemberEntity);
 
     studyMemberEntity.confirm();
 
@@ -106,11 +108,11 @@ public class JoinService {
    *
    * @param studyMemberId
    */
-  public void cancelJoin(Long studyMemberId) {
+  public void cancelJoin(Long memberId, Long studyMemberId) {
     StudyMemberEntity studyMemberEntity = joinRepository.findWithStudyAndMemberById(studyMemberId)
         .orElseThrow(() -> new CustomException(USER_NOT_APPLIED));
 
-    //validateCancelJoin(studyMemberEntity);
+    validateCancelJoin(memberId, studyMemberEntity);
 
     joinRepository.deleteById(studyMemberId);
   }
@@ -164,13 +166,20 @@ public class JoinService {
    *
    * @param studyMemberEntity
    */
-  private void validateCancelJoin(StudyMemberEntity studyMemberEntity) {
+  private void validateCancelJoin(Long memberId, StudyMemberEntity studyMemberEntity) {
     if (!PENDING.equals(studyMemberEntity.getStatus())) {
       throw new CustomException(ALREADY_CONFIRMED);
     }
 
-    //로그인 완성될때까지 보류
-    //스터디 팀장 혹은 신청자 본인만 취소 가능하도록 하는거 추가
+    //스터디 팀장 혹은 신청자 본인만 취소 가능
+    StudyMemberEntity loginUser = joinRepository.findByMember_MemberIdAndStudy_StudyId(
+            memberId, studyMemberEntity.getStudy().getStudyId())
+        .orElseThrow(() -> new CustomException(NOT_A_STUDY_MEMBER));
+
+    if(!studyMemberEntity.getMember().getMemberId().equals(loginUser.getMember().getMemberId()) && !LEADER.equals(loginUser.getStatus())){
+      throw new CustomException(CANCEL_PERMISSION_DENIED);
+    }
+
   }
 
   /**
@@ -178,19 +187,14 @@ public class JoinService {
    *
    * @param studyMemberEntity
    */
-  private void validateConfirmJoin(StudyMemberEntity studyMemberEntity) {
+  private void validateConfirmJoin(Long memberId, StudyMemberEntity studyMemberEntity) {
     if (!PENDING.equals(studyMemberEntity.getStatus())) {
       throw new CustomException(ALREADY_CONFIRMED);
     }
 
-    //로그인 완성될때까지 보류
     //현재 로그인 한 사용자 정보 가져와서 해당 스터디 팀장인지 확인
-//    StudyMemberEntity leader = joinRepository.findByUserIdAndStudyId(userId, studyMemberEntity.getStudy().getId())
-//        .orElseThrow(() -> new CustomException(NOT_A_STUDY_MEMBER));
-//
-//    if(!LEADER.equals(leader.getStatus())){
-//      throw new CustomException(NOT_A_STUDY_LEADER);
-//    }
+    joinRepository.findByMember_MemberIdAndStudy_StudyIdAndStatusIn(memberId, studyMemberEntity.getStudy().getStudyId(), List.of(LEADER))
+        .orElseThrow(() -> new CustomException(TEAM_LEADER_ONLY_CONFIRMATION));
   }
 
   /**

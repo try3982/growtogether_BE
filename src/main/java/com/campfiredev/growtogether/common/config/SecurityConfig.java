@@ -13,7 +13,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
-@EnableWebSecurity(debug = true)
+@EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
 
@@ -33,9 +33,19 @@ public class SecurityConfig {
             "/api/study/**",
             "/member/memberLogin",
             "/payment/**",
+
+        "/member/register",
+        "/member/memberLogin",
+        "/ws-chat/**",
+        "/topic/**",
+        "/queue/**",
+        "/app/**",
+        "/user/**"
+
             "/swagger-ui/**",
             "/v3/api-docs/**",
             "/swagger-ui.html"
+
     };
 
     @Bean

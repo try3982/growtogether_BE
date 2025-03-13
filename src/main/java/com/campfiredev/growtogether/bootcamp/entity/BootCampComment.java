@@ -17,7 +17,6 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @Table(name="boot_camp_comment")
-
 public class BootCampComment extends BaseEntity {
 
     @Id

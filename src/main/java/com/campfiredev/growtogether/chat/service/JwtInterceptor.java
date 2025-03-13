@@ -32,9 +32,14 @@ public class JwtInterceptor implements ChannelInterceptor {
         throw new IllegalArgumentException("JWT 토큰이 필요합니다.");
       }
 
+      System.out.println("token before: " + token);
+
       token = token.substring(7);
 
-      jwtUtil.isTokenValid(token);
+      System.out.println("token after: " + token);
+
+      boolean tokenValid = jwtUtil.isTokenValid(token);
+      System.out.println("token valid: " + tokenValid);
 
       log.info("jwt 검증 로직 추가할 예정");
 

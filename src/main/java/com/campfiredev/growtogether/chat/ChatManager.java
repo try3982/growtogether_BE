@@ -1,5 +1,6 @@
 package com.campfiredev.growtogether.chat;
 
+import com.campfiredev.growtogether.member.util.JwtUtil;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -23,6 +24,7 @@ public class ChatManager {
 
   private final RedisTemplate<String, String> redisTemplate;
   private final SimpMessagingTemplate messagingTemplate;
+  private final JwtUtil jwtUtil;
 
   private final Map<String, String> sessionToUsername = new ConcurrentHashMap<>();
   private final Map<String, List<String>> usernameToSessions = new ConcurrentHashMap<>();
@@ -30,9 +32,12 @@ public class ChatManager {
   @EventListener
   public void handleWebSocketConnectListener(SessionConnectEvent event) {
     StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
-    String authorization = headerAccessor.getFirstNativeHeader("Authorization");
+    String token = headerAccessor.getFirstNativeHeader("Authorization");
     String studyId = headerAccessor.getFirstNativeHeader("studyId");
-    String username = headerAccessor.getFirstNativeHeader("username");
+
+    token = token.substring(7);
+    jwtUtil.isTokenValid(token);
+    String username = jwtUtil.getNickNameFromToken(token);
 
     redisTemplate.opsForSet().add("chatRoom" + studyId, username);
 
@@ -41,6 +46,8 @@ public class ChatManager {
 
     headerAccessor.getSessionAttributes().put("username", username);
     headerAccessor.getSessionAttributes().put("studyId", studyId);
+    System.out.println("event");
+    System.out.println("username" + username);
 
     sendParticipants(studyId);
   }
