@@ -1,7 +1,9 @@
 package com.campfiredev.growtogether.study.controller;
 
+import com.campfiredev.growtogether.member.dto.CustomUserDetails;
 import com.campfiredev.growtogether.study.service.BookmarkService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,8 +17,8 @@ public class BookmarkController {
     private final BookmarkService bookmarkService;
 
     @PostMapping("/{studyId}")
-    public void addBookmark(@PathVariable long studyId) {
-        bookmarkService.setBookMark(1L,studyId);
+    public void addBookmark(@PathVariable long studyId, @AuthenticationPrincipal CustomUserDetails customUserDetails) {
+        bookmarkService.setBookMark(customUserDetails.getMemberId(),studyId);
     }
 }
 

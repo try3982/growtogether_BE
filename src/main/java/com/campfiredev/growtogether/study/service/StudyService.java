@@ -38,20 +38,12 @@ public class StudyService {
 
     private final StudyCommentRepository studyCommentRepository;
 
-    public StudyDTO createStudy(StudyDTO dto, long userId) {
-        List<SkillEntity> skills = validate(dto);
+    public StudyDTO createStudy(StudyDTO dto, long memberId) {
+        List<SkillEntity> skills = validateSkillName(dto);
 
         Study study = Study.fromDTO(dto);
 
-//        해당부분은 아직 회원가입 api가 미완성 단계여서 주석처리 추후에 로직 변경예정
-//        MemberEntity member = memberRepository.findById(1L).orElseThrow(()->new CustomException(NOT_INVALID_MEMBER));
-        MemberEntity member = memberRepository.save(MemberEntity.builder()
-                .nickName(Math.random() + "")
-                .email(Math.random() + "")
-                .phone(Math.random() + "")
-                .password(Math.random() + "")
-                .build()
-        );
+        MemberEntity member = memberRepository.findById(memberId).orElseThrow(()->new CustomException(NOT_INVALID_MEMBER));
 
         study.setAuthor(member);
 
@@ -94,11 +86,13 @@ public class StudyService {
         return StudyDTO.fromEntity(study);
     }
 
-    public StudyDTO updateStudy(Long studyId, StudyDTO dto) {
+    public StudyDTO updateStudy(Long studyId, StudyDTO dto, Long memberId) {
         Study study = studyRepository.findById(studyId)
                 .orElseThrow(() -> new CustomException(STUDY_NOT_FOUND));
 
-        List<SkillEntity> newSkills = validate(dto);
+        validateMember(memberId, study);
+
+        List<SkillEntity> newSkills = validateSkillName(dto);
         List<SkillStudy> existSkillStudies = study.getSkillStudies();
 
         List<SkillStudy> toRemove = existSkillStudies.stream()
@@ -123,7 +117,23 @@ public class StudyService {
         return StudyDTO.fromEntity(study);
     }
 
-    private List<SkillEntity> validate(StudyDTO dto) {
+    public void deleteStudy(Long studyId, Long memberId) {
+        Study study = studyRepository.findById(studyId)
+                .orElseThrow(() -> new CustomException(ErrorCode.STUDY_NOT_FOUND));
+
+        validateMember(memberId, study);
+
+        study.setIsDeleted(true);
+        studyRepository.save(study);
+    }
+
+    private void validateMember(Long memberId, Study study) {
+        if(!study.getMember().getMemberId().equals(memberId)){
+            throw new CustomException(NOT_AUTHOR);
+        }
+    }
+
+    private List<SkillEntity> validateSkillName(StudyDTO dto) {
         List<SkillEntity> skills = skillRepository.findBySkillNameIn(dto.getSkillNames());
 
         if (dto.getSkillNames().size() != skills.size()) {
@@ -131,12 +141,5 @@ public class StudyService {
         }
 
         return skills;
-    }
-
-    public void deleteStudy(Long studyId) {
-        Study study = studyRepository.findById(studyId)
-                .orElseThrow(() -> new CustomException(ErrorCode.STUDY_NOT_FOUND));
-        study.setIsDeleted(true);
-        studyRepository.save(study);
     }
 }
