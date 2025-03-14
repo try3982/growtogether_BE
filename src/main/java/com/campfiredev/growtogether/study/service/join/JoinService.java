@@ -201,7 +201,7 @@ public class JoinService {
    * @param studyEntity
    */
   private void validateJoin(MemberEntity memberEntity, Study studyEntity) {
-    if (RECRUIT.equals(studyEntity.getStudyStatus())) {
+    if (!RECRUIT.equals(studyEntity.getStudyStatus())) {
       throw new CustomException(STUDY_FULL);
     }
 
