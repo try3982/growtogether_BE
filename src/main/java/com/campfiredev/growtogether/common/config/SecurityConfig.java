@@ -47,7 +47,9 @@ public class SecurityConfig {
             "/user/**",
             "/swagger-ui/**",
             "/v3/api-docs/**",
-            "/swagger-ui.html"
+            "/swagger-ui.html",
+            "/api/bootcamp/skillName",
+            "/api/bootcamp/programCourses"
     };
 
     @Bean

@@ -1,7 +1,6 @@
 package com.campfiredev.growtogether.bootcamp.service;
 
 import com.campfiredev.growtogether.bootcamp.dto.CommentRequest;
-import com.campfiredev.growtogether.bootcamp.dto.CommentResponseDto;
 import com.campfiredev.growtogether.bootcamp.entity.BootCampComment;
 import com.campfiredev.growtogether.bootcamp.entity.BootCampReview;
 import com.campfiredev.growtogether.bootcamp.repository.BootCampCommentRepository;
@@ -19,9 +18,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -119,33 +115,11 @@ public class BootCampCommentService {
     }
 
 
-    public Page<CommentResponseDto> getComments(Long reviewId, Pageable pageable){
-        BootCampReview review  = bootCampReviewRepository.findById(reviewId)
+    public Page<BootCampComment> getComments(Long reviewId, Pageable pageable) {
+        BootCampReview review = bootCampReviewRepository.findById(reviewId)
                 .orElseThrow(() -> new CustomException(ErrorCode.REVIEW_NOT_FOUND));
 
-        Page<BootCampComment> topComments = bootCampCommentRepository.findTopLevelCommentsWithChildren(review,pageable);
-
-
-        return topComments.map(this::recurDto);
+        return bootCampCommentRepository.findTopLevelCommentsWithChildren(review, pageable);
     }
-
-    private CommentResponseDto recurDto(BootCampComment comment) {
-
-        List<CommentResponseDto> childDtos = new ArrayList<>();
-
-        for(BootCampComment child : comment.getChildComments()){
-            childDtos.add(recurDto(child));
-        }
-        return new CommentResponseDto(
-                comment.getBootCampCommentId(),
-                comment.getIsDeleted() ? "작성자에 의해 삭제된 댓글입니다." : comment.getCommentContent(),
-                comment.getMember().getMemberId(),
-                comment.getMember().getNickName(),
-                comment.getIsDeleted(),
-                childDtos
-        );
-    }
-
-
 
 }

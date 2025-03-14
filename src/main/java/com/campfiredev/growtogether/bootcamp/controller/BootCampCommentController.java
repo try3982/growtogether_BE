@@ -3,6 +3,7 @@ package com.campfiredev.growtogether.bootcamp.controller;
 import com.campfiredev.growtogether.bootcamp.dto.CommentRequest;
 import com.campfiredev.growtogether.bootcamp.dto.CommentResponseDto;
 import com.campfiredev.growtogether.bootcamp.dto.CommentUpdateRequest;
+import com.campfiredev.growtogether.bootcamp.entity.BootCampComment;
 import com.campfiredev.growtogether.bootcamp.service.BootCampCommentService;
 import com.campfiredev.growtogether.member.dto.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
@@ -70,10 +71,14 @@ public class BootCampCommentController {
                     content = @Content(schema = @Schema(implementation = CommentResponseDto.class)))
     })
     @GetMapping("/{bootCampId}")
-    public ResponseEntity<Page<CommentResponseDto>> getComments(@PathVariable Long bootCampId , @RequestParam(defaultValue = "0") int page){
-        Pageable pageable = PageRequest.of(page,10);
-        Page<CommentResponseDto> comments = bootCampCommentService.getComments(bootCampId,pageable);
-        return ResponseEntity.ok(comments);
+    public ResponseEntity<CommentResponseDto.PageResponse> getComments(@PathVariable Long bootCampId , @RequestParam(defaultValue = "0") int page){
+        Pageable pageable = PageRequest.of(page, 10);
+        Page<BootCampComment> commentsPage = bootCampCommentService.getComments(bootCampId, pageable);
+
+        // Page<CommentResponseDto> -> CommentResponseDto.PageResponse 변환
+        CommentResponseDto.PageResponse response = CommentResponseDto.PageResponse.fromEntityPage(commentsPage);
+
+        return ResponseEntity.ok(response);
     }
 
 }

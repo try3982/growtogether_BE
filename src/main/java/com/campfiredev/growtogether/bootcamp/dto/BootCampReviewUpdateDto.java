@@ -38,13 +38,13 @@ public class BootCampReviewUpdateDto {
     private Integer programSatisfaction;
 
     @NotNull(message = "프로그램 과정은 필수 입력값 입니다.")
-    private ProgramCourse programCourse;
+    private String programCourse;
 
     @NotNull(message = "부트캠프 시작 날짜는 필수 입력값입니다.")
-    private LocalDate bootCampStartDate;
+    private LocalDate startdate;
 
     @NotNull(message = "부트캠프 종료날짜는 필수 입력값입니다.")
-    private LocalDate bootCampEndDate;
+    private LocalDate enddate;
 
     private List<String> skillNames;
 
@@ -55,9 +55,9 @@ public class BootCampReviewUpdateDto {
         review.setLearningLevel(learningLevel);
         review.setAssistantSatisfaction(assistantSatisfaction);
         review.setProgramSatisfaction(programSatisfaction);
-        review.setProgramCourse(programCourse);
-        review.setBootCampStartDate(bootCampStartDate);
-        review.setBootCampEndDate(bootCampEndDate);
+        review.setProgramCourse(getProgramCourseEnum());
+        review.setBootCampStartDate(startdate);
+        review.setBootCampEndDate(enddate);
     }
 
     public static BootCampReviewUpdateDto fromEntity(BootCampReview review){
@@ -73,11 +73,13 @@ public class BootCampReviewUpdateDto {
                 .learningLevel(review.getLearningLevel())
                 .assistantSatisfaction(review.getAssistantSatisfaction())
                 .programSatisfaction(review.getProgramSatisfaction())
-                .programCourse(review.getProgramCourse())
-                .bootCampStartDate(review.getBootCampStartDate())
-                .bootCampEndDate(review.getBootCampEndDate())
+                .programCourse(review.getProgramCourse().name())
+                .startdate(review.getBootCampStartDate())
+                .enddate(review.getBootCampEndDate())
                 .skillNames(skillNames)
                 .build();
     }
-
+    public ProgramCourse getProgramCourseEnum(){
+        return ProgramCourse.valueOf(programCourse.toUpperCase());
+    }
 }

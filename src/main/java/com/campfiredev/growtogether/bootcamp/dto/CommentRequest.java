@@ -8,7 +8,7 @@ import lombok.Setter;
 public class CommentRequest {
 
     private Long bootCampId;
-    private Long memberId;
+    //private Long memberId;
     private String content;
     private Long parentCommentId;
 }

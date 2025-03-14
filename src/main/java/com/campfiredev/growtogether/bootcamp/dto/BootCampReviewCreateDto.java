@@ -57,11 +57,11 @@ public class BootCampReviewCreateDto {
 
     @Schema(description = "부트캠프 시작 날짜", example = "2024-06-01")
     @NotNull(message = "부트캠프 시작 날짜는 필수 입력값입니다.")
-    private LocalDate bootCampStartDate;
+    private LocalDate startdate;
 
     @Schema(description = "부트캠프 종료 날짜", example = "2024-06-30")
     @NotNull(message = "부트캠프 종료날짜는 필수 입력값입니다.")
-    private LocalDate bootCampEndDate;
+    private LocalDate enddate;
 
     @Schema(description = "배운 기술 목록", example = "[\n" +
             "        \"MySQL\",\n" +
@@ -76,14 +76,13 @@ public class BootCampReviewCreateDto {
                 .member(member)
                 .title(this.title)
                 .content(this.content)
-               // .imageUrl(this.imageUrl)
                 .bootCampName(this.bootCampName)
                 .learningLevel(this.learningLevel)
                 .assistantSatisfaction(this.assistantSatisfaction)
                 .programSatisfaction(this.programSatisfaction)
                 .programCourse(getProgramCourseEnum())
-                .bootCampStartDate(this.bootCampStartDate)
-                .bootCampEndDate(this.bootCampEndDate)
+                .bootCampStartDate(this.startdate)
+                .bootCampEndDate(this.enddate)
                 .viewCount(0L) // 기본값 설정
                 .likeCount(0)  // 기본값 설정
                 .build();
@@ -100,14 +99,13 @@ public class BootCampReviewCreateDto {
                 .memberId(review.getMember().getMemberId())
                 .title(review.getTitle())
                 .content(review.getContent())
-            //    .imageUrl(review.getImageUrl())
                 .bootCampName(review.getBootCampName())
                 .learningLevel(review.getLearningLevel())
                 .assistantSatisfaction(review.getAssistantSatisfaction())
                 .programSatisfaction(review.getProgramSatisfaction())
                 .programCourse(review.getProgramCourse().name())
-                .bootCampStartDate(review.getBootCampStartDate())
-                .bootCampEndDate(review.getBootCampEndDate())
+                .startdate(review.getBootCampStartDate())
+                .enddate(review.getBootCampEndDate())
                 .skillNames(skillNames)
                 .build();
     }
