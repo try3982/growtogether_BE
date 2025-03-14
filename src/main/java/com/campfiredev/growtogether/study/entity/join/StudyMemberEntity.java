@@ -33,9 +33,6 @@ public class StudyMemberEntity extends BaseEntity {
   @Enumerated(EnumType.STRING)
   private StudyMemberType status;
 
-  @Column(nullable = false)
-  private Integer studyPoint;
-
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "study_id", nullable = false)
   @OnDelete(action = OnDeleteAction.CASCADE)
@@ -49,18 +46,9 @@ public class StudyMemberEntity extends BaseEntity {
   public static StudyMemberEntity create(Study study, MemberEntity member){
     return StudyMemberEntity.builder()
         .status(PENDING)
-        .studyPoint(0)
         .study(study)
         .member(member)
         .build();
-  }
-  public static StudyMemberEntity join(Study study, MemberEntity member){
-    return StudyMemberEntity.builder()
-            .status(LEADER)
-            .studyPoint(study.getStudyCount() * 10)
-            .study(study)
-            .member(member)
-            .build();
   }
 
   public void confirm(){

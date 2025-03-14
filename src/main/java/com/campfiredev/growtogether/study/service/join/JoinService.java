@@ -19,11 +19,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.campfiredev.growtogether.exception.response.ErrorCode.*;
 import static com.campfiredev.growtogether.notification.type.NotiType.STUDY;
+import static com.campfiredev.growtogether.study.entity.StudyStatus.COMPLETE;
 import static com.campfiredev.growtogether.study.entity.StudyStatus.RECRUIT;
 import static com.campfiredev.growtogether.study.type.StudyMemberType.*;
 
@@ -86,6 +88,10 @@ public class JoinService {
 
     Study study = studyMemberEntity.getStudy();
     study.setParticipant(study.getParticipant()+1);
+
+    if(Objects.equals(study.getMaxParticipant(), study.getParticipant())){
+      study.setStudyStatus(COMPLETE);
+    }
 
     /**
      * 포인트 확인 후 차감

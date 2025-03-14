@@ -37,6 +37,7 @@ public class Study extends BaseEntity {
     private Boolean isDeleted;
 
     @Enumerated(EnumType.STRING)
+    @Setter
     private StudyStatus studyStatus;
 
     @Setter

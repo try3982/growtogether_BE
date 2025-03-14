@@ -32,7 +32,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         // 요청 URL이 퍼블릭 URL에 포함되는지 확인
         String requestUri = request.getRequestURI();
-
         boolean isPublicUrl = isPublicUrl(request.getMethod(), requestUri);
 
         if (isPublicUrl) {
@@ -76,9 +75,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     private boolean isPublicUrl(String httpMethod, String requestUri) {
-        return switch (httpMethod) {
-            case "GET" -> Stream.of(PUBLIC_GET_URLS).anyMatch(url -> antPathMatcher.match(url, requestUri));
-            default -> Stream.of(PUBLIC_URLS).anyMatch(url -> antPathMatcher.match(url, requestUri));
-        };
+        boolean check = Stream.of(PUBLIC_URLS).anyMatch(url -> antPathMatcher.match(url, requestUri));
+
+        if (!check && "GET".equals(httpMethod)) {
+            check = Stream.of(PUBLIC_GET_URLS).anyMatch(url -> antPathMatcher.match(url, requestUri));
+        }
+
+        return check;
     }
 }

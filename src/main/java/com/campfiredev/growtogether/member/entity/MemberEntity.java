@@ -19,6 +19,7 @@ import java.util.List;
 })
 @Getter
 @NoArgsConstructor
+@AllArgsConstructor
 public class MemberEntity {
 
   @Id
@@ -73,7 +74,7 @@ public class MemberEntity {
   private Double rating;
 
   @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
-  private List<StudyComment> commentList;
+  private List<StudyComment> comments;
 
   @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<Bookmark> bookmarkList;
@@ -101,7 +102,5 @@ public class MemberEntity {
   public void usePoints(int amount) {
     points -= amount;
   }
-
-
 
 }

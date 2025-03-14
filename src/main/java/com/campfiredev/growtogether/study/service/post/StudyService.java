@@ -26,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 import static com.campfiredev.growtogether.exception.response.ErrorCode.*;
+import static com.campfiredev.growtogether.study.type.StudyMemberType.LEADER;
 
 @Service
 @RequiredArgsConstructor
@@ -59,9 +60,12 @@ public class StudyService {
 
         Study savedStudy = studyRepository.save(study);
 
-        joinRepository.save(StudyMemberEntity.join(study,member));
+        StudyMemberEntity studyMemberEntity = StudyMemberEntity.create(study, member);
+        studyMemberEntity.setStatus(LEADER);
 
-//        pointService.usePoint(memberId, savedStudy.getStudyCount() * 10);
+        joinRepository.save(studyMemberEntity);
+
+        pointService.usePoint(memberId, savedStudy.getStudyCount() * 5);
 
         scheduleService.createMainSchedule(study,memberId,dto.getMainScheduleList());
 
