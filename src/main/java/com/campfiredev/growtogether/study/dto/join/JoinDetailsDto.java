@@ -16,18 +16,18 @@ public class JoinDetailsDto {
 
   private Long studyMemberId;
 
-  private String nickName;
+  private String nickname;
 
-  private List<String> skills;
+  private List<String> skillNames;
 
   private String content;
 
   public static JoinDetailsDto from(StudyMemberEntity studyMemberEntity, String content) {
     return JoinDetailsDto.builder()
         .studyMemberId(studyMemberEntity.getId())
-        .nickName(studyMemberEntity.getMember().getNickName())
+        .nickname(studyMemberEntity.getMember().getNickName())
         .content(content)
-        .skills(studyMemberEntity.getMember().getUserSkills().stream()
+        .skillNames(studyMemberEntity.getMember().getUserSkills().stream()
             .map(skill -> skill.getSkill().getSkillName())
             .collect(Collectors.toList()))
         .build();

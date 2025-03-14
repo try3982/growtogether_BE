@@ -2,9 +2,7 @@ package com.campfiredev.growtogether.study.dto.schedule;
 
 import com.campfiredev.growtogether.study.entity.schedule.ScheduleEntity;
 import com.campfiredev.growtogether.study.type.ScheduleType;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -23,8 +21,8 @@ public class ScheduleAttendeeDto {
   private LocalDateTime end;
   private Integer totalTime;
   private ScheduleType type;
-  private String creator;
-  private List<String> attendedNicknames;
+  private String author;
+  private List<String> attendees;
 
   public static ScheduleAttendeeDto create(ScheduleEntity schedule, String nickName, List<String> attendedNicknames) {
     return ScheduleAttendeeDto.builder()
@@ -34,8 +32,8 @@ public class ScheduleAttendeeDto {
         .end(schedule.getEnd())
         .totalTime(schedule.getTotalTime())
         .type(schedule.getType())
-        .creator(nickName)
-        .attendedNicknames(attendedNicknames)
+        .author(nickName)
+        .attendees(attendedNicknames)
         .build();
   }
 }

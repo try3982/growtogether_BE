@@ -51,7 +51,7 @@ public class ScheduleService {
       MainScheduleDto current = mainList.get(i);
 
       if (!current.getStartTime().isAfter(prev.getEndTime())) {
-        throw new CustomException(ALREADY_EXISTS_SCHEDULE);
+        throw new CustomException(MAIN_SCHEDULE_CONFLICT);
       }
     }
 
