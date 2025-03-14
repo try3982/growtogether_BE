@@ -56,7 +56,7 @@ public class SecurityConfig {
             "/api/study/comments/**",
             "/api/bootcamp/search",
             "/api/bootcamp/top",
-            "/api/bootcamp/*",
+            "/api/bootcamp/**",
             "/api/bootcamp/comments/**"
     };
 
