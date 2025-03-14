@@ -1,6 +1,7 @@
 package com.campfiredev.growtogether.study.controller;
 
-import com.campfiredev.growtogether.study.dto.StudyCommentDto;
+import com.campfiredev.growtogether.member.dto.CustomUserDetails;
+import com.campfiredev.growtogether.study.dto.comment.StudyCommentDto;
 import com.campfiredev.growtogether.study.service.StudyCommentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -17,8 +18,8 @@ public class StudyCommentController {
     private final StudyCommentService studyCommentService;
 
     @PostMapping
-    public void createComment(@Valid @RequestBody StudyCommentDto dto, @AuthenticationPrincipal String email) {
-        studyCommentService.createComment(dto,email);
+    public void createComment(@Valid @RequestBody StudyCommentDto dto, @AuthenticationPrincipal CustomUserDetails customUserDetails) {
+        studyCommentService.createComment(dto,customUserDetails.getMemberId());
     }
 
     @GetMapping("/{studyId}")
@@ -27,12 +28,12 @@ public class StudyCommentController {
     }
 
     @PutMapping("/{commentId}")
-    public StudyCommentDto updateComment(@PathVariable Long commentId, @Valid @RequestBody StudyCommentDto dto, @AuthenticationPrincipal String email) {
-        return studyCommentService.updateComment(commentId, dto, email);
+    public StudyCommentDto updateComment(@PathVariable Long commentId, @Valid @RequestBody StudyCommentDto dto, @AuthenticationPrincipal CustomUserDetails customUserDetails) {
+        return studyCommentService.updateComment(commentId, dto, customUserDetails.getMemberId());
     }
 
     @DeleteMapping("/{commentId}")
-    public void deleteComment(@PathVariable Long commentId, @AuthenticationPrincipal String email) {
-        studyCommentService.deleteComment(commentId,email);
+    public void deleteComment(@PathVariable Long commentId,@AuthenticationPrincipal CustomUserDetails customUserDetails) {
+        studyCommentService.deleteComment(commentId,customUserDetails.getMemberId());
     }
 }

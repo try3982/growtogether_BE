@@ -3,10 +3,10 @@ package com.campfiredev.growtogether.common.config;
 import com.campfiredev.growtogether.member.filter.JwtAuthenticationFilter;
 import com.campfiredev.growtogether.member.handler.JwtAccessDeniedHandler;
 import com.campfiredev.growtogether.member.util.JwtUtil;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -15,6 +15,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -34,7 +36,6 @@ public class SecurityConfig {
             "/oauth2/authorization/kakao",
             "/oauth2/code/kakao",
             "/api/email/**",
-            "/api/study/**",
             "/member/memberLogin",
             "/payment/**",
             "/member/register",
@@ -59,8 +60,10 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorizeRequests ->
                         authorizeRequests
                                 // 퍼블릭 URL은 인증 없이 허용
-                                .requestMatchers("/ws-chat/**","/topic/**","/app/**").permitAll()
                                 .requestMatchers(PUBLIC_URLS).permitAll()
+                                .requestMatchers("/ws-chat/**","/topic/**","/app/**").permitAll()
+                                .requestMatchers(HttpMethod.GET,"/api/study/**").permitAll()
+                                .requestMatchers(HttpMethod.GET,"/api/study/comments/**").permitAll()
                                 .requestMatchers("/api/bootcamp","/sse").authenticated()
                                 // 그 외의 요청은 인증 필요
                                 .anyRequest().authenticated()

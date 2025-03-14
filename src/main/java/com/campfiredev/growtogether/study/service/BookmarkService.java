@@ -23,15 +23,15 @@ public class BookmarkService {
     private final StudyRepository studyRepository;
     private final MemberRepository memberRepository;
 
-    public void setBookMark(Long userId, Long studyId) {
-        Optional<Bookmark> checkBookmark= bookmarkRepository.findByMember_MemberIdAndStudy_StudyId(userId, studyId);
+    public void setBookMark(Long memberId, Long studyId) {
+        Optional<Bookmark> checkBookmark= bookmarkRepository.findByMember_MemberIdAndStudy_StudyId(memberId, studyId);
         if(checkBookmark.isPresent()){
             bookmarkRepository.delete(checkBookmark.get());
         }else{
             Study study = studyRepository.findById(studyId)
                     .orElseThrow(() -> new CustomException(ErrorCode.STUDY_NOT_FOUND));
 
-            MemberEntity member = memberRepository.findById(userId)
+            MemberEntity member = memberRepository.findById(memberId)
                     .orElseThrow(() -> new CustomException(ErrorCode.NOT_INVALID_MEMBER));
 
             Bookmark bookmark = Bookmark.builder()
