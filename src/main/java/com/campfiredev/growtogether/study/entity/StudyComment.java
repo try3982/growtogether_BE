@@ -1,5 +1,6 @@
 package com.campfiredev.growtogether.study.entity;
 
+import com.campfiredev.growtogether.common.entity.BaseEntity;
 import com.campfiredev.growtogether.member.entity.MemberEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -9,7 +10,7 @@ import lombok.*;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class StudyComment {
+public class StudyComment extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

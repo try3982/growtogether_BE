@@ -39,6 +39,7 @@ public class Study extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private StudyStatus studyStatus;
 
+    @Setter
     private Integer participant;
 
     private String type;

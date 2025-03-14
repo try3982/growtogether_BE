@@ -1,5 +1,6 @@
 package com.campfiredev.growtogether.member.entity;
 
+import com.campfiredev.growtogether.study.entity.Bookmark;
 import com.campfiredev.growtogether.study.entity.StudyComment;
 import jakarta.persistence.*;
 import lombok.*;
@@ -75,7 +76,10 @@ public class MemberEntity {
   private Double rating;
 
   @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
-  private List<StudyComment> comments;
+  private List<StudyComment> commentList;
+
+  @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+  private List<Bookmark> bookmarkList;
 
   public void usePoints(int amount) {
     points -= amount;

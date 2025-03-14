@@ -1,4 +1,4 @@
-package com.campfiredev.growtogether.study.service;
+package com.campfiredev.growtogether.study.service.comment;
 
 import com.campfiredev.growtogether.exception.custom.CustomException;
 import com.campfiredev.growtogether.member.entity.MemberEntity;

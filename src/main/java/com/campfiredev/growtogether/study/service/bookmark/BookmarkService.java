@@ -1,4 +1,4 @@
-package com.campfiredev.growtogether.study.service;
+package com.campfiredev.growtogether.study.service.bookmark;
 
 import com.campfiredev.growtogether.exception.custom.CustomException;
 import com.campfiredev.growtogether.exception.response.ErrorCode;

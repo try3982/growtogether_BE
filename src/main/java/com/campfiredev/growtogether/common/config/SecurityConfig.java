@@ -50,6 +50,11 @@ public class SecurityConfig {
             "/swagger-ui.html"
     };
 
+    private static final String[] PUBLIC_GET_URLS = {
+            "/api/study/**",
+            "/api/study/comments/**"
+    };
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
@@ -71,7 +76,7 @@ public class SecurityConfig {
                 .exceptionHandling(config -> config
                         .accessDeniedHandler(jwtAccessDeniedHandler)
                 )
-                .addFilterBefore(new JwtAuthenticationFilter(PUBLIC_URLS, jwtUtil), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(new JwtAuthenticationFilter(PUBLIC_URLS, PUBLIC_GET_URLS, jwtUtil), UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
 

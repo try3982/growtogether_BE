@@ -2,7 +2,7 @@ package com.campfiredev.growtogether.study.controller;
 
 import com.campfiredev.growtogether.member.dto.CustomUserDetails;
 import com.campfiredev.growtogether.study.dto.comment.StudyCommentDto;
-import com.campfiredev.growtogether.study.service.StudyCommentService;
+import com.campfiredev.growtogether.study.service.comment.StudyCommentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;

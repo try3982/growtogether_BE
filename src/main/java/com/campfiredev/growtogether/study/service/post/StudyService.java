@@ -1,18 +1,22 @@
-package com.campfiredev.growtogether.study.service;
+package com.campfiredev.growtogether.study.service.post;
 
 import com.campfiredev.growtogether.exception.custom.CustomException;
 import com.campfiredev.growtogether.exception.response.ErrorCode;
 import com.campfiredev.growtogether.member.entity.MemberEntity;
 import com.campfiredev.growtogether.member.repository.MemberRepository;
+import com.campfiredev.growtogether.point.service.PointService;
 import com.campfiredev.growtogether.skill.entity.SkillEntity;
 import com.campfiredev.growtogether.skill.repository.SkillRepository;
 import com.campfiredev.growtogether.study.dto.post.PagedStudyDTO;
 import com.campfiredev.growtogether.study.dto.post.StudyDTO;
 import com.campfiredev.growtogether.study.entity.SkillStudy;
 import com.campfiredev.growtogether.study.entity.Study;
+import com.campfiredev.growtogether.study.entity.join.StudyMemberEntity;
 import com.campfiredev.growtogether.study.repository.SkillStudyRepository;
 import com.campfiredev.growtogether.study.repository.StudyCommentRepository;
 import com.campfiredev.growtogether.study.repository.StudyRepository;
+import com.campfiredev.growtogether.study.repository.join.JoinRepository;
+import com.campfiredev.growtogether.study.service.schedule.ScheduleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -38,6 +42,12 @@ public class StudyService {
 
     private final StudyCommentRepository studyCommentRepository;
 
+    private final JoinRepository joinRepository;
+
+    private final ScheduleService scheduleService;
+
+    private final PointService pointService;
+
     public StudyDTO createStudy(StudyDTO dto, long memberId) {
         List<SkillEntity> skills = validateSkillName(dto);
 
@@ -48,6 +58,12 @@ public class StudyService {
         study.setAuthor(member);
 
         Study savedStudy = studyRepository.save(study);
+
+        joinRepository.save(StudyMemberEntity.join(study,member));
+
+//        pointService.usePoint(memberId, savedStudy.getStudyCount() * 10);
+
+        scheduleService.createMainSchedule(study,memberId,dto.getMainScheduleList());
 
         List<SkillStudy> skillStudies = skills.stream()
                 .map(skill -> SkillStudy.builder()

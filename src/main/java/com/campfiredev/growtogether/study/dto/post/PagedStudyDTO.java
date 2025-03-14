@@ -14,7 +14,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PagedStudyDTO {
-    private int currentPage;
+    private int page;
     private int totalPages;
     private long totalElements;
     private List<StudyDTO> studyList;
@@ -22,7 +22,7 @@ public class PagedStudyDTO {
     public static PagedStudyDTO from(Page<Study> studyPage, List<StudyDTO> studyList) {
         return PagedStudyDTO.builder()
                 .studyList(studyList)
-                .currentPage(studyPage.getNumber()+1)
+                .page(studyPage.getNumber()+1)
                 .totalPages(studyPage.getTotalPages())
                 .totalElements(studyPage.getTotalElements())
                 .build();
