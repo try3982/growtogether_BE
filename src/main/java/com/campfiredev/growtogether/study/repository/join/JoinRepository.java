@@ -57,6 +57,9 @@ public interface JoinRepository extends JpaRepository<StudyMemberEntity, Long> {
 
   Optional<StudyMemberEntity> findByMember_MemberIdAndStudy_StudyId(Long memberId, Long studyId);
 
+  // 사용자가 참여한 스터디 목록 조회
+  List<StudyMemberEntity> findByMember_MemberId(Long memberId);
+
 
 }
 

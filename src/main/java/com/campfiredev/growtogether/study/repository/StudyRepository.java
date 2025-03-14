@@ -12,5 +12,7 @@ public interface StudyRepository extends JpaRepository<Study, Long> {
     Page<Study> findByIsDeletedFalseOrderByCreatedAtDesc(Pageable pageable);
 
     List<Study> findByStudyStatus(StudyStatus studyStatus);
+    // 본인이 만든 스터디 조회
+    List<Study> findByMember_MemberId(Long memberId);
 }
 

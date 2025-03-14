@@ -12,7 +12,11 @@ import com.campfiredev.growtogether.member.util.JwtUtil;
 import com.campfiredev.growtogether.point.service.PointService;
 import com.campfiredev.growtogether.skill.entity.SkillEntity;
 import com.campfiredev.growtogether.skill.repository.SkillRepository;
+import com.campfiredev.growtogether.study.entity.Study;
+import com.campfiredev.growtogether.study.entity.join.StudyMemberEntity;
+import com.campfiredev.growtogether.study.repository.BookmarkRepository;
 import com.campfiredev.growtogether.study.repository.StudyRepository;
+import com.campfiredev.growtogether.study.repository.join.JoinRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -39,6 +43,10 @@ public class MemberService {
     private final EmailService emailService;
     private final PointService pointService;
     private final StringRedisTemplate redisTemplate;
+    private final StudyRepository studyRepository;
+    private final JoinRepository joinRepository;
+    private final BookmarkRepository bookmarkRepository;
+
 
 
     private final S3Service s3Service;
@@ -103,7 +111,7 @@ public class MemberService {
         }
 
         pointService.updatePoint(memberEntity, 1);
-        return jwtUtil.generateAccessToken(memberEntity.getEmail(),memberEntity.getMemberId(), memberEntity.getNickName());
+        return jwtUtil.generateAccessToken(memberEntity.getEmail(), memberEntity.getMemberId(), memberEntity.getNickName());
     }
 
     // 프로필 이미지 삭제
@@ -150,7 +158,7 @@ public class MemberService {
     public String getProfileImageUrl(Long memberId) {
         // 사용자 찾기
         MemberEntity member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다.")); // 예외 담당자가 수정 예정
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         // 프로필 이미지 존재 여부 확인e
         if (member.getProfileImageUrl() == null) {
@@ -208,6 +216,7 @@ public class MemberService {
         // 이메일 전송
         emailService.sendPasswordResetEmail(email, resetUrl);
     }
+
     // 비밀번호 재설정 처리
     @Transactional
     public void resetPassword(String token, String newPassword) {
@@ -250,7 +259,30 @@ public class MemberService {
         return firstPart + maskedPart + lastPart + domain;
     }
 
+    // 마이페이지 정보 조회
+    public MemberEntity getMemberProfile(Long memberId) {
+        return memberRepository.findById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+    }
+
+    // 참여 중인 스터디 + 본인이 모집한 스터디 목록 조회
+    public List<Study> getMyStudies(Long memberId) {
+        // 본인이 작성한 스터디 조회
+        List<Study> createdStudies = studyRepository.findByMember_MemberId(memberId);
+
+        // 본인이 참여 중인 스터디 조회
+        List<Study> joinedStudies = joinRepository.findByMember_MemberId(memberId)
+                .stream()
+                .map(StudyMemberEntity::getStudy)
+                .toList();
 
 
+        createdStudies.addAll(joinedStudies);
+        return createdStudies;
+    }
 
+    // 참여중인 스터디 개수
+    public Long getLikedStudyCount(Long memberId) {
+        return bookmarkRepository.countByMember_MemberId(memberId);
+    }
 }
