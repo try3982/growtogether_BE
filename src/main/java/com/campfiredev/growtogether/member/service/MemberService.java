@@ -1,9 +1,8 @@
 package com.campfiredev.growtogether.member.service;
 
-//import com.campfiredev.growtogether.mail.service.EmailService;
-
-import com.campfiredev.growtogether.exception.custom.CustomException;
+import com.campfiredev.growtogether.exception.response.ErrorCode;
 import com.campfiredev.growtogether.mail.service.EmailService;
+import com.campfiredev.growtogether.exception.custom.CustomException;
 import com.campfiredev.growtogether.member.dto.KakaoUserDto;
 import com.campfiredev.growtogether.member.dto.MemberLoginDto;
 import com.campfiredev.growtogether.member.dto.MemberRegisterDto;
@@ -13,6 +12,7 @@ import com.campfiredev.growtogether.member.util.JwtUtil;
 import com.campfiredev.growtogether.point.service.PointService;
 import com.campfiredev.growtogether.skill.entity.SkillEntity;
 import com.campfiredev.growtogether.skill.repository.SkillRepository;
+import com.campfiredev.growtogether.study.repository.StudyRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -25,6 +25,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
+import static com.campfiredev.growtogether.exception.response.ErrorCode.NOT_VALID_TOKEN;
 import static com.campfiredev.growtogether.exception.response.ErrorCode.USER_NOT_FOUND;
 
 @Service
@@ -39,9 +40,11 @@ public class MemberService {
     private final PointService pointService;
     private final StringRedisTemplate redisTemplate;
 
+
     private final S3Service s3Service;
 
     private final JwtUtil jwtUtil;
+
 
     private static final String RESET_PASSWORD_PREFIX = "RESET_PASSWORD:";
     private static final long TOKEN_EXPIRATION_TIME = 5; // 5분
@@ -49,9 +52,9 @@ public class MemberService {
     @Transactional
     public MemberEntity register(MemberRegisterDto request, MultipartFile profileImage) {
         // 이메일 인증 여부 확인
-//        if (!emailService.verifyCode(request.getEmail(), request.getVerificationCode())) {
-//            throw new IllegalArgumentException("이메일 인증이 완료되지 않았습니다.");
-//        }
+        if (!emailService.verifyCode(request.getEmail(), request.getVerificationCode())) {
+            throw new IllegalArgumentException("이메일 인증이 완료되지 않았습니다.");
+        }
 
         // 중복 검사
         if (memberRepository.existsByEmail(request.getEmail())) {
@@ -210,11 +213,11 @@ public class MemberService {
     public void resetPassword(String token, String newPassword) {
         String email = redisTemplate.opsForValue().get(RESET_PASSWORD_PREFIX + token);
         if (email == null) {
-            throw new IllegalArgumentException("유효하지 않거나 만료된 토큰입니다.");
+            throw new CustomException(NOT_VALID_TOKEN);
         }
 
         MemberEntity member = memberRepository.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         // 비밀번호 변경 및 저장
         member.setPassword(passwordEncoder.encode(newPassword));
@@ -227,7 +230,7 @@ public class MemberService {
     // 이메일 찾기 (마스킹 처리 후 반환)
     public String findEmail(String email) {
         MemberEntity member = memberRepository.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException("가입된 이메일이 없습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.EMAIL_NOT_FOUND));
 
         return maskEmail(member.getEmail());
     }
@@ -246,6 +249,7 @@ public class MemberService {
 
         return firstPart + maskedPart + lastPart + domain;
     }
+
 
 
 

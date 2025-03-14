@@ -53,11 +53,6 @@ public class MemberController {
         String maskedEmail = memberService.findEmail(email);
         return ResponseEntity.ok(Map.of("maskedEmail", maskedEmail));
     }
-    @GetMapping("/jwt-test")
-    public void test(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
-        System.out.println(customUserDetails.getEmail());
-        System.out.println(customUserDetails.getMemberId());
-        System.out.println(customUserDetails.getNickName());
-    }
+
 
 }
