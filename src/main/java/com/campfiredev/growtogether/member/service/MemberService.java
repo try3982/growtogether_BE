@@ -4,7 +4,6 @@ import com.campfiredev.growtogether.exception.response.ErrorCode;
 import com.campfiredev.growtogether.mail.service.EmailService;
 import com.campfiredev.growtogether.exception.custom.CustomException;
 import com.campfiredev.growtogether.member.dto.KakaoUserDto;
-import com.campfiredev.growtogether.member.dto.MemberDTO;
 import com.campfiredev.growtogether.member.dto.MemberLoginDto;
 import com.campfiredev.growtogether.member.dto.MemberRegisterDto;
 import com.campfiredev.growtogether.member.entity.MemberEntity;
@@ -16,12 +15,9 @@ import com.campfiredev.growtogether.skill.repository.SkillRepository;
 import com.campfiredev.growtogether.study.repository.StudyRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -43,8 +39,7 @@ public class MemberService {
     private final EmailService emailService;
     private final PointService pointService;
     private final StringRedisTemplate redisTemplate;
-    private final MemberService memberService;
-    private final StudyRepository studyRepository;
+
 
     private final S3Service s3Service;
 
