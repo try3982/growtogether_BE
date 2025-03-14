@@ -4,7 +4,7 @@ import com.campfiredev.growtogether.exception.custom.CustomException;
 import com.campfiredev.growtogether.exception.response.ErrorCode;
 import com.campfiredev.growtogether.member.entity.MemberEntity;
 import com.campfiredev.growtogether.member.repository.MemberRepository;
-import com.campfiredev.growtogether.study.dto.StudyCommentDto;
+import com.campfiredev.growtogether.study.dto.comment.StudyCommentDto;
 import com.campfiredev.growtogether.study.entity.StudyComment;
 import com.campfiredev.growtogether.study.repository.StudyCommentRepository;
 import lombok.RequiredArgsConstructor;

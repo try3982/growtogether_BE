@@ -5,7 +5,7 @@
 //import com.campfiredev.growtogether.member.repository.MemberRepository;
 //import com.campfiredev.growtogether.skill.entity.SkillEntity;
 //import com.campfiredev.growtogether.skill.repository.SkillRepository;
-//import com.campfiredev.growtogether.study.dto.StudyDTO;
+//import com.campfiredev.growtogether.study.dto.post.StudyDTO;
 //import com.campfiredev.growtogether.study.entity.SkillStudy;
 //import com.campfiredev.growtogether.study.entity.Study;
 //import com.campfiredev.growtogether.study.repository.SkillStudyRepository;
@@ -16,6 +16,7 @@
 //import org.mockito.Mock;
 //import org.mockito.junit.jupiter.MockitoExtension;
 //
+//import java.time.LocalDateTime;
 //import java.util.*;
 //
 //import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -45,8 +46,8 @@
 //    void createStudy() {
 //        // Given
 //        List<String> skillNames = Arrays.asList("Java", "Spring");
-//        Date validStartDate = new Date(System.currentTimeMillis() + 86400000); // 하루 뒤의 날짜
-//        Date validEndDate = new Date(System.currentTimeMillis() + 172800000); // 이틀 뒤의 날짜
+//        LocalDateTime validStartDate =LocalDateTime.now().plusDays(1); // 하루 뒤의 날짜
+//        LocalDateTime validEndDate = LocalDateTime.now().plusDays(2); // 이틀 뒤의 날짜
 //
 //        StudyDTO dto = StudyDTO.builder()
 //                .title("New Study")
@@ -90,8 +91,8 @@
 //    void createStudy_withInvalidDates() {
 //        // Given
 //        List<String> skillNames = Arrays.asList("Java", "Spring");
-//        Date invalidStartDate = new Date(System.currentTimeMillis() - 86400000); // 하루 전의 날짜
-//        Date validEndDate = new Date(System.currentTimeMillis() + 172800000); // 이틀 뒤의 날짜
+//        LocalDateTime invalidStartDate = LocalDateTime.now().plusDays(1); // 하루 전의 날짜
+//        LocalDateTime validEndDate = LocalDateTime.now().plusDays(2); // 이틀 뒤의 날짜
 //
 //        StudyDTO dto = StudyDTO.builder()
 //                .title("New Study")
@@ -109,27 +110,5 @@
 //        // Then
 //        verify(studyRepository, never()).save(any(Study.class));
 //        verify(skillStudyRepository, never()).saveAll(anyList());
-//    }
-//
-//    @Test
-//    void getAllStudies() {
-//        // Given
-//        Study study1 = Study.builder().title("Study 1").description("Description 1").build();
-//        Study study2 = Study.builder().title("Study 2").description("Description 2").build();
-//        study1.addSkillStudies(new ArrayList<>());
-//        study2.addSkillStudies(new ArrayList<>());
-//        List<Study> studies = Arrays.asList(study1, study2);
-//
-//        // When
-//        when(studyRepository.findByIsDeletedFalseOrderByCreatedAtDesc()).thenReturn(studies);
-//
-//        List<StudyDTO> result = studyService.getAllStudies();
-//
-//        // Then
-//        assertEquals(2, result.size());
-//        assertEquals("Study 1", result.get(0).getTitle());
-//        assertEquals("Study 2", result.get(1).getTitle());
-//
-//        verify(studyRepository, times(1)).findAll();
 //    }
 //}
