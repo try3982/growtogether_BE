@@ -3,7 +3,7 @@ package com.campfiredev.growtogether.study.controller;
 import com.campfiredev.growtogether.member.dto.CustomUserDetails;
 import com.campfiredev.growtogether.study.dto.post.PagedStudyDTO;
 import com.campfiredev.growtogether.study.dto.post.StudyDTO;
-import com.campfiredev.growtogether.study.service.StudyService;
+import com.campfiredev.growtogether.study.service.post.StudyService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -23,7 +23,7 @@ public class StudyController {
     }
 
     @GetMapping
-    public PagedStudyDTO getAllStudies(@RequestParam(defaultValue = "0") int page){
+    public PagedStudyDTO getAllStudies(@RequestParam(defaultValue = "1") int page){
         Pageable pageable = PageRequest.of(page-1, 9);
         return studyService.getAllStudies(pageable);
     }

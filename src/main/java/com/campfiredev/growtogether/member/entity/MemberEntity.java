@@ -1,5 +1,6 @@
 package com.campfiredev.growtogether.member.entity;
 
+import com.campfiredev.growtogether.study.entity.Bookmark;
 import com.campfiredev.growtogether.study.entity.StudyComment;
 import jakarta.persistence.*;
 import lombok.*;
@@ -18,6 +19,7 @@ import java.util.List;
 })
 @Getter
 @NoArgsConstructor
+@AllArgsConstructor
 public class MemberEntity {
 
   @Id
@@ -74,6 +76,9 @@ public class MemberEntity {
   @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<StudyComment> comments;
 
+  @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+  private List<Bookmark> bookmarkList;
+
   @Builder
   public MemberEntity(Long memberId, String kakaoId, String nickName, String phone, String password,
                       String email, Integer points, String githubUrl, String profileImageUrl,
@@ -97,7 +102,5 @@ public class MemberEntity {
   public void usePoints(int amount) {
     points -= amount;
   }
-
-
 
 }

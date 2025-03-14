@@ -6,7 +6,6 @@ import com.campfiredev.growtogether.member.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -52,6 +51,15 @@ public class SecurityConfig {
             "/api/bootcamp/programCourses"
     };
 
+    private static final String[] PUBLIC_GET_URLS = {
+            "/api/study/**",
+            "/api/study/comments/**",
+            "/api/bootcamp/search",
+            "/api/bootcamp/top",
+            "/api/bootcamp/**",
+            "/api/bootcamp/comments/**"
+    };
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
@@ -63,9 +71,8 @@ public class SecurityConfig {
                         authorizeRequests
                                 // 퍼블릭 URL은 인증 없이 허용
                                 .requestMatchers(PUBLIC_URLS).permitAll()
+                                .requestMatchers(PUBLIC_GET_URLS).permitAll()
                                 .requestMatchers("/ws-chat/**","/topic/**","/app/**").permitAll()
-                                .requestMatchers(HttpMethod.GET,"/api/study/**").permitAll()
-                                .requestMatchers(HttpMethod.GET,"/api/study/comments/**").permitAll()
                                 .requestMatchers("/api/bootcamp","/sse").authenticated()
                                 // 그 외의 요청은 인증 필요
                                 .anyRequest().authenticated()
@@ -73,7 +80,7 @@ public class SecurityConfig {
                 .exceptionHandling(config -> config
                         .accessDeniedHandler(jwtAccessDeniedHandler)
                 )
-                .addFilterBefore(new JwtAuthenticationFilter(PUBLIC_URLS, jwtUtil), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(new JwtAuthenticationFilter(PUBLIC_URLS, PUBLIC_GET_URLS, jwtUtil), UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
 

@@ -36,7 +36,7 @@ public class JwtUtil {
     public String generateAccessToken(String email, Long memberId, String nickName) {
         log.info("액세스 토큰이 발행되었습니다.");
 
-        return Jwts.builder()
+        return "Bearer "+Jwts.builder()
                 .claim("email", email) // 클레임에 email 추가
                 .claim("memberId", memberId) // memberId 추가
                 .claim("nickName",nickName)

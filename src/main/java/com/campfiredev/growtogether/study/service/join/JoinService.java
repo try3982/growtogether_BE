@@ -1,22 +1,5 @@
 package com.campfiredev.growtogether.study.service.join;
 
-import static com.campfiredev.growtogether.exception.response.ErrorCode.ALREADY_CONFIRMED;
-import static com.campfiredev.growtogether.exception.response.ErrorCode.ALREADY_JOINED_STUDY;
-import static com.campfiredev.growtogether.exception.response.ErrorCode.CANCEL_PERMISSION_DENIED;
-import static com.campfiredev.growtogether.exception.response.ErrorCode.NOT_A_STUDY_MEMBER;
-import static com.campfiredev.growtogether.exception.response.ErrorCode.STUDY_FULL;
-import static com.campfiredev.growtogether.exception.response.ErrorCode.STUDY_NOT_FOUND;
-import static com.campfiredev.growtogether.exception.response.ErrorCode.TEAM_LEADER_ONLY_CONFIRMATION;
-import static com.campfiredev.growtogether.exception.response.ErrorCode.USER_NOT_APPLIED;
-import static com.campfiredev.growtogether.exception.response.ErrorCode.USER_NOT_FOUND;
-import static com.campfiredev.growtogether.notification.type.NotiType.STUDY;
-import static com.campfiredev.growtogether.study.entity.StudyStatus.COMPLETE;
-import static com.campfiredev.growtogether.study.entity.StudyStatus.RECRUIT;
-import static com.campfiredev.growtogether.study.type.StudyMemberType.KICK;
-import static com.campfiredev.growtogether.study.type.StudyMemberType.LEADER;
-import static com.campfiredev.growtogether.study.type.StudyMemberType.NORMAL;
-import static com.campfiredev.growtogether.study.type.StudyMemberType.PENDING;
-
 import com.campfiredev.growtogether.exception.custom.CustomException;
 import com.campfiredev.growtogether.member.entity.MemberEntity;
 import com.campfiredev.growtogether.member.repository.MemberRepository;
@@ -30,13 +13,21 @@ import com.campfiredev.growtogether.study.entity.join.StudyMemberEntity;
 import com.campfiredev.growtogether.study.repository.StudyRepository;
 import com.campfiredev.growtogether.study.repository.join.JoinRepository;
 import com.campfiredev.growtogether.study.type.StudyMemberType;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+
+import static com.campfiredev.growtogether.exception.response.ErrorCode.*;
+import static com.campfiredev.growtogether.notification.type.NotiType.STUDY;
+import static com.campfiredev.growtogether.study.entity.StudyStatus.COMPLETE;
+import static com.campfiredev.growtogether.study.entity.StudyStatus.RECRUIT;
+import static com.campfiredev.growtogether.study.type.StudyMemberType.*;
 
 @Service
 @RequiredArgsConstructor
@@ -95,6 +86,13 @@ public class JoinService {
 
     studyMemberEntity.confirm();
 
+    Study study = studyMemberEntity.getStudy();
+    study.setParticipant(study.getParticipant()+1);
+
+    if(Objects.equals(study.getMaxParticipant(), study.getParticipant())){
+      study.setStudyStatus(COMPLETE);
+    }
+
     /**
      * 포인트 확인 후 차감
      * 동시성 이슈로 인해 redisson lock 적용
@@ -118,7 +116,7 @@ public class JoinService {
   }
 
   /**
-   * 참가신청 세부사항 조히
+   * 참가신청 세부사항 조회
    */
   public JoinDetailsDto getJoin(Long studyMemberId){
     StudyMemberEntity studyMemberEntity = joinRepository.findWithSkillsById(studyMemberId)
@@ -195,6 +193,11 @@ public class JoinService {
     //현재 로그인 한 사용자 정보 가져와서 해당 스터디 팀장인지 확인
     joinRepository.findByMember_MemberIdAndStudy_StudyIdAndStatusIn(memberId, studyMemberEntity.getStudy().getStudyId(), List.of(LEADER))
         .orElseThrow(() -> new CustomException(TEAM_LEADER_ONLY_CONFIRMATION));
+
+    //스터디에 이미 참여인원이 꽉찼으면 신청 받지 않음
+    if(studyMemberEntity.getStudy().getMaxParticipant() <= studyMemberEntity.getStudy().getParticipant()){
+      throw new CustomException(STUDY_FULL);
+    }
   }
 
   /**

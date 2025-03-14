@@ -9,6 +9,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Builder
 @NoArgsConstructor
@@ -27,7 +29,9 @@ public class StudyCommentDto {
     @Min(value = 0, message = "게시글 번호는 0보다 큰 숫자여야 합니다.")
     private Long studyId;
 
-    private String nickName;
+    private String author;
+
+    private LocalDateTime createAt;
 
 
     public static StudyCommentDto fromEntity(StudyComment comment) {
@@ -36,7 +40,8 @@ public class StudyCommentDto {
                 .commentContent(comment.getCommentContent())
                 .parentCommentId(comment.getParentCommentId())
                 .studyId((comment.getStudyId()))
-                .nickName(comment.getMember().getNickName())
+                .author(comment.getMember().getNickName())
+                .createAt(comment.getCreatedAt())
                 .build();
     }
 }

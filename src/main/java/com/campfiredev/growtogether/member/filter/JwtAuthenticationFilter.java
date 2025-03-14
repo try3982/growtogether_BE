@@ -15,7 +15,7 @@ import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-
+import java.util.stream.Stream;
 
 import static com.campfiredev.growtogether.exception.response.ErrorCode.NOT_VALID_TOKEN;
 
@@ -24,19 +24,20 @@ import static com.campfiredev.growtogether.exception.response.ErrorCode.NOT_VALI
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final String[] PUBLIC_URLS;
+    private final String[] PUBLIC_GET_URLS;
     private final JwtUtil jwtUtil;
     private static final AntPathMatcher antPathMatcher = new AntPathMatcher(); // 경로 패턴 매칭을 위한 AntPathMatcher
 
     @Override
-    protected void doFilterInternal (HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         // 요청 URL이 퍼블릭 URL에 포함되는지 확인
         String requestUri = request.getRequestURI();
-        for (String publicUrl : PUBLIC_URLS) {
-            if (antPathMatcher.match(publicUrl, requestUri)) {
-                log.info("퍼블릭 URL - JWT 인증 생략: {}", requestUri);
-                filterChain.doFilter(request, response);
-                return;
-            }
+        boolean isPublicUrl = isPublicUrl(request.getMethod(), requestUri);
+
+        if (isPublicUrl) {
+            log.info("퍼블릭 URL - JWT 인증 생략: {}", requestUri);
+            filterChain.doFilter(request, response);
+            return;
         }
 
         // 요청에서 JWT를 추출
@@ -71,5 +72,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         // 요청을 필터 체인에 전달
         filterChain.doFilter(request, response);
+    }
+
+    private boolean isPublicUrl(String httpMethod, String requestUri) {
+        boolean check = Stream.of(PUBLIC_URLS).anyMatch(url -> antPathMatcher.match(url, requestUri));
+
+        if (!check && "GET".equals(httpMethod)) {
+            check = Stream.of(PUBLIC_GET_URLS).anyMatch(url -> antPathMatcher.match(url, requestUri));
+        }
+
+        return check;
     }
 }

@@ -54,10 +54,12 @@ public class StudyDTO {
     @NotEmpty(message = "스터디 진행시 사용할 기술스택을 입력해 주세요.")
     private List<String> skillNames;
 
-    private String nickName;
+    private String author;
 
     @Setter
     private Integer commentCount;
+
+    private LocalDateTime createAt;
 
     public static StudyDTO fromEntity(Study study) {
         List<String> skillNames = study.getSkillStudies().stream()
@@ -77,7 +79,8 @@ public class StudyDTO {
                 .type(study.getType())
                 .studyCount(study.getStudyCount())
                 .skillNames(skillNames)
-                .nickName(study.getMember().getNickName())
+                .author(study.getMember().getNickName())
+                .createAt(study.getCreatedAt())
                 .build();
     }
 

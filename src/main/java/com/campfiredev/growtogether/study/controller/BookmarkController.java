@@ -1,7 +1,7 @@
 package com.campfiredev.growtogether.study.controller;
 
 import com.campfiredev.growtogether.member.dto.CustomUserDetails;
-import com.campfiredev.growtogether.study.service.BookmarkService;
+import com.campfiredev.growtogether.study.service.bookmark.BookmarkService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PathVariable;
