@@ -33,6 +33,7 @@ public enum ErrorCode {
   INVALID_FEEDBACK_PERIOD("피드백 기간이 아닙니다.", BAD_REQUEST),
   TEAM_LEADER_ONLY_CONFIRMATION("팀장만 참가를 확정할 수 있습니다.", BAD_REQUEST),
   CANCEL_PERMISSION_DENIED("신청 취소는 본인 혹은 팀장만 가능합니다.", BAD_REQUEST),
+  CANNOT_OVERLAP_WITH_MAIN_SCHEDULE_TIME("메인 일정과 시간이 겹칠 수 없습니다.", BAD_REQUEST),
 
 
 
