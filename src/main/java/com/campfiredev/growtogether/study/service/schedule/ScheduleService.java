@@ -51,7 +51,7 @@ public class ScheduleService {
       MainScheduleDto current = mainList.get(i);
 
       if (!current.getStartTime().isAfter(prev.getEndTime())) {
-        throw new CustomException(ALREADY_EXISTS_SCHEDULE);
+        throw new CustomException(MAIN_SCHEDULE_CONFLICT);
       }
     }
 
@@ -179,7 +179,7 @@ public class ScheduleService {
       }
 
       if (!(end.isBefore(schedule.getStart()) || start.isAfter(schedule.getEnd()))) {
-        throw new CustomException(ALREADY_EXISTS_SCHEDULE);
+        throw new CustomException(CANNOT_OVERLAP_WITH_MAIN_SCHEDULE_TIME);
       }
     }
   }

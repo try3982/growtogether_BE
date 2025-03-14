@@ -26,13 +26,14 @@ public enum ErrorCode {
   SCHEDULE_NOT_FOUND("존재하지 않는 일정입니다.",BAD_REQUEST),
   NOT_AUTHOR("작성자가 아닙니다.",BAD_REQUEST),
   CANNOT_DELETE_MAIN_SCHEDULE("메인 일정은 삭제할 수 없습니다.", BAD_REQUEST),
-  ALREADY_EXISTS_SCHEDULE("겹치는 일정이 존재합니다.",BAD_REQUEST),
+  MAIN_SCHEDULE_CONFLICT("메인 일정은 겹칠 수 없습니다.", BAD_REQUEST),
   INVALID_ATTENDANCE_TIME("출석 가능 시간이 아닙니다.", BAD_REQUEST),
   ALREADY_ATTENDANCE("이미 출석했습니다.",BAD_REQUEST),
   ALREADY_FEEDBACK("이미 피드백을 했습니다.", BAD_REQUEST),
   INVALID_FEEDBACK_PERIOD("피드백 기간이 아닙니다.", BAD_REQUEST),
   TEAM_LEADER_ONLY_CONFIRMATION("팀장만 참가를 확정할 수 있습니다.", BAD_REQUEST),
   CANCEL_PERMISSION_DENIED("신청 취소는 본인 혹은 팀장만 가능합니다.", BAD_REQUEST),
+  CANNOT_OVERLAP_WITH_MAIN_SCHEDULE_TIME("메인 일정과 시간이 겹칠 수 없습니다.", BAD_REQUEST),
 
 
 
