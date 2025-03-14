@@ -1,5 +1,6 @@
 package com.campfiredev.growtogether.study.controller;
 
+import com.campfiredev.growtogether.member.dto.CustomUserDetails;
 import com.campfiredev.growtogether.study.dto.post.PagedStudyDTO;
 import com.campfiredev.growtogether.study.dto.post.StudyDTO;
 import com.campfiredev.growtogether.study.service.StudyService;
@@ -7,6 +8,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -16,9 +18,8 @@ public class StudyController {
     private final StudyService studyService;
 
     @PostMapping
-    public StudyDTO createStudy(@Valid @RequestBody StudyDTO dto) {
-        long userId = 1;
-        return studyService.createStudy(dto, userId);
+    public StudyDTO createStudy(@Valid @RequestBody StudyDTO dto, @AuthenticationPrincipal CustomUserDetails customUserDetails) {
+        return studyService.createStudy(dto, customUserDetails.getMemberId());
     }
 
     @GetMapping
@@ -33,13 +34,13 @@ public class StudyController {
     }
 
     @PutMapping("/{studyId}")
-    public StudyDTO updateStudy(@PathVariable Long studyId, @Valid @RequestBody StudyDTO dto) {
-        return studyService.updateStudy(studyId, dto);
+    public StudyDTO updateStudy(@PathVariable Long studyId, @Valid @RequestBody StudyDTO dto,@AuthenticationPrincipal CustomUserDetails customUserDetails) {
+        return studyService.updateStudy(studyId, dto,customUserDetails.getMemberId());
     }
 
     @DeleteMapping("/{studyId}")
-    public void deleteStudy(@PathVariable Long studyId) {
-        studyService.deleteStudy(studyId);
+    public void deleteStudy(@PathVariable Long studyId, @AuthenticationPrincipal CustomUserDetails customUserDetails) {
+        studyService.deleteStudy(studyId,customUserDetails.getMemberId());
     }
 }
 
