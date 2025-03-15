@@ -17,7 +17,7 @@ public class OAuthController {
 	private final KakaoService kakaoService;
 
 	@GetMapping("/oauth2/code/kakao")
-	public ResponseEntity<Map<String, String>> kakaoLogin(
+	public String kakaoLogin(
 			@RequestParam("code") String accessCode,
 			HttpServletResponse httpServletResponse
 	) {
@@ -25,8 +25,12 @@ public class OAuthController {
 
 		httpServletResponse.setHeader("Authorization", "Bearer " + accessToken);
 
-		Map<String, String> response = Map.of("accessToken", accessToken);
-		return ResponseEntity.ok(response);
+		//	Map<String, String> response = Map.of("accessToken", accessToken);
+		//	return "redirect:/http://13.125.21.225:8080/oauth/kakao/";
+		return "redirect:/http://13.125.21.225:8080/oauth/kakao/";
+
+
 	}
+
 
 }
