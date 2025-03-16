@@ -54,7 +54,7 @@ public class StudyService {
 
         Study study = Study.fromDTO(dto);
 
-        MemberEntity member = memberRepository.findById(memberId).orElseThrow(()->new CustomException(NOT_INVALID_MEMBER));
+        MemberEntity member = memberRepository.findByIdWithLock(memberId).orElseThrow(()->new CustomException(NOT_INVALID_MEMBER));
 
         study.setAuthor(member);
 
