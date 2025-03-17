@@ -29,7 +29,6 @@ public class KakaoService {
 
     private final JwtUtil jwtUtil;
 
-    @Transactional
     public String getAccessToken(String accessCode) {
         KakaoTokenDto kakaoToken = this.getKakaoToken(accessCode);
         KakaoUserDto kakaoUserInfo = this.getKakaoUserInfo(kakaoToken.getAccessToken());

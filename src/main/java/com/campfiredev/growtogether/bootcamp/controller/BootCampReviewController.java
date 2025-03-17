@@ -166,7 +166,7 @@ public class BootCampReviewController {
      * 내가 좋아요한 게시글 모음
      */
     @Operation(summary = "내가 좋아요한 부트캠프 리뷰 조회", description = "사용자가 좋아요한 부트캠프 리뷰 목록을 조회합니다.")
-    @GetMapping("/myLikes")
+    @GetMapping("/my/Likes")
     public ResponseEntity<BootCampReviewResponseDto.PageResponse> getLikedReviews(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @RequestParam(defaultValue = "0") int page ,
