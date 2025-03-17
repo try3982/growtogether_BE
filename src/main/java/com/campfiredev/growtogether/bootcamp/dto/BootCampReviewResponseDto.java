@@ -1,6 +1,7 @@
 package com.campfiredev.growtogether.bootcamp.dto;
 
 import com.campfiredev.growtogether.bootcamp.entity.BootCampReview;
+import com.campfiredev.growtogether.bootcamp.type.ProgramCourse;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -34,6 +35,7 @@ public class BootCampReviewResponseDto {
         private int likeCount;
         private Long viewCount;
         private int commentCount;
+        private ProgramCourse programCourse;
         private List<String> skillNames;
         private LocalDateTime createdAt;
         private LocalDateTime updatedAt;
@@ -60,6 +62,7 @@ public class BootCampReviewResponseDto {
                     .viewCount(review.getViewCount())
                     .commentCount(review.getComments().size())
                     .skillNames(skillNames)
+                    .programCourse(review.getProgramCourse())
                     .createdAt(review.getCreatedAt())
                     .updatedAt(review.getUpdatedAt())
                     .build();
