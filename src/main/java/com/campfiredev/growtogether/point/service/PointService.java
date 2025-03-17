@@ -23,7 +23,7 @@ public class PointService {
 
     private final Map<String, LocalDate> lastLoginMap;
 
-
+    @Transactional
     public void usePoint(Long memberId, int amount) {
         MemberEntity MemberEntity = memberRepository.findByIdWithLock(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
