@@ -12,5 +12,8 @@ public interface StudyRepository extends JpaRepository<Study, Long> {
     Page<Study> findByIsDeletedFalseOrderByCreatedAtDesc(Pageable pageable);
 
     List<Study> findByStudyStatus(StudyStatus studyStatus);
+    int  countAllByMemberMemberId (Long memberId);
+
+
 }
 

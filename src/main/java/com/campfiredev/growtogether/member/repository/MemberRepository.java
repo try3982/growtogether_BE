@@ -23,4 +23,6 @@ public interface MemberRepository extends JpaRepository<MemberEntity, Long> {
     // 카카오 아이디로 서비스 회원 검증하기
     Optional<MemberEntity> findByKakaoId(String kakaoId);
 
+    Optional<MemberEntity> findById(Long memberId);
+
 }
