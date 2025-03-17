@@ -1,7 +1,6 @@
 package com.campfiredev.growtogether.bootcamp.repository;
 
 import com.campfiredev.growtogether.bootcamp.entity.BootCampReview;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -14,7 +13,7 @@ import java.util.Optional;
 @Repository
 public interface BootCampReviewRepository extends JpaRepository<BootCampReview, Long> {
 
-    Page<BootCampReview> findAll(Pageable pageable);
+    //Page<BootCampReview> findAll(Pageable pageable);
 
     @Query("SELECT DISTINCT b FROM BootCampReview b " +
             "LEFT JOIN FETCH b.bootCampSkills bs " +
@@ -26,5 +25,9 @@ public interface BootCampReviewRepository extends JpaRepository<BootCampReview, 
     + "LEFT JOIN FETCH bs.skill s" +
     " WHERE b.bootCampId = :bootCampId")
     Optional<BootCampReview> findByIdWithSkills(@Param("bootCampId")Long bootCampId);
+
+    @Query("SELECT br.bootCampId, COUNT(c) FROM BootCampReview br LEFT JOIN br.comments c " +
+            "WHERE br.bootCampId IN :bootCampIds GROUP BY br.bootCampId")
+    List<Object[]> findCommentCountsByBootCampIds(@Param("bootCampIds") List<Long> bootCampIds);
 
 }
