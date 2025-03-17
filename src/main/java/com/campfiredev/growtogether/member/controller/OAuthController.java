@@ -23,7 +23,8 @@ public class OAuthController {
 	) {
 		String accessToken = kakaoService.getAccessToken(accessCode);
 
-		httpServletResponse.setHeader("Authorization",accessToken);
+		httpServletResponse.setHeader("Authorization", "Bearer " + accessToken);
+		httpServletResponse.setHeader("Access-Control-Expose-Headers", "Authorization");
 
 		//	Map<String, String> response = Map.of("accessToken", accessToken);
 		//	return "redirect:/http://13.125.21.225:8080/oauth/kakao/";
