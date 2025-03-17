@@ -56,18 +56,18 @@ public class MemberService {
     public MemberEntity register(MemberRegisterDto request, MultipartFile profileImage) {
         // 이메일 인증 여부 확인
         if (!emailService.verifyCode(request.getEmail(), request.getVerificationCode())) {
-            throw new IllegalArgumentException("이메일 인증이 완료되지 않았습니다.");
+            throw new CustomException(ErrorCode.EMAIL_NOT_VERIFIED);
         }
 
         // 중복 검사
         if (memberRepository.existsByEmail(request.getEmail())) {
-            throw new IllegalArgumentException("이미 사용 중인 이메일입니다.");
+            throw new CustomException(ErrorCode.DUPLICATE_EMAIL);
         }
         if (memberRepository.existsByNickName(request.getNickName())) {
-            throw new IllegalArgumentException("이미 사용 중인 닉네임입니다.");
+            throw new CustomException(ErrorCode.DUPLICATE_NICKNAME);
         }
         if (memberRepository.existsByPhone(request.getPhone())) {
-            throw new IllegalArgumentException("이미 사용 중인 전화번호입니다.");
+            throw new CustomException(ErrorCode.DUPLICATE_PHONE);
         }
 
         // 프로필 이미지 업로드 후 파일 키 저장
@@ -100,7 +100,6 @@ public class MemberService {
     public String userLogin(MemberLoginDto memberLoginDto) {
         MemberEntity memberEntity = memberRepository.findByEmail(memberLoginDto.email())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 이메일입니다."));
-
         if (!passwordEncoder.matches(memberLoginDto.password(), memberEntity.getPassword())) {
             throw new IllegalArgumentException("비밀번호가 틀립니다.");
         }
@@ -252,31 +251,6 @@ public class MemberService {
 
         return firstPart + maskedPart + lastPart + domain;
     }
-
-    //사용자의 마이페이지 정보 조회
-    public MemberEntity getMemberProfile(Long memberId) {
-        return memberRepository.findById(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
-    }
-
-
-    //사용자가 참여 중인 스터디 + 본인이 모집한 스터디 목록 조회
-//    public List<Study> getMyStudies(Long memberId) {
-//        // 본인이 작성한 스터디 조회
-//        List<StudyMemberEntity> createdStudies = joinRepository.findByMember_MemberId(memberId);
-//
-//        // 본인이 참여 중인 스터디 조회
-//        List<Study> joinedStudies = joinRepository.findByMember_MemberId(memberId)
-//                .stream()
-//                .map(StudyMemberEntity::getStudy)
-//                .toList();
-//
-//        // 두 개의 리스트를 합쳐 반환
-//        createdStudies.addAll(joinedStudies);
-//        return createdStudies;
-
-
-
 
 
 }
