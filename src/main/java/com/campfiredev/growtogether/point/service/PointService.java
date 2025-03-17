@@ -1,6 +1,5 @@
 package com.campfiredev.growtogether.point.service;
 
-import com.campfiredev.growtogether.common.annotation.RedissonLock;
 import com.campfiredev.growtogether.exception.custom.CustomException;
 import com.campfiredev.growtogether.exception.response.ErrorCode;
 import com.campfiredev.growtogether.member.entity.MemberEntity;
@@ -23,7 +22,7 @@ public class PointService {
 
     private final Map<String, LocalDate> lastLoginMap;
 
-    @RedissonLock(key = "point:#{#memberId}", waitTime = 5, leaseTime = 10)
+//    @RedissonLock(key = "point:#{#memberId}", waitTime = 5, leaseTime = 10)
     public void usePoint(Long memberId, int amount) {
         MemberEntity MemberEntity = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
@@ -35,7 +34,7 @@ public class PointService {
          MemberEntity.usePoints(amount);
     }
 
-    @RedissonLock(key = "point:#{#memberId}", waitTime = 5, leaseTime = 10)
+//    @RedissonLock(key = "point:#{#memberId}", waitTime = 5, leaseTime = 10)
     public void updatePoint(MemberEntity memberEntity, int point) {
         LocalDate today = LocalDate.now();
         String email = memberEntity.getEmail();

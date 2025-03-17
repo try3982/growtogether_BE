@@ -70,7 +70,7 @@ public class Study extends BaseEntity {
                 .studyStartDate(studyStartDate)
                 .studyEndDate(studyEndDate)
                 .isDeleted(false)
-                .studyStatus(StudyStatus.PROGRESS)
+                .studyStatus(StudyStatus.RECRUIT)
                 .participant(1)
                 .type(dto.getType())
                 .studyCount(dto.getMainScheduleList().size())

@@ -23,8 +23,10 @@ public class StudyController {
     }
 
     @GetMapping
-    public PagedStudyDTO getAllStudies(@RequestParam(defaultValue = "1") int page){
-        Pageable pageable = PageRequest.of(page-1, 9);
+    public PagedStudyDTO getAllStudies(@RequestParam(defaultValue = "1") int page,
+                                       @RequestParam(defaultValue = "9") int size
+    ){
+        Pageable pageable = PageRequest.of(page-1, size);
         return studyService.getAllStudies(pageable);
     }
 
