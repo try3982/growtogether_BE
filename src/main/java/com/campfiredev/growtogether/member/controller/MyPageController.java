@@ -61,8 +61,4 @@ public class MyPageController {
         MyPageBookmarksDto bookmarks = myPageService.getMyBookmarks(customUserDetails.getMemberId());
         return ResponseEntity.ok(bookmarks);
     }
-
-
-
-
 }
