@@ -54,7 +54,7 @@ public class StudyService {
 
         Study study = Study.fromDTO(dto);
 
-        MemberEntity member = memberRepository.findById(memberId).orElseThrow(()->new CustomException(NOT_INVALID_MEMBER));
+        MemberEntity member = memberRepository.findByIdWithLock(memberId).orElseThrow(()->new CustomException(NOT_INVALID_MEMBER));
 
         study.setAuthor(member);
 
@@ -65,7 +65,7 @@ public class StudyService {
 
         joinRepository.save(studyMemberEntity);
 
-        pointService.usePoint(memberId, savedStudy.getStudyCount() * 5);
+        pointService.usePoint(memberId, savedStudy.getStudyCount() * 30);
 
         scheduleService.createMainSchedule(study,memberId,dto.getMainScheduleList());
 
