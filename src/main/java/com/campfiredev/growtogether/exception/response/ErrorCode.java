@@ -36,6 +36,12 @@ public enum ErrorCode {
   EMAIL_NOT_FOUND("가입된 이메일이 없습니다.",BAD_REQUEST),
   CANNOT_OVERLAP_WITH_MAIN_SCHEDULE_TIME("메인 일정과 시간이 겹칠 수 없습니다.", BAD_REQUEST),
 
+
+  EMAIL_NOT_VERIFIED( "이메일 인증이 완료되지 않았습니다.",BAD_REQUEST),
+  DUPLICATE_EMAIL("이미 사용 중인 이메일입니다.", BAD_REQUEST ),
+  DUPLICATE_NICKNAME( "이미 사용 중인 닉네임입니다.",BAD_REQUEST ),
+  DUPLICATE_PHONE( "이미 사용 중인 전화번호입니다.",BAD_REQUEST ),
+
   // 파일 업로드 관련 예외
   FILE_UPLOAD_FAILED("파일 업로드에 실패했습니다.", HttpStatus.BAD_REQUEST),
   FILE_SIZE_EXCEEDED("파일 크기 제한을 초과했습니다.", HttpStatus.PAYLOAD_TOO_LARGE),

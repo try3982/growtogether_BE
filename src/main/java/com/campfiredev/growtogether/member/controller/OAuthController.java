@@ -17,16 +17,24 @@ public class OAuthController {
 	private final KakaoService kakaoService;
 
 	@GetMapping("/oauth2/code/kakao")
-	public ResponseEntity<Map<String, String>> kakaoLogin(
+	public  ResponseEntity<?> kakaoLogin(
 			@RequestParam("code") String accessCode,
 			HttpServletResponse httpServletResponse
 	) {
 		String accessToken = kakaoService.getAccessToken(accessCode);
 
-		httpServletResponse.setHeader("Authorization", "Bearer " + accessToken);
+		httpServletResponse.setHeader("Authorization",accessToken);
 
-		Map<String, String> response = Map.of("accessToken", accessToken);
-		return ResponseEntity.ok(response);
+		//	Map<String, String> response = Map.of("accessToken", accessToken);
+		//	return "redirect:/http://13.125.21.225:8080/oauth/kakao/";
+
+//		return "redirect:/oauth/kakao";
+//        httpServletResponse.sendRedirect("http://localhost:8080/oauth/kakao");
+		return ResponseEntity.ok(Map.of("message", "로그인이 완료되었습니다.", "accessToken", accessToken));
+    }
+
+	@GetMapping("/oauth/kakao")
+	public String a(){
+		return "a";
 	}
-
 }
