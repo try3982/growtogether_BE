@@ -7,6 +7,7 @@ import com.campfiredev.growtogether.member.entity.MemberEntity;
 import com.campfiredev.growtogether.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
@@ -16,16 +17,15 @@ import static com.campfiredev.growtogether.exception.response.ErrorCode.INSUFFIC
 
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class PointService {
 
     private final MemberRepository memberRepository;
 
     private final Map<String, LocalDate> lastLoginMap;
 
-  //  @RedissonLock(key = "point:#{#memberId}", waitTime = 5, leaseTime = 10)
+    @Transactional
     public void usePoint(Long memberId, int amount) {
-        MemberEntity MemberEntity = memberRepository.findById(memberId)
+        MemberEntity MemberEntity = memberRepository.findByIdWithLock(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         if (MemberEntity.getPoints() < amount) {

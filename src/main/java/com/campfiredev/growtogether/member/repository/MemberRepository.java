@@ -1,9 +1,12 @@
 package com.campfiredev.growtogether.member.repository;
 
 import com.campfiredev.growtogether.member.entity.MemberEntity;
+import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
+import org.springframework.data.jpa.repository.Lock;
+import org.springframework.data.jpa.repository.Query;
 
 
 public interface MemberRepository extends JpaRepository<MemberEntity, Long> {
@@ -23,4 +26,9 @@ public interface MemberRepository extends JpaRepository<MemberEntity, Long> {
     // 카카오 아이디로 서비스 회원 검증하기
     Optional<MemberEntity> findByKakaoId(String kakaoId);
 
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT m FROM MemberEntity m WHERE m.memberId = :memberId")
+    Optional<MemberEntity> findByIdWithLock(Long memberId);
+
+    Optional<MemberEntity> findById(Long memberId);
 }

@@ -21,5 +21,7 @@ public interface StudyRepository extends JpaRepository<Study, Long> {
             " DESC"
     )
     Page<Study> findByPopularity(Pageable pageable);
+  
+    int  countAllByMemberMemberId (Long memberId);
 }
 

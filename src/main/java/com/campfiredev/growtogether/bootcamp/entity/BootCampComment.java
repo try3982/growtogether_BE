@@ -37,7 +37,7 @@ public class BootCampComment extends BaseEntity {
     @JoinColumn(name = "boot_camp_id",nullable = false)
     private BootCampReview bootCampReview;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="member_id",nullable = false)
     private MemberEntity member;
 

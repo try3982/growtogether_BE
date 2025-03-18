@@ -68,7 +68,6 @@ public class MemberEntity {
   // 사용자 기술 매핑
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<MemberSkillEntity> userSkills;
-
   //@Column(nullable = false)
   @Setter
   private Double rating;
@@ -102,5 +101,4 @@ public class MemberEntity {
   public void usePoints(int amount) {
     points -= amount;
   }
-
 }

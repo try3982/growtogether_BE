@@ -34,6 +34,7 @@ public class SecurityConfig {
             "/login",
             "/oauth2/authorization/kakao",
             "/oauth2/code/kakao",
+            "/oauth/kakao",
             "/api/email/**",
             "/member/memberLogin",
             "/payment/**",
@@ -58,6 +59,7 @@ public class SecurityConfig {
             "/api/bootcamp/top",
             "/api/bootcamp/**",
             "/api/bootcamp/comments/**"
+
     };
 
     @Bean
@@ -91,6 +93,8 @@ public class SecurityConfig {
         configuration.setAllowedOrigins(List.of("https://jiangxy.github.io","http://localhost:5173"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
+        configuration.setExposedHeaders(List.of("Authorization")); //Authorization 헤더를 노출하여 프론트엔드에서 접근할 수 있도록 설정
+      //  configuration.setExposedHeaders(List.of("Set-Cookie","loggedUser","authorization","Access-Token-Expire-Time","authentication"));
         configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

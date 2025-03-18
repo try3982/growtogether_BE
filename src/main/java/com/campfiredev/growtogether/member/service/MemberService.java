@@ -1,8 +1,8 @@
 package com.campfiredev.growtogether.member.service;
 
+import com.campfiredev.growtogether.exception.custom.CustomException;
 import com.campfiredev.growtogether.exception.response.ErrorCode;
 import com.campfiredev.growtogether.mail.service.EmailService;
-import com.campfiredev.growtogether.exception.custom.CustomException;
 import com.campfiredev.growtogether.member.dto.KakaoUserDto;
 import com.campfiredev.growtogether.member.dto.MemberLoginDto;
 import com.campfiredev.growtogether.member.dto.MemberRegisterDto;
@@ -13,6 +13,7 @@ import com.campfiredev.growtogether.point.service.PointService;
 import com.campfiredev.growtogether.skill.entity.SkillEntity;
 import com.campfiredev.growtogether.skill.repository.SkillRepository;
 import com.campfiredev.growtogether.study.repository.StudyRepository;
+import com.campfiredev.growtogether.study.repository.join.JoinRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -39,6 +40,7 @@ public class MemberService {
     private final EmailService emailService;
     private final PointService pointService;
     private final StringRedisTemplate redisTemplate;
+    private final StudyRepository studyRepository;
 
 
     private final S3Service s3Service;
@@ -48,23 +50,24 @@ public class MemberService {
 
     private static final String RESET_PASSWORD_PREFIX = "RESET_PASSWORD:";
     private static final long TOKEN_EXPIRATION_TIME = 5; // 5분
+    private final JoinRepository joinRepository;
 
     @Transactional
     public MemberEntity register(MemberRegisterDto request, MultipartFile profileImage) {
         // 이메일 인증 여부 확인
         if (!emailService.verifyCode(request.getEmail(), request.getVerificationCode())) {
-            throw new IllegalArgumentException("이메일 인증이 완료되지 않았습니다.");
+            throw new CustomException(ErrorCode.EMAIL_NOT_VERIFIED);
         }
 
         // 중복 검사
         if (memberRepository.existsByEmail(request.getEmail())) {
-            throw new IllegalArgumentException("이미 사용 중인 이메일입니다.");
+            throw new CustomException(ErrorCode.DUPLICATE_EMAIL);
         }
         if (memberRepository.existsByNickName(request.getNickName())) {
-            throw new IllegalArgumentException("이미 사용 중인 닉네임입니다.");
+            throw new CustomException(ErrorCode.DUPLICATE_NICKNAME);
         }
         if (memberRepository.existsByPhone(request.getPhone())) {
-            throw new IllegalArgumentException("이미 사용 중인 전화번호입니다.");
+            throw new CustomException(ErrorCode.DUPLICATE_PHONE);
         }
 
         // 프로필 이미지 업로드 후 파일 키 저장
@@ -97,13 +100,12 @@ public class MemberService {
     public String userLogin(MemberLoginDto memberLoginDto) {
         MemberEntity memberEntity = memberRepository.findByEmail(memberLoginDto.email())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 이메일입니다."));
-
         if (!passwordEncoder.matches(memberLoginDto.password(), memberEntity.getPassword())) {
             throw new IllegalArgumentException("비밀번호가 틀립니다.");
         }
 
         pointService.updatePoint(memberEntity, 1);
-        return jwtUtil.generateAccessToken(memberEntity.getEmail(),memberEntity.getMemberId(), memberEntity.getNickName());
+        return jwtUtil.generateAccessToken(memberEntity.getEmail(), memberEntity.getMemberId(), memberEntity.getNickName());
     }
 
     // 프로필 이미지 삭제
@@ -249,8 +251,6 @@ public class MemberService {
 
         return firstPart + maskedPart + lastPart + domain;
     }
-
-
 
 
 }
