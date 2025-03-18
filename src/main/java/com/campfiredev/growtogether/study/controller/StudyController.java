@@ -11,6 +11,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/study")
@@ -43,6 +45,11 @@ public class StudyController {
     @DeleteMapping("/{studyId}")
     public void deleteStudy(@PathVariable Long studyId, @AuthenticationPrincipal CustomUserDetails customUserDetails) {
         studyService.deleteStudy(studyId,customUserDetails.getMemberId());
+    }
+
+    @GetMapping("/popular")
+    public List<StudyDTO> getPopularStudies() {
+        return studyService.getPopularStudies();
     }
 }
 

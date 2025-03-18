@@ -7,10 +7,13 @@ import com.campfiredev.growtogether.study.dto.comment.StudyCommentDto;
 import com.campfiredev.growtogether.study.entity.StudyComment;
 import com.campfiredev.growtogether.study.repository.StudyCommentRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 import static com.campfiredev.growtogether.exception.response.ErrorCode.*;
 
@@ -39,8 +42,18 @@ public class StudyCommentService {
     }
 
     @Transactional(readOnly = true)
-    public List<StudyCommentDto> getCommentsByStudyId(Long studyId) {
-        return studyCommentRepository.findByStudyId(studyId).stream()
+    public List<StudyCommentDto> getCommentsByStudyId(Long studyId, Long lastIdx, Long size) {
+        Pageable pageable = PageRequest.of(0,size.intValue());
+
+        Stream<StudyComment> studyCommentList;
+
+        if(0 == lastIdx){
+            studyCommentList = studyCommentRepository.findByStudyIdOrderByStudyCommentIdDesc(studyId,pageable).stream();
+        }else{
+            studyCommentList = studyCommentRepository.findByStudyIdAndStudyCommentIdLessThanOrderByStudyCommentIdDesc(studyId,lastIdx,pageable).stream();
+        }
+
+        return studyCommentList
                 .map(StudyCommentDto::fromEntity)
                 .toList();
     }

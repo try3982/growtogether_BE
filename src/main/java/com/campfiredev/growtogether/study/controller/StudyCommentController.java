@@ -23,8 +23,10 @@ public class StudyCommentController {
     }
 
     @GetMapping("/{studyId}")
-    public List<StudyCommentDto> getComments(@PathVariable Long studyId) {
-        return studyCommentService.getCommentsByStudyId(studyId);
+    public List<StudyCommentDto> getComments(@PathVariable Long studyId,
+                                             @RequestParam(defaultValue = "0") Long lastIdx,
+                                             @RequestParam(defaultValue = "10") Long size) {
+        return studyCommentService.getCommentsByStudyId(studyId,lastIdx,size);
     }
 
     @PutMapping("/{commentId}")
