@@ -14,10 +14,13 @@ import com.campfiredev.growtogether.notification.service.NotificationService;
 import com.campfiredev.growtogether.notification.type.NotiType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -114,12 +117,12 @@ public class BootCampCommentService {
         bootCampCommentRepository.save(comment);
     }
 
-
     public Page<BootCampComment> getComments(Long reviewId, Pageable pageable) {
-        BootCampReview review = bootCampReviewRepository.findById(reviewId)
+        bootCampReviewRepository.findById(reviewId)
                 .orElseThrow(() -> new CustomException(ErrorCode.REVIEW_NOT_FOUND));
 
-        return bootCampCommentRepository.findTopLevelCommentsWithChildren(review, pageable);
+        List<BootCampComment> comments = bootCampCommentRepository.findCommentsWithChildrenByBootCampId(reviewId);
+        return new PageImpl<>(comments, pageable, comments.size());
     }
 
 }

@@ -145,6 +145,7 @@ public class BootCampReviewService {
     }
 
     //후기 조회
+    @Transactional
     public BootCampReviewResponseDto.PageResponse getBootCampReviews(int page, String sortType){
 
         Pageable pageable;
@@ -157,8 +158,13 @@ public class BootCampReviewService {
 
         List<BootCampReview> reviews = bootCampReviewRepository.findAllWithSkills(pageable);
 
+        Map<Long, Integer> commentCounts = getCommentCounts(reviews);
 
-        return BootCampReviewResponseDto.PageResponse.fromEntityPage(new PageImpl<>(reviews, pageable, reviews.size()));
+        List<BootCampReview> updatedReviews = reviews.stream()
+                .peek(review -> review.setCommentCount(commentCounts.getOrDefault(review.getBootCampId(), 0)))
+                .toList();
+
+        return BootCampReviewResponseDto.PageResponse.fromEntityPage(new PageImpl<>(updatedReviews, pageable, reviews.size()));
     }
 
     //후기 상세 조회
@@ -225,14 +231,18 @@ public class BootCampReviewService {
 
         return BootCampReviewResponseDto.PageResponse.fromEntityPage(bootCampReviews);
     }
-
+  //  @Transactional(readOnly = true)
     public List<BootCampReviewResponseDto.Response> getTopBootCampReviews(String strategyType , int limit){
         WeightCalculateStrategy strategy = strategyMap.getOrDefault(strategyType,strategyMap.get("WeightStrategy"));
 
         List<BootCampReview> topReviews = bootCampReviewRepositoryCustom.findTopRankedReviews(strategy,limit);
 
         return topReviews.stream()
-                .map(BootCampReviewResponseDto.Response::fromEntity)
+                .map(review -> {
+                    BootCampReviewResponseDto.Response reviewDto = BootCampReviewResponseDto.Response.fromEntity(review);
+                    reviewDto.setCommentCount(review.getComments().size());
+                    return reviewDto;
+                })
                 .collect(Collectors.toList());
     }
 
@@ -256,5 +266,17 @@ public class BootCampReviewService {
     public List<String> getSkillName(){
 
         return skillRepository.findDistinctSkillName();
+    }
+
+    private Map<Long,Integer> getCommentCounts(List<BootCampReview> reviews){
+        List<Long> bootCampIds = reviews.stream().map(BootCampReview::getBootCampId)
+                .toList();
+
+        return bootCampReviewRepository.findCommentCountsByBootCampIds(bootCampIds)
+                .stream()
+                .collect(Collectors.toMap(
+                        result -> (Long) result[0],
+                        result -> ((Number) result[1]).intValue()
+                ));
     }
 }

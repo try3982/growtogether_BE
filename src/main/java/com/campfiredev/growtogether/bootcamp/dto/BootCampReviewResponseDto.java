@@ -2,10 +2,7 @@ package com.campfiredev.growtogether.bootcamp.dto;
 
 import com.campfiredev.growtogether.bootcamp.entity.BootCampReview;
 import com.campfiredev.growtogether.bootcamp.type.ProgramCourse;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.data.domain.Page;
 
 import java.time.LocalDate;
@@ -15,6 +12,7 @@ import java.util.stream.Collectors;
 
 public class BootCampReviewResponseDto {
 
+    @Setter
     @Getter
     @NoArgsConstructor
     @AllArgsConstructor
@@ -60,9 +58,9 @@ public class BootCampReviewResponseDto {
                     .programSatisfaction(review.getProgramSatisfaction())
                     .likeCount(review.getLikeCount())
                     .viewCount(review.getViewCount())
-                    .commentCount(review.getComments().size())
-                    .skillNames(skillNames)
                     .programCourse(review.getProgramCourse())
+                    .commentCount(review.getCommentCount())
+                    .skillNames(skillNames)
                     .createdAt(review.getCreatedAt())
                     .updatedAt(review.getUpdatedAt())
                     .build();
