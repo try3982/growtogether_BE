@@ -30,4 +30,5 @@ public interface MemberRepository extends JpaRepository<MemberEntity, Long> {
     @Query("SELECT m FROM MemberEntity m WHERE m.memberId = :memberId")
     Optional<MemberEntity> findByIdWithLock(Long memberId);
 
+    Optional<MemberEntity> findById(Long memberId);
 }

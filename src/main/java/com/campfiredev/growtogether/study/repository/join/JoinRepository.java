@@ -58,5 +58,10 @@ public interface JoinRepository extends JpaRepository<StudyMemberEntity, Long> {
   Optional<StudyMemberEntity> findByMember_MemberIdAndStudy_StudyId(Long memberId, Long studyId);
 
 
+
+ // List<StudyMemberEntity> findByMember_MemberId(Long memberId);
+
+
+
 }
 

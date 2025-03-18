@@ -63,7 +63,7 @@ public class BootCampReview extends BaseEntity {
     @OneToMany(mappedBy = "bootCampReview", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<BootCampSkill> bootCampSkills;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="member_id",nullable = false)
     private MemberEntity member;
 
@@ -73,6 +73,9 @@ public class BootCampReview extends BaseEntity {
 
     @OneToMany(mappedBy = "bootCampReview", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ReviewLike> likes;
+
+    @Transient  // DB에는 저장되지 않지만, 조회 시 사용할 수 있도록 함
+    private int commentCount;
 
     public void increaseLikeCount(){
         this.likeCount++;

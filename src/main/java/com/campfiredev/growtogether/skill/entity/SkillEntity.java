@@ -2,7 +2,7 @@ package com.campfiredev.growtogether.skill.entity;
 
 import com.campfiredev.growtogether.study.entity.SkillStudy;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
+        import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
