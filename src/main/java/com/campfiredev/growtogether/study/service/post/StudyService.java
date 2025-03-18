@@ -19,6 +19,7 @@ import com.campfiredev.growtogether.study.repository.join.JoinRepository;
 import com.campfiredev.growtogether.study.service.schedule.ScheduleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -161,5 +162,13 @@ public class StudyService {
         }
 
         return skills;
+    }
+
+    @Transactional(readOnly = true)
+    public List<StudyDTO> getPopularStudies() {
+        Pageable pageable = PageRequest.of(0,3);
+        return studyRepository.findByPopularity(pageable).stream()
+                .map(StudyDTO::fromEntity)
+                .toList();
     }
 }

@@ -52,7 +52,7 @@ public class Study extends BaseEntity {
     @OneToMany(mappedBy = "study", cascade = CascadeType.ALL)
     private List<SkillStudy> skillStudies;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_Id", nullable = false)
     private MemberEntity member;
 
@@ -64,13 +64,13 @@ public class Study extends BaseEntity {
 
         return Study.builder()
                 .title(dto.getTitle())
-                .description(dto.getDescription())
+                .description(dto.getContent())
                 .viewCount(0L)
                 .maxParticipant(dto.getMaxParticipant())
                 .studyStartDate(studyStartDate)
                 .studyEndDate(studyEndDate)
                 .isDeleted(false)
-                .studyStatus(StudyStatus.PROGRESS)
+                .studyStatus(StudyStatus.RECRUIT)
                 .participant(1)
                 .type(dto.getType())
                 .studyCount(dto.getMainScheduleList().size())
@@ -91,7 +91,7 @@ public class Study extends BaseEntity {
     }
     public void updateFromDto(StudyDTO dto, List<SkillStudy> newSkillStudies) {
         this.title = dto.getTitle();
-        this.description = dto.getDescription();
+        this.description = dto.getContent();
         this.maxParticipant = dto.getMaxParticipant();
         this.studyStartDate = dto.getStudyStartDate();
         this.studyEndDate = dto.getStudyEndDate();

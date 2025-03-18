@@ -21,7 +21,7 @@ public class StudyDTO {
     private String title;
 
     @NotBlank(message = "게시글의 내용은 반드시 입력되어야 합니다.")
-    private String description;
+    private String content;
 
     private Long viewCount;
 
@@ -59,7 +59,7 @@ public class StudyDTO {
     @Setter
     private Integer commentCount;
 
-    private LocalDateTime createAt;
+    private LocalDateTime createdAt;
 
     public static StudyDTO fromEntity(Study study) {
         List<String> skillNames = study.getSkillStudies().stream()
@@ -69,7 +69,7 @@ public class StudyDTO {
         return StudyDTO.builder()
                 .studyId(study.getStudyId())
                 .title(study.getTitle())
-                .description(study.getDescription())
+                .content(study.getDescription())
                 .viewCount(study.getViewCount())
                 .maxParticipant(study.getMaxParticipant())
                 .studyStartDate(study.getStudyStartDate())
@@ -80,7 +80,7 @@ public class StudyDTO {
                 .studyCount(study.getStudyCount())
                 .skillNames(skillNames)
                 .author(study.getMember().getNickName())
-                .createAt(study.getCreatedAt())
+                .createdAt(study.getCreatedAt())
                 .build();
     }
 

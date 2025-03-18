@@ -1,4 +1,4 @@
-INSERT INTO skill_entity (skill_name, category, skill_img_url)
+INSERT INTO growtogether.skill_entity (skill_name, category, skill_img_url)
 VALUES ('Docker', '데브옵스', 'https://example.com/docker.png'),
        ('Kubernetes', '데브옵스', 'https://example.com/kubernetes.png'),
        ('Jenkins', '데브옵스', 'https://example.com/jenkins.png'),
