@@ -47,7 +47,11 @@ public enum ErrorCode {
   FILE_SIZE_EXCEEDED("파일 크기 제한을 초과했습니다.", HttpStatus.PAYLOAD_TOO_LARGE),
   UNSUPPORTED_FILE_TYPE("지원되지 않는 파일 형식입니다.", HttpStatus.UNSUPPORTED_MEDIA_TYPE),
   FILE_STORAGE_ERROR("파일 저장 중 오류가 발생했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
+  FILE_DELETE_FAILED ("프로필 이미지 삭제 중 서버 오류 발생했습니다",HttpStatus.INTERNAL_SERVER_ERROR),
 
+
+  FILE_NOT_FOUND("삭제할 프로필 이미지가 없습니다.", HttpStatus.BAD_REQUEST),
+  PROFILE_IMAGE_NOT_FOUND("사용자의 프로필 이미지가 없습니다.", HttpStatus.BAD_REQUEST),
   //jwt exception
   NOT_VALID_TOKEN("토큰이 유효하지 않습니다.", UNAUTHORIZED),
   EXPIRED_TOKEN("토큰이 만료되었습니다.", UNAUTHORIZED),
