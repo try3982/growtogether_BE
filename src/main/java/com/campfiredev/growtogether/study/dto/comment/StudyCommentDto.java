@@ -31,7 +31,7 @@ public class StudyCommentDto {
 
     private String author;
 
-    private LocalDateTime createAt;
+    private LocalDateTime createdAt;
 
 
     public static StudyCommentDto fromEntity(StudyComment comment) {
@@ -41,7 +41,7 @@ public class StudyCommentDto {
                 .parentCommentId(comment.getParentCommentId())
                 .studyId((comment.getStudyId()))
                 .author(comment.getMember().getNickName())
-                .createAt(comment.getCreatedAt())
+                .createdAt(comment.getCreatedAt())
                 .build();
     }
 }

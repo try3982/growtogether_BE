@@ -1,8 +1,9 @@
 package com.campfiredev.growtogether.study.dto.schedule;
 
+import lombok.Getter;
+
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import lombok.Getter;
 
 @Getter
 public class MainScheduleDto {
