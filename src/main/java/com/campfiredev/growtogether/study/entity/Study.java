@@ -3,11 +3,13 @@ package com.campfiredev.growtogether.study.entity;
 import com.campfiredev.growtogether.common.entity.BaseEntity;
 import com.campfiredev.growtogether.member.entity.MemberEntity;
 import com.campfiredev.growtogether.study.dto.post.StudyDTO;
+import com.campfiredev.growtogether.study.dto.post.StudyScheduleDto;
 import com.campfiredev.growtogether.study.dto.schedule.MainScheduleDto;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Collections;
 import java.util.List;
 
@@ -57,7 +59,7 @@ public class Study extends BaseEntity {
     private MemberEntity member;
 
     public static Study fromDTO(StudyDTO dto) {
-        List<LocalDateTime> scheduleList = dto.getMainScheduleList().stream().map(MainScheduleDto::getStartTime).toList();
+        List<LocalDateTime> scheduleList = StudyScheduleDto.formDto(dto.getMainScheduleList()).stream().map(MainScheduleDto::getStartTime).toList();
 
         LocalDateTime studyStartDate = Collections.min(scheduleList);
         LocalDateTime studyEndDate = Collections.max(scheduleList);
@@ -73,8 +75,8 @@ public class Study extends BaseEntity {
                 .studyStatus(StudyStatus.RECRUIT)
                 .participant(1)
                 .type(dto.getType())
-                .studyCount(dto.getMainScheduleList().size())
-                .studyClosingDate(dto.getStudyClosingDate())
+                .studyCount(dto.getMainScheduleList().getDates().size())
+                .studyClosingDate(dto.getStudyClosingDate().atTime(LocalTime.MAX))
                 .build();
     }
 

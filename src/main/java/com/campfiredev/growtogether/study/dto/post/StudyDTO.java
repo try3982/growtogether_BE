@@ -1,12 +1,15 @@
 package com.campfiredev.growtogether.study.dto.post;
 
-import com.campfiredev.growtogether.study.dto.schedule.MainScheduleDto;
 import com.campfiredev.growtogether.study.entity.Study;
 import com.campfiredev.growtogether.study.entity.StudyStatus;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -30,16 +33,15 @@ public class StudyDTO {
     private Integer maxParticipant;
 
     @NotNull(message = "스터디 모집 마감일정은 반드시 입력해야 합니다.")
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
-    private LocalDateTime studyClosingDate;
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private LocalDate studyClosingDate;
 
-    @Size(min = 1, message = "메인일정을 반드시 1개이상 입력해야 합니다.")
-    private List<MainScheduleDto> mainScheduleList;
+    private StudyScheduleDto mainScheduleList;
 
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDateTime studyStartDate;
 
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDateTime studyEndDate;
 
     private StudyStatus studyStatus;
@@ -71,6 +73,7 @@ public class StudyDTO {
                 .title(study.getTitle())
                 .content(study.getDescription())
                 .viewCount(study.getViewCount())
+                .studyClosingDate(study.getStudyClosingDate().toLocalDate())
                 .maxParticipant(study.getMaxParticipant())
                 .studyStartDate(study.getStudyStartDate())
                 .studyEndDate(study.getStudyEndDate())

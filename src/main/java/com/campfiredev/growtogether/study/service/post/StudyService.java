@@ -9,6 +9,8 @@ import com.campfiredev.growtogether.skill.entity.SkillEntity;
 import com.campfiredev.growtogether.skill.repository.SkillRepository;
 import com.campfiredev.growtogether.study.dto.post.PagedStudyDTO;
 import com.campfiredev.growtogether.study.dto.post.StudyDTO;
+import com.campfiredev.growtogether.study.dto.post.StudyScheduleDto;
+import com.campfiredev.growtogether.study.dto.schedule.MainScheduleDto;
 import com.campfiredev.growtogether.study.entity.SkillStudy;
 import com.campfiredev.growtogether.study.entity.Study;
 import com.campfiredev.growtogether.study.entity.join.StudyMemberEntity;
@@ -68,7 +70,9 @@ public class StudyService {
 
         pointService.usePoint(memberId, savedStudy.getStudyCount() * 30);
 
-        scheduleService.createMainSchedule(study,memberId,dto.getMainScheduleList());
+        List<MainScheduleDto> list = StudyScheduleDto.formDto(dto.getMainScheduleList());
+
+        scheduleService.createMainSchedule(study,memberId,list);
 
         List<SkillStudy> skillStudies = skills.stream()
                 .map(skill -> SkillStudy.builder()
