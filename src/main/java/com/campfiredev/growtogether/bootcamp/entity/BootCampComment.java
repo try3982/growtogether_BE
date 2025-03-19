@@ -4,6 +4,7 @@ import com.campfiredev.growtogether.common.entity.BaseEntity;
 import com.campfiredev.growtogether.member.entity.MemberEntity;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.BatchSize;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.util.ArrayList;
@@ -31,6 +32,7 @@ public class BootCampComment extends BaseEntity {
     private BootCampComment parentComment;
 
     @OneToMany(mappedBy = "parentComment", cascade = CascadeType.ALL,orphanRemoval = true)
+    @BatchSize(size = 10)
     private List<BootCampComment> childComments = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)

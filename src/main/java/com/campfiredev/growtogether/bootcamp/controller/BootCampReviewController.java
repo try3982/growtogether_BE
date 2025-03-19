@@ -87,7 +87,7 @@ public class BootCampReviewController {
     })
     @GetMapping
     public ResponseEntity<BootCampReviewResponseDto.PageResponse> getBootCampReviews(
-            @RequestParam(defaultValue = "0") int page ,
+            @RequestParam(defaultValue = "1") int page ,
             @RequestParam(defaultValue = "new") String sortType){
 
         return ResponseEntity.ok(bootCampReviewService.getBootCampReviews(page,sortType));
