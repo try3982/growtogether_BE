@@ -28,8 +28,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -46,6 +45,7 @@ public class BootCampReviewService {
 
     private static final String CREATED_AT = "createdAt";
     private static final String LIKE_COUNT = "likeCount";
+    private static final String HOT = "hot";
     private static final String NEW = "new";
     private final ReviewLikeRepository reviewLikeRepository;
 
@@ -148,23 +148,38 @@ public class BootCampReviewService {
     @Transactional
     public BootCampReviewResponseDto.PageResponse getBootCampReviews(int page, String sortType){
 
+        int pageIndex = Math.max(page - 1, 0);
         Pageable pageable;
 
-        if(NEW.equalsIgnoreCase(sortType)){
-            pageable = PageRequest.of(page,9, Sort.by(Sort.Order.desc(CREATED_AT)));
+        // 정렬 방식 설정 (기본값은 최신순)
+        if (NEW.equalsIgnoreCase(sortType)) {
+            pageable = PageRequest.of(pageIndex, 9, Sort.by(Sort.Order.desc(CREATED_AT))); // 최신순 정렬
+        } else if (HOT.equalsIgnoreCase(sortType)) {
+            pageable = PageRequest.of(pageIndex, 9, Sort.by(Sort.Order.desc(LIKE_COUNT))); // 좋아요 순 정렬
         } else {
-            pageable = PageRequest.of(page,9, Sort.by(Sort.Order.desc(LIKE_COUNT)));
+            pageable = PageRequest.of(pageIndex, 9, Sort.by(Sort.Order.desc(CREATED_AT))); // 기본값 최신순
         }
 
-        List<BootCampReview> reviews = bootCampReviewRepository.findAllWithSkills(pageable);
+        // 1. BootCampReview의 ID만 페이징하여 가져오기 (최신순 or 좋아요순)
+        Page<Long> reviewIdsPage = bootCampReviewRepository.findBootCampReviewIdsBySortType(sortType, pageable);
+        List<Long> reviewIds = reviewIdsPage.getContent();
 
-        Map<Long, Integer> commentCounts = getCommentCounts(reviews);
+        if (reviewIds.isEmpty()) {
+            return new BootCampReviewResponseDto.PageResponse(Collections.emptyList(), reviewIdsPage.getTotalPages(), page, reviewIdsPage.getTotalElements(), pageable.getPageSize());
+        }
 
-        List<BootCampReview> updatedReviews = reviews.stream()
-                .peek(review -> review.setCommentCount(commentCounts.getOrDefault(review.getBootCampId(), 0)))
-                .toList();
+        // 2. Fetch Join을 사용하여 ID 기반으로 BootCampReview 조회
+        List<BootCampReview> reviews = bootCampReviewRepository.findAllByIdsWithDetails(reviewIds);
 
-        return BootCampReviewResponseDto.PageResponse.fromEntityPage(new PageImpl<>(updatedReviews, pageable, reviews.size()));
+        // 3. ID 조회 시의 순서를 유지하기 위해 정렬 재적용
+        Map<Long, Integer> orderMap = new HashMap<>();
+        for (int i = 0; i < reviewIds.size(); i++) {
+            orderMap.put(reviewIds.get(i), i);
+        }
+        reviews.sort(Comparator.comparingInt(r -> orderMap.get(r.getBootCampId())));
+
+        // 4. 조회된 데이터를 DTO 변환하여 반환
+        return BootCampReviewResponseDto.PageResponse.fromEntityPage(new PageImpl<>(reviews, pageable, reviewIdsPage.getTotalElements()));
     }
 
     //후기 상세 조회
@@ -216,7 +231,7 @@ public class BootCampReviewService {
         if(NEW.equalsIgnoreCase(request.getSortType())){
             sort = Sort.by(Sort.Order.desc(CREATED_AT));
         } else {
-            sort = Sort.by(Sort.Order.desc(LIKE_COUNT));
+            sort = Sort.by(Sort.Order.desc(HOT));
         }
 
         Pageable pageable = PageRequest.of(request.getPage(),request.getSize(),sort);

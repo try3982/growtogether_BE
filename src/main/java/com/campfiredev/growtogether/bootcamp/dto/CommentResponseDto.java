@@ -4,7 +4,9 @@ import com.campfiredev.growtogether.bootcamp.entity.BootCampComment;
 import lombok.*;
 import org.springframework.data.domain.Page;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Builder
@@ -28,7 +30,9 @@ public class CommentResponseDto {
                 .userId(comment.getMember().getMemberId())
                 .nickname(comment.getMember().getNickName())
                 .isDeleted(comment.getIsDeleted())
-                .childComments(comment.getChildComments().stream()
+                .childComments(Optional.ofNullable(comment.getChildComments())
+                        .orElse(Collections.emptyList())
+                        .stream()
                         .map(CommentResponseDto::fromEntity)
                         .collect(Collectors.toList()))
                 .build();
