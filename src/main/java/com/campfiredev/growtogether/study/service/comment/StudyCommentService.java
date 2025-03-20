@@ -7,13 +7,14 @@ import com.campfiredev.growtogether.study.dto.comment.StudyCommentDto;
 import com.campfiredev.growtogether.study.entity.StudyComment;
 import com.campfiredev.growtogether.study.repository.StudyCommentRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Stream;
+import java.util.stream.Collectors;
 
 import static com.campfiredev.growtogether.exception.response.ErrorCode.*;
 
@@ -28,7 +29,7 @@ public class StudyCommentService {
 
     public void createComment(StudyCommentDto dto, Long memberId) {
         MemberEntity member = memberRepository.findById(memberId).orElseThrow(
-                ()-> new CustomException(USER_NOT_FOUND)
+                () -> new CustomException(USER_NOT_FOUND)
         );
 
         StudyComment comment = StudyComment.builder()
@@ -41,44 +42,55 @@ public class StudyCommentService {
         studyCommentRepository.save(comment);
     }
 
-    @Transactional(readOnly = true)
     public List<StudyCommentDto> getCommentsByStudyId(Long studyId, Long lastIdx, Long size) {
-        Pageable pageable = PageRequest.of(0,size.intValue());
+        Pageable pageable = PageRequest.of(0, size.intValue());
 
-        Stream<StudyComment> studyCommentList;
+        Page<StudyComment> studyCommentList;
 
-        if(0 == lastIdx){
-            studyCommentList = studyCommentRepository.findByStudyIdOrderByStudyCommentIdDesc(studyId,pageable).stream();
-        }else{
-            studyCommentList = studyCommentRepository.findByStudyIdAndStudyCommentIdLessThanOrderByStudyCommentIdDesc(studyId,lastIdx,pageable).stream();
+        if (0 == lastIdx) {
+            studyCommentList = studyCommentRepository.findByStudyId(studyId, pageable);
+        } else {
+            studyCommentList = studyCommentRepository.findByStudyIdAndIdLessThan(studyId, lastIdx, pageable);
         }
 
-        return studyCommentList
-                .map(StudyCommentDto::fromEntity)
-                .toList();
+        List<StudyCommentDto> studyCommentDtos = setChildComment(studyCommentList);
+        return studyCommentDtos;
     }
 
-    public StudyCommentDto updateComment(Long commentId, StudyCommentDto dto, Long memberId) {
+    public List<StudyCommentDto> setChildComment(Page<StudyComment> studyCommentList) {
+        return studyCommentList.stream()
+                .map(comment ->
+                        {
+                            StudyCommentDto studyCommentDto = StudyCommentDto.fromEntity(comment);
+                            List<StudyComment> childCommentList = studyCommentRepository.findByParentCommentIdOrderByCreatedAtDesc(comment.getStudyCommentId());
+                            studyCommentDto.setChildComments(childCommentList.stream().map(StudyCommentDto::fromEntity).collect(Collectors.toList()));
+                            return studyCommentDto;
+                        }
+                )
+                .collect(Collectors.toList());
+    }
+
+    public void updateComment(Long commentId, StudyCommentDto dto, Long memberId) {
         StudyComment comment = studyCommentRepository.findById(commentId)
                 .orElseThrow(() -> new CustomException(COMMENT_NOT_FOUND));
 
-      validateMember(memberId,comment);
+        validateMember(memberId, comment);
 
         comment.setCommentContent(dto.getCommentContent());
-        return StudyCommentDto.fromEntity(studyCommentRepository.save(comment));
+        studyCommentRepository.save(comment);
     }
 
     public void deleteComment(Long commentId, Long memberId) {
         StudyComment comment = studyCommentRepository.findById(commentId)
                 .orElseThrow(() -> new CustomException(COMMENT_NOT_FOUND));
 
-        validateMember(memberId,comment);
+        validateMember(memberId, comment);
 
         comment.setCommentContent(deletedCommentMessage);
     }
 
     private void validateMember(Long memberId, StudyComment comment) {
-        if(!comment.getMember().getMemberId().equals(memberId)){
+        if (!comment.getMember().getMemberId().equals(memberId)) {
             throw new CustomException(NOT_AUTHOR);
         }
     }

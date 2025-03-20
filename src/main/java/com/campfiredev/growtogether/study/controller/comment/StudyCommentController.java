@@ -1,4 +1,4 @@
-package com.campfiredev.growtogether.study.controller;
+package com.campfiredev.growtogether.study.controller.comment;
 
 import com.campfiredev.growtogether.member.dto.CustomUserDetails;
 import com.campfiredev.growtogether.study.dto.comment.StudyCommentDto;
@@ -30,8 +30,8 @@ public class StudyCommentController {
     }
 
     @PutMapping("/{commentId}")
-    public StudyCommentDto updateComment(@PathVariable Long commentId, @Valid @RequestBody StudyCommentDto dto, @AuthenticationPrincipal CustomUserDetails customUserDetails) {
-        return studyCommentService.updateComment(commentId, dto, customUserDetails.getMemberId());
+    public void updateComment(@PathVariable Long commentId, @Valid @RequestBody StudyCommentDto dto, @AuthenticationPrincipal CustomUserDetails customUserDetails) {
+        studyCommentService.updateComment(commentId, dto, customUserDetails.getMemberId());
     }
 
     @DeleteMapping("/{commentId}")

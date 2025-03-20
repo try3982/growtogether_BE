@@ -4,12 +4,10 @@ import com.campfiredev.growtogether.study.entity.StudyComment;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Builder
@@ -31,18 +29,18 @@ public class StudyCommentDto {
 
     private String author;
 
-    private LocalDateTime createdAt;
+    @Setter
+    private List<StudyCommentDto> childComments;
 
+    private LocalDateTime createdAt;
 
     public static StudyCommentDto fromEntity(StudyComment comment) {
         return StudyCommentDto.builder()
-                .studyCommentId(comment.getStudyCommentId())
-                .commentContent(comment.getCommentContent())
-                .parentCommentId(comment.getParentCommentId())
-                .studyId((comment.getStudyId()))
-                .author(comment.getMember().getNickName())
-                .createdAt(comment.getCreatedAt())
-                .build();
+                        .studyCommentId(comment.getStudyCommentId())
+                        .commentContent(comment.getCommentContent())
+                        .author(comment.getMember().getNickName())
+                        .createdAt(comment.getCreatedAt())
+                        .build();
     }
 }
 

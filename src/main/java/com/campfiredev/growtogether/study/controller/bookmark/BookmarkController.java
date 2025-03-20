@@ -1,4 +1,4 @@
-package com.campfiredev.growtogether.study.controller;
+package com.campfiredev.growtogether.study.controller.bookmark;
 
 import com.campfiredev.growtogether.member.dto.CustomUserDetails;
 import com.campfiredev.growtogether.study.service.bookmark.BookmarkService;
