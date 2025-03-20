@@ -54,6 +54,7 @@ public class BootCampReviewResponseDto {
                     .bootCampName(review.getBootCampName())
                     .startdate(review.getBootCampStartDate())
                     .enddate(review.getBootCampEndDate())
+                    .learningLevel(review.getLearningLevel())
                     .assistantSatisfaction(review.getAssistantSatisfaction())
                     .programSatisfaction(review.getProgramSatisfaction())
                     .likeCount(review.getLikeCount())
@@ -75,7 +76,7 @@ public class BootCampReviewResponseDto {
         private List<Response> reviews;
         private int totalPages;
         private int page;
-        private int totalElements;
+        private long totalElements;
         private int size;
 
         public static PageResponse fromEntityPage(Page<BootCampReview> bootCampReviews){
@@ -85,9 +86,9 @@ public class BootCampReviewResponseDto {
                             .map(Response::fromEntity)
                             .collect(Collectors.toList()))
                     .totalPages(bootCampReviews.getTotalPages())
-                    .page(bootCampReviews.getNumber())
-                    .totalElements(bootCampReviews.getNumberOfElements())
-                    .size(9)
+                    .page(bootCampReviews.getNumber()+1)
+                    .totalElements(bootCampReviews.getTotalElements())
+                    .size(bootCampReviews.getSize())
                     .build();
         }
     }

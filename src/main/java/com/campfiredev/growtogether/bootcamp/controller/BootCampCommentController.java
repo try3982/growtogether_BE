@@ -3,7 +3,6 @@ package com.campfiredev.growtogether.bootcamp.controller;
 import com.campfiredev.growtogether.bootcamp.dto.CommentRequest;
 import com.campfiredev.growtogether.bootcamp.dto.CommentResponseDto;
 import com.campfiredev.growtogether.bootcamp.dto.CommentUpdateRequest;
-import com.campfiredev.growtogether.bootcamp.entity.BootCampComment;
 import com.campfiredev.growtogether.bootcamp.service.BootCampCommentService;
 import com.campfiredev.growtogether.member.dto.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
@@ -13,12 +12,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Tag(name = "Bootcamp Comment", description = "부트캠프 리뷰 댓글 관련 API")
 @RestController
@@ -70,15 +68,16 @@ public class BootCampCommentController {
             @ApiResponse(responseCode = "200", description = "댓글 조회 성공",
                     content = @Content(schema = @Schema(implementation = CommentResponseDto.class)))
     })
+
     @GetMapping("/{bootCampId}")
-    public ResponseEntity<CommentResponseDto.PageResponse> getComments(@PathVariable Long bootCampId , @RequestParam(defaultValue = "0") int page){
-        Pageable pageable = PageRequest.of(page, 10);
-        Page<BootCampComment> commentsPage = bootCampCommentService.getComments(bootCampId, pageable);
+    public ResponseEntity<List<CommentResponseDto>> getComments(@PathVariable Long bootCampId ,
+            @RequestParam(defaultValue = "0") Long lastIdx
+            , @RequestParam(defaultValue = "9") Long size){
 
-        // Page<CommentResponseDto> -> CommentResponseDto.PageResponse 변환
-        CommentResponseDto.PageResponse response = CommentResponseDto.PageResponse.fromEntityPage(commentsPage);
+        List<CommentResponseDto> comments = bootCampCommentService.getComments(bootCampId,lastIdx,size);
 
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(comments);
+
     }
 
 }
