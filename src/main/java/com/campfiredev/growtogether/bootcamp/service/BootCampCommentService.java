@@ -1,6 +1,7 @@
 package com.campfiredev.growtogether.bootcamp.service;
 
 import com.campfiredev.growtogether.bootcamp.dto.CommentRequest;
+import com.campfiredev.growtogether.bootcamp.dto.CommentResponseDto;
 import com.campfiredev.growtogether.bootcamp.entity.BootCampComment;
 import com.campfiredev.growtogether.bootcamp.entity.BootCampReview;
 import com.campfiredev.growtogether.bootcamp.repository.BootCampCommentRepository;
@@ -13,14 +14,14 @@ import com.campfiredev.growtogether.member.repository.MemberRepository;
 import com.campfiredev.growtogether.notification.service.NotificationService;
 import com.campfiredev.growtogether.notification.type.NotiType;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -116,7 +117,7 @@ public class BootCampCommentService {
         comment.setIsDeleted(true);
         bootCampCommentRepository.save(comment);
     }
-
+/*
     public Page<BootCampComment> getComments(Long reviewId, Pageable pageable) {
         bootCampReviewRepository.findById(reviewId)
                 .orElseThrow(() -> new CustomException(ErrorCode.REVIEW_NOT_FOUND));
@@ -124,5 +125,25 @@ public class BootCampCommentService {
         List<BootCampComment> comments = bootCampCommentRepository.findCommentsWithChildrenByBootCampId(reviewId);
         return new PageImpl<>(comments, pageable, comments.size());
     }
+*/
+    //무한 스크롤
+    @Transactional(readOnly = true)
+    public List<CommentResponseDto> getComments(Long bootCampId , Long lastIdx, Long size) {
 
+        bootCampReviewRepository.findById(bootCampId)
+                .orElseThrow(() -> new CustomException(ErrorCode.REVIEW_NOT_FOUND));
+
+
+        Pageable pageable = PageRequest.of(0, size.intValue());
+
+        List<BootCampComment> parentComments = (lastIdx == 0) ?
+                bootCampCommentRepository.findParentComments(bootCampId, pageable) :
+                bootCampCommentRepository.findParentCommentsWithLastIdx(bootCampId, lastIdx, pageable);
+
+        parentComments.forEach(comment -> comment.getChildComments().size());
+
+        return parentComments.stream()
+                .map(CommentResponseDto::fromEntity)
+                .collect(Collectors.toList());
+    }
 }

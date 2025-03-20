@@ -26,8 +26,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
-import static com.campfiredev.growtogether.exception.response.ErrorCode.NOT_VALID_TOKEN;
-import static com.campfiredev.growtogether.exception.response.ErrorCode.USER_NOT_FOUND;
+import static com.campfiredev.growtogether.exception.response.ErrorCode.*;
 
 @Service
 @Transactional
@@ -109,59 +108,71 @@ public class MemberService {
     }
 
     // 프로필 이미지 삭제
-    @Transactional
     public void deleteProfileImage(Long memberId) {
-        // member 찾기
+        // 1. 사용자 찾기
         MemberEntity member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
-        //  기존 프로필 이미지가 있는지 확인
+        // 2. 기존 프로필 이미지 확인
         if (member.getProfileImageUrl() == null) {
-            throw new IllegalArgumentException("이미 프로필 이미지가 없습니다.");
+            throw new CustomException(ErrorCode.FILE_NOT_FOUND);
         }
 
-        // S3에서 이미지 삭제
-        s3Service.deleteFile(member.getProfileImageUrl());
+        try {
+            //  S3에서 파일 삭제
+            String fileKey = extractFileKeyFromUrl(member.getProfileImageUrl());
+            s3Service.deleteFile(fileKey);
 
-        //DB에서 프로필 이미지 Key 제거
-        member.setProfileImageUrl(null);
-        memberRepository.save(member);
+            //  DB에서 프로필 이미지 URL 제거
+            member.setProfileImageUrl(null);
+            memberRepository.save(member);
+
+        } catch (Exception e) {
+            throw new CustomException(ErrorCode.FILE_DELETE_FAILED);
+        }
     }
 
-    @Transactional
     public String updateProfileImage(Long memberId, MultipartFile profileImage) {
-        // 사용자 찾기
+
         MemberEntity member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
-        //  기존 프로필 이미지 삭제 (있다면)
-        if (member.getProfileImageUrl() != null) {
-            s3Service.deleteFile(member.getProfileImageUrl());
+        try {
+            //  기존 프로필 이미지 삭제 (있다면)
+            if (member.getProfileImageUrl() != null) {
+                String fileKey = extractFileKeyFromUrl(member.getProfileImageUrl());
+                s3Service.deleteFile(fileKey);
+            }
+
+            //  새로운 이미지 업로드 및 URL 반환
+            String imageUrl = s3Service.uploadFile(profileImage);
+
+            //  회원 프로필 이미지 업데이트
+            member.setProfileImageUrl(imageUrl);
+            memberRepository.save(member);
+
+            return imageUrl;
+
+        } catch (Exception e) {
+            throw new CustomException(FILE_UPLOAD_FAILED);
         }
-
-        // 새로운 이미지 업로드
-        String newImageKey = s3Service.uploadFile(profileImage);
-
-        //  DB에 새로운 Key 저장
-        member.setProfileImageUrl(newImageKey);
-        memberRepository.save(member);
-
-        return newImageKey;
     }
 
     public String getProfileImageUrl(Long memberId) {
-        // 사용자 찾기
+        //  사용자 찾기
         MemberEntity member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다.")); // 예외 담당자가 수정 예정
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
-        // 프로필 이미지 존재 여부 확인e
+        //  프로필 이미지 존재 여부 확인
         if (member.getProfileImageUrl() == null) {
-            throw new IllegalArgumentException("사용자의 프로필 이미지가 없습니다.");
+            throw new CustomException(ErrorCode.PROFILE_IMAGE_NOT_FOUND);
         }
 
-        // S3에서 파일 URL 반환
+        //  프로필 이미지 URL 반환
         return member.getProfileImageUrl();
     }
+
+
 
     public MemberEntity kakaoLogin(KakaoUserDto kakaoUserDto) {
         // 카카오 고유 ID
@@ -211,7 +222,7 @@ public class MemberService {
         emailService.sendPasswordResetEmail(email, resetUrl);
     }
     // 비밀번호 재설정 처리
-    @Transactional
+
     public void resetPassword(String token, String newPassword) {
         String email = redisTemplate.opsForValue().get(RESET_PASSWORD_PREFIX + token);
         if (email == null) {
@@ -251,6 +262,11 @@ public class MemberService {
 
         return firstPart + maskedPart + lastPart + domain;
     }
+    private String extractFileKeyFromUrl(String fileUrl) {
+        return fileUrl.substring(fileUrl.lastIndexOf("/") + 1); // 파일명만 추출
+    }
+
+
 
 
 }

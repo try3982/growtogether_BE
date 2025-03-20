@@ -1,6 +1,7 @@
 package com.campfiredev.growtogether.bootcamp.repository;
 
 import com.campfiredev.growtogether.bootcamp.entity.BootCampReview;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -13,12 +14,18 @@ import java.util.Optional;
 @Repository
 public interface BootCampReviewRepository extends JpaRepository<BootCampReview, Long> {
 
-    //Page<BootCampReview> findAll(Pageable pageable);
 
-    @Query("SELECT DISTINCT b FROM BootCampReview b " +
-            "LEFT JOIN FETCH b.bootCampSkills bs " +
-            "LEFT JOIN FETCH bs.skill ")
-    List<BootCampReview> findAllWithSkills(Pageable pageable);
+    @Query("SELECT b.bootCampId FROM BootCampReview b ORDER BY " +
+            "CASE WHEN :sortType = 'hot' THEN b.likeCount END DESC, " +
+            "CASE WHEN :sortType = 'new' THEN b.createdAt END DESC")
+    Page<Long> findBootCampReviewIdsBySortType(@Param("sortType") String sortType, Pageable pageable);
+
+    @Query("SELECT b FROM BootCampReview b " +
+            "LEFT JOIN FETCH b.member " + // 단건 관계는 문제없음
+            "LEFT JOIN FETCH b.bootCampSkills bs " +  // BootCampSkills 컬렉션 Fetch Join
+            "LEFT JOIN FETCH bs.skill " + // Skill도 Fetch Join
+            "WHERE b.bootCampId IN :ids")
+    List<BootCampReview> findAllByIdsWithDetails(@Param("ids") List<Long> ids);
 
     @Query("SELECT b FROM BootCampReview b "
     + "LEFT JOIN FETCH b.bootCampSkills bs "

@@ -90,10 +90,14 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
        // configuration.setAllowedOrigins(List.of("https://jiangxy.github.io","http://localhost:3000"));
-        configuration.setAllowedOrigins(List.of("https://jiangxy.github.io","http://localhost:5173"));
+      //  configuration.setAllowedOriginPatterns(List.of("https://jiangxy.github.io", "http://localhost:*"));
+       // configuration.setAllowedOriginPatterns(List.of("https://jiangxy.github.io", "http://localhost:*"));
+        //onfiguration.setAllowedOrigins(List.of("https://jiangxy.github.io","http://localhost:5173"));
+        configuration.setAllowedOriginPatterns(List.of("https://jiangxy.github.io", "http://localhost:*"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
-        configuration.setExposedHeaders(List.of("Authorization")); //Authorization 헤더를 노출하여 프론트엔드에서 접근할 수 있도록 설정
+        configuration.setExposedHeaders(List.of("Authorization", "Access-Token-Expire-Time"));
+     //   configuration.setExposedHeaders(List.of("Authorization")); //Authorization 헤더를 노출하여 프론트엔드에서 접근할 수 있도록 설정
       //  configuration.setExposedHeaders(List.of("Set-Cookie","loggedUser","authorization","Access-Token-Expire-Time","authentication"));
         configuration.setAllowCredentials(true);
 
