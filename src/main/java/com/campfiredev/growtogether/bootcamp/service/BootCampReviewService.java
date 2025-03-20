@@ -178,8 +178,20 @@ public class BootCampReviewService {
         }
         reviews.sort(Comparator.comparingInt(r -> orderMap.get(r.getBootCampId())));
 
-        // 4. 조회된 데이터를 DTO 변환하여 반환
-        return BootCampReviewResponseDto.PageResponse.fromEntityPage(new PageImpl<>(reviews, pageable, reviewIdsPage.getTotalElements()));
+        Map<Long,Integer> commentCountMap = getCommentCounts(reviews);
+
+
+        List<BootCampReviewResponseDto.Response> reviewDtos = reviews.stream()
+                .map(review -> {
+                    BootCampReviewResponseDto.Response responseDto = BootCampReviewResponseDto.Response.fromEntity(review);
+                    responseDto.setCommentCount(commentCountMap.getOrDefault(review.getBootCampId(), 0));
+                    return responseDto;
+                }).toList();
+
+
+        return new BootCampReviewResponseDto.PageResponse(
+                reviewDtos , reviewIdsPage.getTotalPages(),page,reviewIdsPage.getTotalElements(), pageable.getPageSize()
+        );
     }
 
     //후기 상세 조회
