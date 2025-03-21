@@ -14,13 +14,17 @@ import com.campfiredev.growtogether.member.repository.MemberRepository;
 import com.campfiredev.growtogether.notification.service.NotificationService;
 import com.campfiredev.growtogether.notification.type.NotiType;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -133,14 +137,31 @@ public class BootCampCommentService {
         bootCampReviewRepository.findById(bootCampId)
                 .orElseThrow(() -> new CustomException(ErrorCode.REVIEW_NOT_FOUND));
 
-
         Pageable pageable = PageRequest.of(0, size.intValue());
 
-        List<BootCampComment> parentComments = (lastIdx == 0) ?
+        // 부모 댓글을 Page로 가져오기
+        Page<BootCampComment> parentCommentsPage = (lastIdx == 0) ?
                 bootCampCommentRepository.findParentComments(bootCampId, pageable) :
                 bootCampCommentRepository.findParentCommentsWithLastIdx(bootCampId, lastIdx, pageable);
 
-        parentComments.forEach(comment -> comment.getChildComments().size());
+        List<BootCampComment> parentComments = parentCommentsPage.getContent();
+
+        // 부모 댓글 ID 리스트 추출
+        List<Long> parentIds = parentComments.stream()
+                .map(BootCampComment::getBootCampCommentId)
+                .collect(Collectors.toList());
+
+        // 자식 댓글을 한 번의 쿼리로 가져옴
+        List<BootCampComment> childComments = parentIds.isEmpty() ?
+                Collections.emptyList() : bootCampCommentRepository.findChildCommentsByParentIds(parentIds);
+
+        // 자식 댓글을 부모 댓글에 매핑
+        Map<Long, List<BootCampComment>> childCommentMap = childComments.stream()
+                .collect(Collectors.groupingBy(c -> c.getParentComment().getBootCampCommentId()));
+
+        parentComments.forEach(parent ->
+                parent.setChildComments(childCommentMap.getOrDefault(parent.getBootCampCommentId(), new ArrayList<>()))
+        );
 
         return parentComments.stream()
                 .map(CommentResponseDto::fromEntity)
