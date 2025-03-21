@@ -27,6 +27,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.campfiredev.growtogether.exception.response.ErrorCode.*;
 import static com.campfiredev.growtogether.study.type.StudyMemberType.LEADER;
@@ -57,7 +58,7 @@ public class StudyService {
 
         Study study = Study.fromDTO(dto);
 
-        MemberEntity member = memberRepository.findByIdWithLock(memberId).orElseThrow(()->new CustomException(NOT_INVALID_MEMBER));
+        MemberEntity member = memberRepository.findByIdWithLock(memberId).orElseThrow(() -> new CustomException(NOT_INVALID_MEMBER));
 
         study.setAuthor(member);
 
@@ -68,11 +69,11 @@ public class StudyService {
 
         joinRepository.save(studyMemberEntity);
 
-        pointService.usePoint(memberId, savedStudy.getStudyCount() * 5);
+        pointService.usePoint(memberId, savedStudy.getStudyCount() * 30);
 
         List<MainScheduleDto> list = StudyScheduleDto.formDto(dto.getMainScheduleList());
 
-        scheduleService.createMainSchedule(study,memberId,list);
+        scheduleService.createMainSchedule(study, memberId, list);
 
         List<SkillStudy> skillStudies = skills.stream()
                 .map(skill -> SkillStudy.builder()
@@ -85,27 +86,27 @@ public class StudyService {
 
         return StudyDTO.fromEntity(study);
     }
+
     @Transactional(readOnly = true)
     public PagedStudyDTO getAllStudies(Pageable pageable) {
         Page<Study> studyPage = studyRepository.findByIsDeletedFalseOrderByCreatedAtDesc(pageable);
 
         List<StudyDTO> studyDtoList = studyPage.getContent().stream()
-                .map(this::getStudyDTO)
-                .toList();
+                .map(study -> {
+                    StudyDTO studyDTO = StudyDTO.fromEntity(study);
+                    studyDTO.setCommentCount(studyCommentRepository.countAllByStudyId(study.getStudyId()));
+                    return studyDTO;
+                }).toList();
 
         return PagedStudyDTO.from(studyPage, studyDtoList);
     }
 
-    public StudyDTO getStudyById(Long studyId) {
-        Study study = studyRepository.findById(studyId)
-                .orElseThrow(() -> new CustomException(STUDY_NOT_FOUND));
-
-        if(Boolean.TRUE.equals(study.getIsDeleted())){
-            throw new CustomException(ALREADY_DELETED_STUDY);
-        }
-
-        study.updateViewCount();
-        return getStudyDTO(study);
+    @Transactional
+    public List<StudyDTO> getMyStudies(Long memberId) {
+        return studyRepository.findByMemberMemberIdAndIsDeletedFalse(memberId)
+                .stream()
+                .map(StudyDTO::fromEntity)
+                .collect(Collectors.toList());
     }
 
     public StudyDTO updateStudy(Long studyId, StudyDTO dto, Long memberId) {
@@ -134,7 +135,7 @@ public class StudyService {
 
         skillStudyRepository.saveAll(newSkillStudies);
 
-        study.updateFromDto(dto,newSkillStudies);
+        study.updateFromDto(dto, newSkillStudies);
 
         return StudyDTO.fromEntity(study);
     }
@@ -150,7 +151,7 @@ public class StudyService {
     }
 
     private void validateMember(Long memberId, Study study) {
-        if(!study.getMember().getMemberId().equals(memberId)){
+        if (!study.getMember().getMemberId().equals(memberId)) {
             throw new CustomException(NOT_AUTHOR);
         }
     }
@@ -167,15 +168,22 @@ public class StudyService {
 
     @Transactional(readOnly = true)
     public List<StudyDTO> getPopularStudies() {
-        Pageable pageable = PageRequest.of(0,3);
+        Pageable pageable = PageRequest.of(0, 3);
         return studyRepository.findByPopularity(pageable).stream()
                 .map(StudyDTO::fromEntity)
                 .toList();
     }
 
-    private StudyDTO getStudyDTO(Study study) {
-        StudyDTO studyDto = StudyDTO.fromEntity(study);
-        studyDto.setCommentCount(studyCommentRepository.countAllByStudyId(study.getStudyId()));
-        return studyDto;
+    public StudyDTO getStudyById(Long studyId) {
+        Study study = studyRepository.findById(studyId)
+                .orElseThrow(() -> new CustomException(STUDY_NOT_FOUND));
+
+        if (Boolean.TRUE.equals(study.getIsDeleted())) {
+            throw new CustomException(ALREADY_DELETED_STUDY);
+        }
+
+        study.updateViewCount();
+        return StudyDTO.fromEntity(study);
     }
+
 }
