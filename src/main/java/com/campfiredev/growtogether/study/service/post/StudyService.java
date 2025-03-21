@@ -90,11 +90,8 @@ public class StudyService {
         Page<Study> studyPage = studyRepository.findByIsDeletedFalseOrderByCreatedAtDesc(pageable);
 
         List<StudyDTO> studyDtoList = studyPage.getContent().stream()
-                .map(study -> {
-                    StudyDTO studyDTO = StudyDTO.fromEntity(study);
-                    studyDTO.setCommentCount(studyCommentRepository.countAllByStudyId(study.getStudyId()));
-                    return studyDTO;
-                }).toList();
+                .map(this::getStudyDTO)
+                .toList();
 
         return PagedStudyDTO.from(studyPage, studyDtoList);
     }
@@ -108,7 +105,7 @@ public class StudyService {
         }
 
         study.updateViewCount();
-        return StudyDTO.fromEntity(study);
+        return getStudyDTO(study);
     }
 
     public StudyDTO updateStudy(Long studyId, StudyDTO dto, Long memberId) {
@@ -174,5 +171,11 @@ public class StudyService {
         return studyRepository.findByPopularity(pageable).stream()
                 .map(StudyDTO::fromEntity)
                 .toList();
+    }
+
+    private StudyDTO getStudyDTO(Study study) {
+        StudyDTO studyDto = StudyDTO.fromEntity(study);
+        studyDto.setCommentCount(studyCommentRepository.countAllByStudyId(study.getStudyId()));
+        return studyDto;
     }
 }

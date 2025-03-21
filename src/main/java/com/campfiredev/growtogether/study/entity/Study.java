@@ -76,7 +76,7 @@ public class Study extends BaseEntity {
                 .participant(1)
                 .type(dto.getType())
                 .studyCount(dto.getMainScheduleList().getDates().size())
-                .studyClosingDate(dto.getStudyClosingDate().atTime(LocalTime.MAX))
+                .studyClosingDate(dto.getStudyClosingDate().atTime(LocalTime.MAX).withNano(0))
                 .build();
     }
 
