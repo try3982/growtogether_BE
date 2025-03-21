@@ -7,4 +7,5 @@ import org.springframework.data.domain.Pageable;
 
 public interface StudyRepositoryCustom {
     Page<Study> findFilteredAndSortedStudies(StudyFilter filter, Pageable pageable);
+    Page<Study> searchPostsByTitle(String title, Pageable pageable);
 }

@@ -64,4 +64,28 @@ public class StudyRepositoryImpl implements StudyRepositoryCustom {
 
         return new PageImpl<>(studies, pageable, total);
     }
+
+    @Override
+    public Page<Study> searchPostsByTitle(String title, Pageable pageable) {
+        QStudy study = QStudy.study;
+
+        BooleanBuilder whereClause = new BooleanBuilder();
+
+        // 제목 검색 조건
+        if (title != null && !title.isEmpty()) {
+            whereClause.and(study.title.containsIgnoreCase(title));
+        }
+
+        // QueryDSL 쿼리 생성
+        JPAQuery<Study> query = queryFactory.selectFrom(study)
+                .where(whereClause)
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .orderBy(study.createdAt.desc()); // 기본 정렬: 최신순
+
+        List<Study> studyPosts = query.fetch();
+        long total = queryFactory.select(study.count()).from(study).where(whereClause).fetchOne();
+
+        return new PageImpl<>(studyPosts, pageable, total);
+    }
 }

@@ -34,10 +34,10 @@ public class StudyController {
             @RequestParam(defaultValue = "CREATED_AT") StudyFilter.SortBy sortBy,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "9") int size
-            ) {
+    ) {
 
-        StudyFilter filter = new StudyFilter(studyType,skillStacks,date,sortBy);
-        Pageable pageable = PageRequest.of(page-1,size);
+        StudyFilter filter = new StudyFilter(studyType, skillStacks, date, sortBy);
+        Pageable pageable = PageRequest.of(page - 1, size);
 
         return studyService.getFilteredAndSortedStudies(filter, pageable);
     }
@@ -48,18 +48,28 @@ public class StudyController {
     }
 
     @PutMapping("/{studyId}")
-    public StudyDTO updateStudy(@PathVariable Long studyId, @Valid @RequestBody StudyDTO dto,@AuthenticationPrincipal CustomUserDetails customUserDetails) {
-        return studyService.updateStudy(studyId, dto,customUserDetails.getMemberId());
+    public StudyDTO updateStudy(@PathVariable Long studyId, @Valid @RequestBody StudyDTO dto, @AuthenticationPrincipal CustomUserDetails customUserDetails) {
+        return studyService.updateStudy(studyId, dto, customUserDetails.getMemberId());
     }
 
     @DeleteMapping("/{studyId}")
     public void deleteStudy(@PathVariable Long studyId, @AuthenticationPrincipal CustomUserDetails customUserDetails) {
-        studyService.deleteStudy(studyId,customUserDetails.getMemberId());
+        studyService.deleteStudy(studyId, customUserDetails.getMemberId());
     }
 
     @GetMapping("/popular")
     public List<StudyDTO> getPopularStudies() {
         return studyService.getPopularStudies();
+    }
+
+    @GetMapping("/search")
+    public PagedStudyDTO searchPostsByTitle(
+            @RequestParam(required = false) String title,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "9") int size
+    ) {
+        Pageable pageable = PageRequest.of(page - 1, size);
+        return studyService.searchStudies(title, pageable);
     }
 }
 

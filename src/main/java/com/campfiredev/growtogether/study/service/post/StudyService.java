@@ -28,6 +28,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.campfiredev.growtogether.exception.response.ErrorCode.*;
 import static com.campfiredev.growtogether.study.type.StudyMemberType.LEADER;
@@ -178,5 +179,15 @@ public class StudyService {
         StudyDTO studyDto = StudyDTO.fromEntity(study);
         studyDto.setCommentCount(studyCommentRepository.countAllByStudyId(study.getStudyId()));
         return studyDto;
+    }
+
+    @Transactional(readOnly = true)
+    public PagedStudyDTO searchStudies(String title, Pageable pageable) {
+        Page<Study> studyPage = studyRepository.searchPostsByTitle(title, pageable);
+        List<StudyDTO> studies = studyPage.stream()
+                .map(StudyDTO::fromEntity)
+                .collect(Collectors.toList());
+
+        return PagedStudyDTO.from(studyPage,studies);
     }
 }
