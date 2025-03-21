@@ -1,4 +1,4 @@
-package com.campfiredev.growtogether.study.repository;
+package com.campfiredev.growtogether.study.repository.bookmark;
 
 import com.campfiredev.growtogether.study.entity.Bookmark;
 import org.springframework.data.jpa.repository.JpaRepository;

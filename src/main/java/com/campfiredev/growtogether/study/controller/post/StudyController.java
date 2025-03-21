@@ -3,6 +3,7 @@ package com.campfiredev.growtogether.study.controller.post;
 import com.campfiredev.growtogether.member.dto.CustomUserDetails;
 import com.campfiredev.growtogether.study.dto.post.PagedStudyDTO;
 import com.campfiredev.growtogether.study.dto.post.StudyDTO;
+import com.campfiredev.growtogether.study.dto.post.StudyFilter;
 import com.campfiredev.growtogether.study.service.post.StudyService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -25,11 +27,19 @@ public class StudyController {
     }
 
     @GetMapping
-    public PagedStudyDTO getAllStudies(@RequestParam(defaultValue = "1") int page,
-                                       @RequestParam(defaultValue = "9") int size
-    ){
-        Pageable pageable = PageRequest.of(page-1, size);
-        return studyService.getAllStudies(pageable);
+    public PagedStudyDTO getAllStudies(
+            @RequestParam(required = false) String studyType,
+            @RequestParam(required = false) List<String> skillStacks,
+            @RequestParam(required = false) LocalDate date,
+            @RequestParam(defaultValue = "CREATED_AT") StudyFilter.SortBy sortBy,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "9") int size
+            ) {
+
+        StudyFilter filter = new StudyFilter(studyType,skillStacks,date,sortBy);
+        Pageable pageable = PageRequest.of(page-1,size);
+
+        return studyService.getFilteredAndSortedStudies(filter, pageable);
     }
 
     @GetMapping("/{studyId}")

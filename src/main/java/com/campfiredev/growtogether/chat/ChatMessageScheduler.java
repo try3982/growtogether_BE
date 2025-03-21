@@ -6,17 +6,15 @@ import com.campfiredev.growtogether.chat.dto.ChatMessageDto;
 import com.campfiredev.growtogether.chat.entity.ChatEntity;
 import com.campfiredev.growtogether.chat.repository.ChatRepository;
 import com.campfiredev.growtogether.study.entity.Study;
-import com.campfiredev.growtogether.study.entity.StudyStatus;
-import com.campfiredev.growtogether.study.repository.StudyRepository;
+import com.campfiredev.growtogether.study.repository.post.StudyRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.Collections;
+
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 @Slf4j

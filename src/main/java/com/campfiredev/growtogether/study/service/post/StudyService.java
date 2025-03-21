@@ -9,15 +9,16 @@ import com.campfiredev.growtogether.skill.entity.SkillEntity;
 import com.campfiredev.growtogether.skill.repository.SkillRepository;
 import com.campfiredev.growtogether.study.dto.post.PagedStudyDTO;
 import com.campfiredev.growtogether.study.dto.post.StudyDTO;
+import com.campfiredev.growtogether.study.dto.post.StudyFilter;
 import com.campfiredev.growtogether.study.dto.post.StudyScheduleDto;
 import com.campfiredev.growtogether.study.dto.schedule.MainScheduleDto;
 import com.campfiredev.growtogether.study.entity.SkillStudy;
 import com.campfiredev.growtogether.study.entity.Study;
 import com.campfiredev.growtogether.study.entity.join.StudyMemberEntity;
-import com.campfiredev.growtogether.study.repository.SkillStudyRepository;
-import com.campfiredev.growtogether.study.repository.StudyCommentRepository;
-import com.campfiredev.growtogether.study.repository.StudyRepository;
+import com.campfiredev.growtogether.study.repository.comment.StudyCommentRepository;
 import com.campfiredev.growtogether.study.repository.join.JoinRepository;
+import com.campfiredev.growtogether.study.repository.post.SkillStudyRepository;
+import com.campfiredev.growtogether.study.repository.post.StudyRepository;
 import com.campfiredev.growtogether.study.service.schedule.ScheduleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -86,8 +87,8 @@ public class StudyService {
         return StudyDTO.fromEntity(study);
     }
     @Transactional(readOnly = true)
-    public PagedStudyDTO getAllStudies(Pageable pageable) {
-        Page<Study> studyPage = studyRepository.findByIsDeletedFalseOrderByCreatedAtDesc(pageable);
+    public PagedStudyDTO getFilteredAndSortedStudies(StudyFilter filter, Pageable pageable) {
+        Page<Study> studyPage = studyRepository.findFilteredAndSortedStudies(filter, pageable);
 
         List<StudyDTO> studyDtoList = studyPage.getContent().stream()
                 .map(this::getStudyDTO)

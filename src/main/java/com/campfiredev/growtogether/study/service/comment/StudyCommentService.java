@@ -5,7 +5,7 @@ import com.campfiredev.growtogether.member.entity.MemberEntity;
 import com.campfiredev.growtogether.member.repository.MemberRepository;
 import com.campfiredev.growtogether.study.dto.comment.StudyCommentDto;
 import com.campfiredev.growtogether.study.entity.StudyComment;
-import com.campfiredev.growtogether.study.repository.StudyCommentRepository;
+import com.campfiredev.growtogether.study.repository.comment.StudyCommentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;

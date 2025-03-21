@@ -1,4 +1,4 @@
-package com.campfiredev.growtogether.study.repository;
+package com.campfiredev.growtogether.study.repository.post;
 
 import com.campfiredev.growtogether.study.entity.Study;
 import com.campfiredev.growtogether.study.entity.StudyStatus;
@@ -9,7 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 
-public interface StudyRepository extends JpaRepository<Study, Long> {
+public interface StudyRepository extends JpaRepository<Study, Long>, StudyRepositoryCustom {
     Page<Study> findByIsDeletedFalseOrderByCreatedAtDesc(Pageable pageable);
 
     List<Study> findByStudyStatus(StudyStatus studyStatus);

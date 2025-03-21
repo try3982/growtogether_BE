@@ -11,7 +11,7 @@ import com.campfiredev.growtogether.study.dto.notice.NoticeUpdateDto;
 import com.campfiredev.growtogether.study.entity.Study;
 import com.campfiredev.growtogether.study.entity.join.StudyMemberEntity;
 import com.campfiredev.growtogether.study.entity.notice.NoticeEntity;
-import com.campfiredev.growtogether.study.repository.StudyRepository;
+import com.campfiredev.growtogether.study.repository.post.StudyRepository;
 import com.campfiredev.growtogether.study.repository.join.JoinRepository;
 import com.campfiredev.growtogether.study.repository.notice.NoticeRepository;
 import lombok.RequiredArgsConstructor;

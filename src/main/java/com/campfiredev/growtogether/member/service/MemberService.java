@@ -12,7 +12,7 @@ import com.campfiredev.growtogether.member.util.JwtUtil;
 import com.campfiredev.growtogether.point.service.PointService;
 import com.campfiredev.growtogether.skill.entity.SkillEntity;
 import com.campfiredev.growtogether.skill.repository.SkillRepository;
-import com.campfiredev.growtogether.study.repository.StudyRepository;
+import com.campfiredev.growtogether.study.repository.post.StudyRepository;
 import com.campfiredev.growtogether.study.repository.join.JoinRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
