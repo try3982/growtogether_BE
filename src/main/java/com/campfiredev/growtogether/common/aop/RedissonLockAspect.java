@@ -34,6 +34,7 @@ public class RedissonLockAspect {
     RedissonLock redissonLock = method.getAnnotation(RedissonLock.class);
 
     String lockKey = redissonLock.key();
+    System.out.println("lockKey : " + lockKey);
     RLock lock = redissonClient.getLock(lockKey);
 
     boolean acquired = false;

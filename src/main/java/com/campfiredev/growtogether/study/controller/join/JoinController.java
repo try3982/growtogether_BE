@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -72,7 +73,7 @@ public class JoinController {
    */
   @GetMapping("/{studyId}/studyMember")
   public List<StudyMemberListDto> studyMemberList(@PathVariable Long studyId,
-      @RequestBody List<StudyMemberType> types) {
+      @RequestParam List<StudyMemberType> types) {
     return joinService.getStudyMember(studyId, types);
   }
 
