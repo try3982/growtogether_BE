@@ -8,6 +8,8 @@ import java.util.List;
 @Getter
 @Builder
 public class MyPageInfoDto {
+
+    private String email;
     private String nickName;
     private String profileImageUrl;
     private Integer points;
