@@ -25,7 +25,8 @@ public class OAuthController {
 		String accessToken = kakaoService.getAccessToken(accessCode);
 
 		// 2. 프론트엔드 리다이렉트 URL에 accessToken을 쿼리 파라미터로 포함
-		String redirectUrl = "http://localhost:8080/oauth/kakao?token=" + accessToken;
+		String redirectUrl = "https://www.growtogether.site/oauth/kakao?token=" + accessToken;
+
 
 		// 3. 리다이렉트
 		httpServletResponse.sendRedirect(redirectUrl);
