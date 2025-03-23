@@ -1,17 +1,20 @@
 package com.campfiredev.growtogether.chat;
 
 import static com.campfiredev.growtogether.study.entity.StudyStatus.*;
+import static com.campfiredev.growtogether.study.type.StudyMemberType.*;
 
 import com.campfiredev.growtogether.chat.dto.ChatMessageDto;
 import com.campfiredev.growtogether.chat.entity.ChatEntity;
 import com.campfiredev.growtogether.chat.repository.ChatRepository;
 import com.campfiredev.growtogether.study.entity.Study;
-import com.campfiredev.growtogether.study.entity.StudyStatus;
+import com.campfiredev.growtogether.study.entity.join.StudyMemberEntity;
 import com.campfiredev.growtogether.study.repository.StudyRepository;
+import com.campfiredev.growtogether.study.repository.join.JoinRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,16 +31,19 @@ public class ChatMessageScheduler {
   private final ObjectMapper objectMapper;
   private final ChatRepository chatMessageRepository;
   private final StudyRepository studyRepository;
+  private final JoinRepository joinRepository;
 
-  //@Scheduled(fixedRate = 60000)
+  @Scheduled(cron = "0 0 0 * * *")
   public void persistOldMessages() {
 
     List<Study> studies = studyRepository.findByStudyStatus(PROGRESS);
 
-    for(int i=0; i<studies.size(); i++) {
-      String redisKey = "chat" + studies.get(i).getStudyId();
+    log.info("chat scheduler");
 
-      List<String> oldMessages = redisTemplate.opsForList().range(redisKey, 3, -1);
+    for(Study study : studies) {
+      String redisKey = "chat" + study.getStudyId();
+
+      List<String> oldMessages = redisTemplate.opsForList().range(redisKey, 100, -1);
 
       List<ChatMessageDto> messagesToSave = oldMessages.stream().map(msg -> {
         try {
@@ -50,12 +56,18 @@ public class ChatMessageScheduler {
 
       messagesToSave.sort(Comparator.comparing(ChatMessageDto::getDate));
 
+      List<StudyMemberEntity> findStudyMembers = joinRepository.findByStudyWithMembersInStatus(
+          study.getStudyId(), List.of(NORMAL, LEADER, KICK));
+
+      Map<Long, StudyMemberEntity> studyMemberMap = findStudyMembers.stream()
+          .collect(Collectors.toMap(sm -> sm.getId(), Function.identity()));
+
       List<ChatEntity> collect = messagesToSave.stream()
           .map(a -> ChatEntity.builder()
-              .studyId(a.getStudyId())
+              .study(study)
               .message(a.getMessage())
               .date(a.getDate())
-              .sender(a.getSender())
+              .sender(studyMemberMap.get(a.getStudyMemberId()))
               .imageUrl(a.getImageUrl()).build())
           .collect(Collectors.toList());
 

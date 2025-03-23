@@ -20,36 +20,18 @@ public class JwtInterceptor implements ChannelInterceptor {
 
   @Override
   public Message<?> preSend(Message<?> message, MessageChannel channel) {
-    log.info("presend");
     StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
 
     if (StompCommand.CONNECT.equals(accessor.getCommand())) {
       String token = accessor.getFirstNativeHeader("Authorization");
-      String studyId = accessor.getFirstNativeHeader("studyId");
-      String username = accessor.getFirstNativeHeader("username");
 
       if (token == null || !token.startsWith("Bearer ")) {
         throw new IllegalArgumentException("JWT 토큰이 필요합니다.");
       }
 
-      System.out.println("token before: " + token);
-
       token = token.substring(7);
 
-      System.out.println("token after: " + token);
-
-      boolean tokenValid = jwtUtil.isTokenValid(token);
-      System.out.println("token valid: " + tokenValid);
-
-      log.info("jwt 검증 로직 추가할 예정");
-
-      System.out.println(studyId);
-      Map<String, Object> sessionAttributes = accessor.getSessionAttributes();
-      System.out.println(sessionAttributes);
-
-      accessor.getSessionAttributes().put("studyId", studyId);
-
-      System.out.println(sessionAttributes);
+      jwtUtil.isTokenValid(token);
     }
 
     return message;

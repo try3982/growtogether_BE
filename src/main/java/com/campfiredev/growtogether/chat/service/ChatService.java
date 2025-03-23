@@ -4,11 +4,15 @@ import com.campfiredev.growtogether.chat.dto.ChatMessageDto;
 import com.campfiredev.growtogether.chat.dto.SliceMessageDto;
 import com.campfiredev.growtogether.chat.entity.ChatEntity;
 import com.campfiredev.growtogether.chat.repository.ChatRepository;
+import com.campfiredev.growtogether.study.entity.join.StudyMemberEntity;
+import com.campfiredev.growtogether.study.repository.join.JoinRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -16,14 +20,17 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class ChatService {
 
   private final RedisTemplate<String, Object> redisTemplate;
   private final ObjectMapper objectMapper;
   private final ChatRepository chatRepository;
+  private final JoinRepository joinRepository;
 
   public SliceMessageDto getChatMessage(Long studyId, Integer lastIndex, LocalDateTime date, int size){
 
@@ -50,6 +57,21 @@ public class ChatService {
           .map(json -> jsonToChatMessageDto(json))
           .collect(Collectors.toList());
 
+      List<Long> ids = collect.stream()
+          .map(a -> a.getStudyMemberId())
+          .distinct()
+          .collect(Collectors.toList());
+
+      Map<Long, StudyMemberEntity> smMap = joinRepository.findAllWithMembersInIds(ids)
+          .stream().collect(Collectors.toMap(sm -> sm.getId(), Function.identity()));
+
+      collect.forEach(dto -> {
+        StudyMemberEntity sender = smMap.get(dto.getStudyMemberId());
+        if(sender != null){
+          dto.setSender(sender.getMember().getNickName());
+        }
+      });
+
       chatMessages.addAll(collect);
 
       if (chatMessages.size() == size) {
@@ -67,8 +89,6 @@ public class ChatService {
 
   private SliceMessageDto fetchFromDB(Long studyId, Integer lastIndex, int size, LocalDateTime date, List<ChatMessageDto> redisMessages) {
     LocalDateTime lastDate = LocalDateTime.now();
-    System.out.println("size = " + size);
-
     if (!redisMessages.isEmpty()) {
       lastDate = redisMessages.get(redisMessages.size() - 1).getDate();
     } else {
@@ -78,24 +98,21 @@ public class ChatService {
     List<ChatEntity> dbMessages = new ArrayList<>();
 
     if(lastIndex == null || lastIndex > 0) {
-      System.out.println("first");
       Pageable pageable = PageRequest.of(0, size, Sort.by(Sort.Direction.DESC, "date"));
       dbMessages = chatRepository
-          .findByStudyIdAndDateBefore(studyId, lastDate, pageable);
+          .findByStudy_StudyIdAndDateBefore(studyId, lastDate, pageable);
     }else if(lastIndex < 0){
-      System.out.println("second");
       Pageable pageable = PageRequest.of(0, size, Sort.by(Sort.Direction.DESC, "id"));
-      dbMessages = chatRepository.findByStudyIdAndIdLessThanOrderByIdDesc(studyId,
+      dbMessages = chatRepository.findByStudy_StudyIdAndIdLessThanOrderByIdDesc(studyId,
           (long) -lastIndex, pageable);
     }
 
-    System.out.println("dbMessages = " + dbMessages.size());
-
     List<ChatMessageDto> chatMessageDtos = dbMessages.stream()
         .map(chat -> ChatMessageDto.builder()
-            .studyId(chat.getStudyId())
+            .studyId(chat.getStudy().getStudyId())
             .message(chat.getMessage())
-            .sender(chat.getSender())
+            .sender(chat.getSender().getMember().getNickName())
+            .studyMemberId(chat.getSender().getId())
             .imageUrl(chat.getImageUrl())
             .date(chat.getDate()).build())
         .collect(Collectors.toList());
@@ -103,8 +120,6 @@ public class ChatService {
     redisMessages.addAll(chatMessageDtos);
 
     long lastPk = dbMessages.isEmpty() ? -1 : -dbMessages.get(dbMessages.size() - 1).getId();
-
-    System.out.println("lastPk = " + lastPk);
 
     return SliceMessageDto.builder()
         .lastIndex((int) lastPk)

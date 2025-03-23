@@ -3,6 +3,7 @@ package com.campfiredev.growtogether.study.controller.join;
 import com.campfiredev.growtogether.member.dto.CustomUserDetails;
 import com.campfiredev.growtogether.study.dto.join.JoinCreateDto;
 import com.campfiredev.growtogether.study.dto.join.JoinDetailsDto;
+import com.campfiredev.growtogether.study.dto.join.StudyMemberInfoDto;
 import com.campfiredev.growtogether.study.dto.join.StudyMemberListDto;
 import com.campfiredev.growtogether.study.service.join.JoinService;
 import com.campfiredev.growtogether.study.type.StudyMemberType;
@@ -84,6 +85,12 @@ public class JoinController {
   public List<StudyMemberListDto> studyMemberListFeedback(
       @AuthenticationPrincipal CustomUserDetails customUserDetails, @PathVariable Long studyId) {
     return joinService.getStudyMemberForFeedback(studyId, customUserDetails.getMemberId());
+  }
+
+  @GetMapping("/{studyId}/studyMember_info")
+  public StudyMemberInfoDto getStudyMemberInfo(
+      @AuthenticationPrincipal CustomUserDetails customUserDetails, @PathVariable Long studyId){
+    return joinService.getStudyMemberInfo(customUserDetails.getMemberId(),studyId);
   }
 }
 
