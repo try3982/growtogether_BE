@@ -64,7 +64,7 @@ public class MyPageController {
     }
 
     //마이 페이지 내가 참여중인 스터디 갯수 + 좋아요한 부트캠프 리뷰 게시판 갯수
-    @Operation(summary = "내가 참여 중인 스터디 개수 및 좋아요한 게시글 개수 조회",
+    @Operation(summary = "내가 참여 중인 스터디, 좋아요한 부트캠프 리뷰리스트 조회",
             description = "참여 중인 스터디 개수와 좋아요한 게시글(스터디 북마크 + 부트캠프 리뷰 좋아요) 개수를 조회합니다.")
     @GetMapping("/liked-posts")
     public ResponseEntity<List<MyPageLikesDto>> getMyLikedPosts(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
