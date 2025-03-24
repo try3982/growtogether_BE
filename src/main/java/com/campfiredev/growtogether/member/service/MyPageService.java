@@ -10,7 +10,6 @@ import com.campfiredev.growtogether.member.dto.MyPageUpdateDto;
 import com.campfiredev.growtogether.member.entity.MemberEntity;
 import com.campfiredev.growtogether.member.repository.MemberRepository;
 import com.campfiredev.growtogether.skill.repository.SkillRepository;
-import com.campfiredev.growtogether.study.dto.post.StudyDTO;
 import com.campfiredev.growtogether.study.entity.Bookmark;
 import com.campfiredev.growtogether.study.repository.bookmark.BookmarkRepository;
 import com.campfiredev.growtogether.study.repository.post.StudyRepository;
@@ -75,15 +74,10 @@ public class MyPageService {
         List<Bookmark> bookmarks = bookmarkRepository.findByMember_MemberId(memberId);
         for (Bookmark bookmark : bookmarks) {
             if (bookmark != null && bookmark.getStudy() != null) {
-                StudyDTO studyDTO = StudyDTO.fromEntity(bookmark.getStudy());
-
                 likedPosts.add(MyPageLikesDto.builder()
-                        .postId(studyDTO.getStudyId())
-                        .title(studyDTO.getTitle())
-                        .type(studyDTO.getType())
-                        .people(studyDTO.getMaxParticipant())
-                        .skillName(studyDTO.getSkillNames())
-                        .status(studyDTO.getStudyStatus().name())
+                        .postId(bookmark.getStudy().getStudyId())
+                        .title(bookmark.getStudy().getTitle())
+                        .type("스터디")
                         .build());
             }
         }
