@@ -78,7 +78,8 @@ public class ScheduleService {
     ScheduleEntity save = scheduleRepository.save(
         ScheduleEntity.create(studyMemberEntity, scheduleCreateDto));
 
-    LocalDateTime start = LocalDateTime.of(scheduleCreateDto.getStartDate(), scheduleCreateDto.getStartTime());
+    LocalDateTime start = LocalDateTime.of(scheduleCreateDto.getStartDate(),
+        scheduleCreateDto.getStartTime());
     LocalDateTime end = start.plusMinutes(scheduleCreateDto.getTotalTime());
 
     checkMainConflict(studyMemberEntity.getStudy(), start, end, save.getId());
@@ -92,7 +93,7 @@ public class ScheduleService {
 
     checkMainConflict(scheduleEntity.getStudy(), start, end, scheduleEntity.getId());
 
-    if (validateCreateVote(memberId, scheduleId, updateDto, scheduleEntity, start, end)) {
+    if (validateCreateVote(memberId, updateDto, scheduleEntity, start, end)) {
       return;
     }
 
@@ -164,12 +165,14 @@ public class ScheduleService {
             attendanceMap.getOrDefault(schedule.getId(), new ArrayList<>())
         ))
         .collect(Collectors.groupingBy(
-            (ScheduleAttendeeDto scheduleAttendeeDto) -> scheduleAttendeeDto.getStart().toLocalDate()));
+            (ScheduleAttendeeDto scheduleAttendeeDto) -> scheduleAttendeeDto.getStart()
+                .toLocalDate()));
 
     return ScheduleAttendeeMonthDto.from(groupedSchedules);
   }
 
-  private void checkMainConflict(Study study, LocalDateTime start, LocalDateTime end, Long scheduleId){
+  private void checkMainConflict(Study study, LocalDateTime start, LocalDateTime end,
+      Long scheduleId) {
     List<ScheduleEntity> mainSchedules = scheduleRepository.findByStudyAndStartBetweenAndType(
         study, start, end, MAIN);
 
@@ -184,13 +187,13 @@ public class ScheduleService {
     }
   }
 
-  private boolean validateCreateVote(Long memberId, Long scheduleId,
+  private boolean validateCreateVote(Long memberId,
       ScheduleUpdateDto scheduleUpdateDto,
       ScheduleEntity scheduleEntity, LocalDateTime start, LocalDateTime end) {
 
     if (MAIN.equals(scheduleEntity.getType()) && (!start.equals(scheduleEntity.getStart()))
         || !end.equals(scheduleEntity.getEnd())) {
-      voteService.createChangeVote(memberId, scheduleEntity.getStudy().getStudyId(), scheduleId,
+      voteService.createChangeVote(memberId, scheduleEntity.getStudy().getStudyId(), scheduleEntity,
           scheduleUpdateDto);
       return true;
     }
@@ -198,10 +201,10 @@ public class ScheduleService {
   }
 
   private void validateSameUser(Long memberId, ScheduleEntity scheduleEntity) {
-    StudyMemberEntity studyMemberEntity = getStudyMemberEntity(memberId,
-        scheduleEntity.getStudy().getStudyId());
+    StudyMemberEntity studyMemberEntity = getStudyMemberEntity(
+        scheduleEntity.getStudy().getStudyId(), memberId);
 
-    if (!memberId.equals(studyMemberEntity.getId())) {
+    if (!memberId.equals(studyMemberEntity.getMember().getMemberId())) {
       throw new CustomException(NOT_AUTHOR);
     }
   }

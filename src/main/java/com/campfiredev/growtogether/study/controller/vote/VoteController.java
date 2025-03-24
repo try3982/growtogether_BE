@@ -54,11 +54,16 @@ public class VoteController {
     return ResponseEntity.ok(voteService.getVotes(studyId));
   }
 
-  //임시 테스트용
-  @PostMapping("/{studyId}/change_vote")
-  public void createChangeVote(@PathVariable Long studyId,
-      @RequestBody @Valid ScheduleUpdateDto scheduleUpdateDto) {
-    voteService.createChangeVote(1L, studyId, 1L, scheduleUpdateDto);
+  @GetMapping("/vote/{voteId}")
+  public VoteDto getDetailsVote(@PathVariable Long voteId) {
+    return voteService.getDetailVote(voteId);
   }
+
+//  //임시 테스트용
+//  @PostMapping("/{studyId}/change_vote")
+//  public void createChangeVote(@PathVariable Long studyId,
+//      @RequestBody @Valid ScheduleUpdateDto scheduleUpdateDto) {
+//    voteService.createChangeVote(1L, studyId, 1L, scheduleUpdateDto);
+//  }
 
 }

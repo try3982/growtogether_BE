@@ -3,12 +3,11 @@ package com.campfiredev.growtogether.member.controller;
 import com.campfiredev.growtogether.member.service.KakaoService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Map;
+import java.io.IOException;
 
 @RestController
 @RequiredArgsConstructor
@@ -17,25 +16,19 @@ public class OAuthController {
 	private final KakaoService kakaoService;
 
 	@GetMapping("/oauth2/code/kakao")
-	public  ResponseEntity<?> kakaoLogin(
+	public void kakaoLogin(
 			@RequestParam("code") String accessCode,
 			HttpServletResponse httpServletResponse
-	) {
+	) throws IOException {
+
+		// 1. 인가 코드로 카카오에 access token 요청
 		String accessToken = kakaoService.getAccessToken(accessCode);
 
-		httpServletResponse.setHeader("Authorization", "Bearer " + accessToken);
-		httpServletResponse.setHeader("Access-Control-Expose-Headers", "Authorization");
+		// 2. 프론트엔드 리다이렉트 URL에 accessToken을 쿼리 파라미터로 포함
+		String redirectUrl = "https://www.growtogether.site/oauth/kakao?token=" + accessToken;
 
-		//	Map<String, String> response = Map.of("accessToken", accessToken);
-		//	return "redirect:/http://13.125.21.225:8080/oauth/kakao/";
 
-//		return "redirect:/oauth/kakao";
-//        httpServletResponse.sendRedirect("http://localhost:8080/oauth/kakao");
-		return ResponseEntity.ok(Map.of("message", "로그인이 완료되었습니다.", "accessToken", accessToken));
-    }
-
-	@GetMapping("/oauth/kakao")
-	public String a(){
-		return "a";
+		// 3. 리다이렉트
+		httpServletResponse.sendRedirect(redirectUrl);
 	}
 }

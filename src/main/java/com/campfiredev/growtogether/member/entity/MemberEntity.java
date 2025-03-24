@@ -31,9 +31,11 @@ public class MemberEntity {
   @Column(name = "kakao_id", nullable = true, length = 30)
   private String kakaoId;
 
+  @Setter
   @Column(name = "nick_name", nullable = false, length = 20)
   private String nickName;
 
+  @Setter
   @Column(name = "phone_number", nullable = true, length = 20)
   private String phone;
 
@@ -50,6 +52,7 @@ public class MemberEntity {
   @Builder.Default
   private Integer points = 100;
 
+  @Setter
   @Column(name = "github_url")
   private String githubUrl;
 
@@ -66,11 +69,12 @@ public class MemberEntity {
   private LocalDateTime updatedAt;
 
   // 사용자 기술 매핑
+  @Setter
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<MemberSkillEntity> userSkills;
   //@Column(nullable = false)
   @Setter
-  private Double rating;
+  private Double rating= 5.0;
 
   @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<StudyComment> comments;

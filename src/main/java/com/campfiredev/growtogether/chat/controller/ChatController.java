@@ -44,8 +44,10 @@ public class ChatController {
     chatMessageDto.setDate(LocalDateTime.now());
 
     try {
-      redisTemplate.opsForList()
-          .leftPush("chat" + studyId, objectMapper.writeValueAsString(chatMessageDto));
+      if(chatMessageDto.getTo() == null || chatMessageDto.getTo().isEmpty()) {
+        redisTemplate.opsForList()
+            .leftPush("chat" + studyId, objectMapper.writeValueAsString(chatMessageDto));
+      }
     } catch (JsonProcessingException e) {
       throw new RuntimeException(e);
     }

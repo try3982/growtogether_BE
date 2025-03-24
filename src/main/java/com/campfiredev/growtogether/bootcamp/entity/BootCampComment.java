@@ -32,6 +32,7 @@ public class BootCampComment extends BaseEntity {
     private BootCampComment parentComment;
 
     @OneToMany(mappedBy = "parentComment", cascade = CascadeType.ALL,orphanRemoval = true)
+    @OrderBy("bootCampCommentId DESC")
     @BatchSize(size = 10)
     private List<BootCampComment> childComments = new ArrayList<>();
 

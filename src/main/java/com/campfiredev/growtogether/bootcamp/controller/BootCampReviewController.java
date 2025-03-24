@@ -133,10 +133,10 @@ public class BootCampReviewController {
                     content = @Content(schema = @Schema(implementation = BootCampReviewResponseDto.PageResponse.class)))
     })
     @GetMapping("/search")
-    public ResponseEntity<BootCampReviewResponseDto.PageResponse> searchBootCamps(
+    public ResponseEntity<List<BootCampReviewResponseDto.Response>> searchBootCamps(
             @ModelAttribute BootCampReviewSearchRequest request){
 
-        BootCampReviewResponseDto.PageResponse res = bootCampReviewService.searchBootCamps(request);
+        List<BootCampReviewResponseDto.Response> res = bootCampReviewService.searchBootCamps(request);
 
         return ResponseEntity.ok(res);
     }

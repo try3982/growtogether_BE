@@ -21,6 +21,8 @@ public class ChatMessageDto {
 
   private String message;
 
+  private Long studyMemberId;
+
   private String imageUrl;
 
   private LocalDateTime date;

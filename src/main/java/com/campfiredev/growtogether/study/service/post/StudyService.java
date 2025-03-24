@@ -9,14 +9,14 @@ import com.campfiredev.growtogether.skill.entity.SkillEntity;
 import com.campfiredev.growtogether.skill.repository.SkillRepository;
 import com.campfiredev.growtogether.study.dto.post.PagedStudyDTO;
 import com.campfiredev.growtogether.study.dto.post.StudyDTO;
-import com.campfiredev.growtogether.study.dto.post.StudyFilter;
 import com.campfiredev.growtogether.study.dto.post.StudyScheduleDto;
 import com.campfiredev.growtogether.study.dto.schedule.MainScheduleDto;
 import com.campfiredev.growtogether.study.entity.SkillStudy;
 import com.campfiredev.growtogether.study.entity.Study;
 import com.campfiredev.growtogether.study.entity.join.StudyMemberEntity;
-import com.campfiredev.growtogether.study.repository.bookmark.BookmarkRepository;
-import com.campfiredev.growtogether.study.repository.comment.StudyCommentRepository;
+import com.campfiredev.growtogether.study.repository.SkillStudyRepository;
+import com.campfiredev.growtogether.study.repository.StudyCommentRepository;
+import com.campfiredev.growtogether.study.repository.StudyRepository;
 import com.campfiredev.growtogether.study.repository.join.JoinRepository;
 import com.campfiredev.growtogether.study.repository.post.SkillStudyRepository;
 import com.campfiredev.growtogether.study.repository.post.StudyRepository;
@@ -183,6 +183,16 @@ public class StudyService {
         studyDto.setCommentCount(studyCommentRepository.countAllByStudyId(study.getStudyId()));
         studyDto.setLikeCount(bookmarkRepository.countAllByStudyStudyId(study.getStudyId()));
         return studyDto;
+    public StudyDTO getStudyById(Long studyId) {
+        Study study = studyRepository.findById(studyId)
+                .orElseThrow(() -> new CustomException(STUDY_NOT_FOUND));
+
+        if (Boolean.TRUE.equals(study.getIsDeleted())) {
+            throw new CustomException(ALREADY_DELETED_STUDY);
+        }
+
+        study.updateViewCount();
+        return StudyDTO.fromEntity(study);
     }
 
     @Transactional(readOnly = true)
@@ -194,4 +204,5 @@ public class StudyService {
 
         return PagedStudyDTO.from(studyPage,studies);
     }
+
 }

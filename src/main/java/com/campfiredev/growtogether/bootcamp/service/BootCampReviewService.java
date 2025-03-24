@@ -236,7 +236,7 @@ public class BootCampReviewService {
     }
 
     //검색 기능
-    public BootCampReviewResponseDto.PageResponse searchBootCamps(BootCampReviewSearchRequest request){
+    public List<BootCampReviewResponseDto.Response> searchBootCamps(BootCampReviewSearchRequest request){
 
         Sort sort;
 
@@ -246,17 +246,19 @@ public class BootCampReviewService {
             sort = Sort.by(Sort.Order.desc(HOT));
         }
 
-        Pageable pageable = PageRequest.of(request.getPage(),request.getSize(),sort);
+      //  Pageable pageable = PageRequest.of(request.getPage(),request.getSize(),sort);
 
-        Page<BootCampReview> bootCampReviews = bootCampReviewRepositoryCustom.searchBootCamps(
+        List<BootCampReview> bootCampReviews = bootCampReviewRepositoryCustom.searchBootCamps(
                 request.getBootCampName(),
                 request.getTitle(),
                 request.getProgramCourse(),
                 request.getSkillName(),
-                pageable
+                sort
         );
 
-        return BootCampReviewResponseDto.PageResponse.fromEntityPage(bootCampReviews);
+        return bootCampReviews.stream()
+                .map(BootCampReviewResponseDto.Response::fromEntity)
+                .collect(Collectors.toList());
     }
   //  @Transactional(readOnly = true)
     public List<BootCampReviewResponseDto.Response> getTopBootCampReviews(String strategyType , int limit){

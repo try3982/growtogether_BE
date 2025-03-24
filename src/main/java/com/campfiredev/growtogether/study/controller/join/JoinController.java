@@ -3,14 +3,22 @@ package com.campfiredev.growtogether.study.controller.join;
 import com.campfiredev.growtogether.member.dto.CustomUserDetails;
 import com.campfiredev.growtogether.study.dto.join.JoinCreateDto;
 import com.campfiredev.growtogether.study.dto.join.JoinDetailsDto;
+import com.campfiredev.growtogether.study.dto.join.StudyMemberInfoDto;
 import com.campfiredev.growtogether.study.dto.join.StudyMemberListDto;
 import com.campfiredev.growtogether.study.service.join.JoinService;
 import com.campfiredev.growtogether.study.type.StudyMemberType;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
@@ -77,6 +85,12 @@ public class JoinController {
   public List<StudyMemberListDto> studyMemberListFeedback(
       @AuthenticationPrincipal CustomUserDetails customUserDetails, @PathVariable Long studyId) {
     return joinService.getStudyMemberForFeedback(studyId, customUserDetails.getMemberId());
+  }
+
+  @GetMapping("/{studyId}/studyMember_info")
+  public StudyMemberInfoDto getStudyMemberInfo(
+      @AuthenticationPrincipal CustomUserDetails customUserDetails, @PathVariable Long studyId){
+    return joinService.getStudyMemberInfo(customUserDetails.getMemberId(),studyId);
   }
 }
 

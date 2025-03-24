@@ -3,10 +3,11 @@ package com.campfiredev.growtogether.member.repository;
 import com.campfiredev.growtogether.member.entity.MemberEntity;
 import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
-
-import java.util.Optional;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+import java.util.Optional;
 
 
 public interface MemberRepository extends JpaRepository<MemberEntity, Long> {
@@ -28,7 +29,8 @@ public interface MemberRepository extends JpaRepository<MemberEntity, Long> {
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT m FROM MemberEntity m WHERE m.memberId = :memberId")
-    Optional<MemberEntity> findByIdWithLock(Long memberId);
+    Optional<MemberEntity> findByIdWithLock(@Param("memberId") Long memberId);
 
     Optional<MemberEntity> findById(Long memberId);
+    Optional<MemberEntity> findByPhone(String phone);
 }

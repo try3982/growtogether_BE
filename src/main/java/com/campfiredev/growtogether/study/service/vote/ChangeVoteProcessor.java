@@ -43,7 +43,7 @@ public class ChangeVoteProcessor implements VoteProcessor {
       log.info("CHANGE 투표 통과: " + changeVoteEntity.getStart());
       log.info("시간 변경: " + changeVoteEntity.getEnd());
 
-      ScheduleEntity scheduleEntity = scheduleRepository.findById(changeVoteEntity.getScheduleId())
+      ScheduleEntity scheduleEntity = scheduleRepository.findById(changeVoteEntity.getSchedule().getId())
           .orElseThrow(() -> new CustomException(ErrorCode.SCHEDULE_NOT_FOUND));
 
       scheduleEntity.setTitle(changeVoteEntity.getContent());

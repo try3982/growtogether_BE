@@ -17,6 +17,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.YearMonth;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -39,7 +40,7 @@ public class AttendanceService {
             studyId, List.of(NORMAL, LEADER))
         .orElseThrow(() -> new CustomException(ErrorCode.NOT_A_STUDY_MEMBER));
 
-    LocalDateTime now = LocalDateTime.now();
+    LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
 
 
     ScheduleEntity scheduleEntity = scheduleRepository.findFirstByTypeAndStudy_StudyIdAndStartBetween(

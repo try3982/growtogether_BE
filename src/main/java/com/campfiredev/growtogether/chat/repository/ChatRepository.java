@@ -7,9 +7,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ChatRepository extends JpaRepository<ChatEntity, Long> {
-  List<ChatEntity> findByStudyIdAndDateBefore(Long studyId, LocalDateTime lastDate, Pageable pageable);
+  List<ChatEntity> findByStudy_StudyIdAndDateBefore(Long studyId, LocalDateTime lastDate, Pageable pageable);
 
-  List<ChatEntity> findByStudyIdAndIdLessThanOrderByIdDesc(Long studyId, Long lastIndex, Pageable pageable);
+  List<ChatEntity> findByStudy_StudyIdAndIdLessThanOrderByIdDesc(Long studyId, Long lastIndex, Pageable pageable);
 
 
 }

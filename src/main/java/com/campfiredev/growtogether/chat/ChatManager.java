@@ -46,8 +46,6 @@ public class ChatManager {
 
     headerAccessor.getSessionAttributes().put("username", username);
     headerAccessor.getSessionAttributes().put("studyId", studyId);
-    System.out.println("event");
-    System.out.println("username" + username);
 
     sendParticipants(studyId);
   }
@@ -59,8 +57,6 @@ public class ChatManager {
 
     String username = (String) headerAccessor.getSessionAttributes().get("username");
     String studyId = (String) headerAccessor.getSessionAttributes().get("studyId");
-
-    System.out.println("username: " + username);
 
     redisTemplate.opsForSet().remove("chatRoom" + studyId, username);
 
@@ -93,7 +89,6 @@ public class ChatManager {
   }
 
   public void registerSession(String sessionId, String username) {
-    System.out.println("sessionId: " + sessionId + ", username: " + username);
     sessionToUsername.put(sessionId, username);
     usernameToSessions.putIfAbsent(username, new ArrayList<>());
     usernameToSessions.get(username).add(sessionId);

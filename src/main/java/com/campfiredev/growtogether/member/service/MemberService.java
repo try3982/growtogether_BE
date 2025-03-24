@@ -196,7 +196,7 @@ public class MemberService {
     }
 
 
-    public MemberEntity findByEmail(String email) {
+    public MemberEntity findEmail(String email) {
         return memberRepository.findByEmail(email).orElseThrow(() -> new CustomException(USER_NOT_FOUND));
     }
 
@@ -241,12 +241,13 @@ public class MemberService {
     }
 
     // 이메일 찾기 (마스킹 처리 후 반환)
-    public String findEmail(String email) {
-        MemberEntity member = memberRepository.findByEmail(email)
-                .orElseThrow(() -> new CustomException(ErrorCode.EMAIL_NOT_FOUND));
+    public String findEmailByPhone(String phone) {
+        MemberEntity member = memberRepository.findByPhone(phone)
+                .orElseThrow(() -> new CustomException(ErrorCode.PHONE_NOT_FOUND));
 
         return maskEmail(member.getEmail());
     }
+
 
     // 이메일 마스킹 처리
     private String maskEmail(String email) {

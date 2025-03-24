@@ -1,13 +1,12 @@
 package com.campfiredev.growtogether.member.controller;
 
-import com.campfiredev.growtogether.member.dto.CustomUserDetails;
 import com.campfiredev.growtogether.member.dto.MemberLoginDto;
 import com.campfiredev.growtogether.member.dto.MemberRegisterDto;
 import com.campfiredev.growtogether.member.entity.MemberEntity;
 import com.campfiredev.growtogether.member.service.MemberService;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -49,10 +48,20 @@ public class MemberController {
     }
     // 이메일 찾기 API (사용자 요청 시 마스킹된 이메일 반환)
     @PostMapping("/find-email")
-    public ResponseEntity<?> findEmail(@RequestParam String email) {
-        String maskedEmail = memberService.findEmail(email);
+    public ResponseEntity<?> findEmail(@RequestParam String phone) {
+        String maskedEmail = memberService.findEmailByPhone(phone);
         return ResponseEntity.ok(Map.of("maskedEmail", maskedEmail));
     }
+
+
+    @Operation(summary = "휴대폰 번호로 이메일 찾기",
+            description = "입력한 휴대폰 번호로 등록된 계정을 조회해 이메일을 마스킹 형태로 반환합니다.")
+    @GetMapping("/find-email")
+    public ResponseEntity<String> findEmailByPhone(@RequestParam String phone) {
+        String maskedEmail = memberService.findEmailByPhone(phone);
+        return ResponseEntity.ok(maskedEmail);
+    }
+
 
 
 }

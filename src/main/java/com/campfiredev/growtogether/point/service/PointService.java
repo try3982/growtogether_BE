@@ -1,5 +1,6 @@
 package com.campfiredev.growtogether.point.service;
 
+import com.campfiredev.growtogether.common.annotation.RedissonLock;
 import com.campfiredev.growtogether.exception.custom.CustomException;
 import com.campfiredev.growtogether.exception.response.ErrorCode;
 import com.campfiredev.growtogether.member.entity.MemberEntity;
@@ -21,7 +22,6 @@ import static com.campfiredev.growtogether.exception.response.ErrorCode.INSUFFIC
 
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class PointService {
 
     private final MemberRepository memberRepository;
@@ -30,7 +30,7 @@ public class PointService {
 
     // 포인트 사용
     public void usePoint(Long memberId, int amount) {
-        MemberEntity member = memberRepository.findById(memberId)
+        MemberEntity member = memberRepository.findByIdWithLock(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         if (member.getPoints() < amount) {
