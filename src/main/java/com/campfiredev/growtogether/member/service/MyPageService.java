@@ -66,7 +66,7 @@ public class MyPageService {
                 likedPosts.add(MyPageLikesDto.builder()
                         .postId(like.getBootCampReview().getBootCampId())
                         .title(like.getBootCampReview().getTitle())
-                        .type("부트캠프 리뷰")
+                        .type("부트캠프")
                         .build());
             }
         }
