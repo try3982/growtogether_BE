@@ -39,11 +39,6 @@ public class SseNotiContoller {
     @GetMapping(value = "/subscribe/{userId}",produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter subscribe(@PathVariable Long userId, HttpServletResponse response){
         try {
-            //response.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, "*"); // 모든 오리진 허용
-            //response.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS, "true");
-            //response.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS, "GET, POST, PUT, DELETE, OPTIONS");
-            //response.setHeader(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, "Content-Type");
-            //cors 문제 발생으로 인한 헤더 설정 추가
             return notificationService.subscribe(userId);
         } catch (Exception e) {
             log.error("SSE 구독 중 오류 발생 : {} ", e);
