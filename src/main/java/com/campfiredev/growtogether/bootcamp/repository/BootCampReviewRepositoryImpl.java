@@ -2,6 +2,7 @@ package com.campfiredev.growtogether.bootcamp.repository;
 
 import com.campfiredev.growtogether.bootcamp.entity.*;
 import com.campfiredev.growtogether.bootcamp.strategy.WeightCalculateStrategy;
+import com.campfiredev.growtogether.bootcamp.strategy.WeightStrategy;
 import com.campfiredev.growtogether.bootcamp.type.ProgramCourse;
 import com.campfiredev.growtogether.member.entity.QMemberEntity;
 import com.campfiredev.growtogether.skill.entity.QSkillEntity;
@@ -12,9 +13,6 @@ import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
 
@@ -28,7 +26,7 @@ public class BootCampReviewRepositoryImpl implements BootCampReviewRepositoryCus
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Page<BootCampReview> searchBootCamps(String bootCampName,String title,ProgramCourse programCourse, String skillName, Pageable pageable) {
+    public List<BootCampReview> searchBootCamps(String bootCampName,String title,ProgramCourse programCourse, String skillName,Sort sort) {
 
         QBootCampReview bootCamp = QBootCampReview.bootCampReview;
         QBootCampSkill bootCampSkill = QBootCampSkill.bootCampSkill;
@@ -62,7 +60,7 @@ public class BootCampReviewRepositoryImpl implements BootCampReviewRepositoryCus
             ));
         }
 
-        OrderSpecifier<?> orderSpecifier = getOrderSpecifer(pageable, bootCamp);
+        OrderSpecifier<?> orderSpecifier = getOrderSpecifer(sort, bootCamp);
 
         //  BootCampReview + CommentCount 조회
         List<Tuple> results = queryFactory
@@ -75,12 +73,10 @@ public class BootCampReviewRepositoryImpl implements BootCampReviewRepositoryCus
                 .leftJoin(bootCamp.member, member).fetchJoin()
                 .where(builder)
                 .orderBy(orderSpecifier)
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
                 .fetch();
 
         if (results.isEmpty()) {
-            return new PageImpl<>(Collections.emptyList(), pageable, 0);
+            return Collections.emptyList();
         }
 
         // Tuple을 BootCampReview로 변환
@@ -118,20 +114,22 @@ public class BootCampReviewRepositoryImpl implements BootCampReviewRepositoryCus
                         .fetchOne()
         ).orElse(0L);
 
-        return new PageImpl<>(reviews, pageable, total);
+        return reviews;
     }
 
 
-    private OrderSpecifier<?> getOrderSpecifer(Pageable pageable , QBootCampReview bootCamp){
+    private OrderSpecifier<?> getOrderSpecifer(Sort sort , QBootCampReview bootCamp){
 
-        for(Sort.Order order : pageable.getSort()){
+        WeightCalculateStrategy strategy = new WeightStrategy();
 
-            if("likeCount".equals(order.getProperty())){
-                return bootCamp.likeCount.desc();
+        NumberExpression<Double> weightScore = strategy.calculateWeightExpression(bootCamp);
+
+        for (Sort.Order order : sort) {
+            if ("HOT".equalsIgnoreCase(order.getProperty())) {
+                return weightScore.desc();
             }
         }
-
-        return bootCamp.createdAt.desc();
+        return bootCamp.createdAt.desc(); // 기본 정렬
     }
 
     @Override
