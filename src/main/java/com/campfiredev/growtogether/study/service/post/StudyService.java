@@ -195,5 +195,16 @@ public class StudyService {
 
         return PagedStudyDTO.from(studyPage, studies);
     }
+
+
+
+    @Transactional(readOnly = true)
+    public List<StudyDTO> getMyStudies(Long memberId) {
+        return studyRepository.findByMemberMemberIdAndIsDeletedFalse(memberId)
+                .stream()
+                .map(StudyDTO::fromEntity)
+                .collect(Collectors.toList());
+    }
+
 }
  
