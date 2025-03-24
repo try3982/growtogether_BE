@@ -74,7 +74,7 @@ public class MemberEntity {
   private List<MemberSkillEntity> userSkills;
   //@Column(nullable = false)
   @Setter
-  private Double rating;
+  private Double rating= 5.0;
 
   @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<StudyComment> comments;
