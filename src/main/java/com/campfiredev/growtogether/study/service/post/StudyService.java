@@ -190,7 +190,7 @@ public class StudyService {
     public PagedStudyDTO searchStudies(String title, Pageable pageable) {
         Page<Study> studyPage = studyRepository.searchPostsByTitle(title, pageable);
         List<StudyDTO> studies = studyPage.stream()
-                .map(StudyDTO::fromEntity)
+                .map(this::getStudyDTO)
                 .collect(Collectors.toList());
 
         return PagedStudyDTO.from(studyPage, studies);
