@@ -62,7 +62,7 @@ public class StudyService {
 
         Study study = Study.fromDTO(dto);
 
-        MemberEntity member = memberRepository.findByIdWithLock(memberId).orElseThrow(()->new CustomException(NOT_INVALID_MEMBER));
+        MemberEntity member = memberRepository.findByIdWithLock(memberId).orElseThrow(() -> new CustomException(NOT_INVALID_MEMBER));
 
         study.setAuthor(member);
 
@@ -77,7 +77,7 @@ public class StudyService {
 
         List<MainScheduleDto> list = StudyScheduleDto.formDto(dto.getMainScheduleList());
 
-        scheduleService.createMainSchedule(study,memberId,list);
+        scheduleService.createMainSchedule(study, memberId, list);
 
         List<SkillStudy> skillStudies = skills.stream()
                 .map(skill -> SkillStudy.builder()
@@ -90,6 +90,7 @@ public class StudyService {
 
         return StudyDTO.fromEntity(study);
     }
+
     @Transactional(readOnly = true)
     public PagedStudyDTO getFilteredAndSortedStudies(StudyFilter filter, Pageable pageable) {
         Page<Study> studyPage = studyRepository.findFilteredAndSortedStudies(filter, pageable);
@@ -105,7 +106,7 @@ public class StudyService {
         Study study = studyRepository.findById(studyId)
                 .orElseThrow(() -> new CustomException(STUDY_NOT_FOUND));
 
-        if(Boolean.TRUE.equals(study.getIsDeleted())){
+        if (Boolean.TRUE.equals(study.getIsDeleted())) {
             throw new CustomException(ALREADY_DELETED_STUDY);
         }
 
@@ -139,7 +140,7 @@ public class StudyService {
 
         skillStudyRepository.saveAll(newSkillStudies);
 
-        study.updateFromDto(dto,newSkillStudies);
+        study.updateFromDto(dto, newSkillStudies);
 
         return StudyDTO.fromEntity(study);
     }
@@ -155,7 +156,7 @@ public class StudyService {
     }
 
     private void validateMember(Long memberId, Study study) {
-        if(!study.getMember().getMemberId().equals(memberId)){
+        if (!study.getMember().getMemberId().equals(memberId)) {
             throw new CustomException(NOT_AUTHOR);
         }
     }
@@ -172,7 +173,7 @@ public class StudyService {
 
     @Transactional(readOnly = true)
     public List<StudyDTO> getPopularStudies() {
-        Pageable pageable = PageRequest.of(0,3);
+        Pageable pageable = PageRequest.of(0, 3);
         return studyRepository.findByPopularity(pageable).stream()
                 .map(StudyDTO::fromEntity)
                 .toList();
@@ -192,7 +193,14 @@ public class StudyService {
                 .map(StudyDTO::fromEntity)
                 .collect(Collectors.toList());
 
-        return PagedStudyDTO.from(studyPage,studies);
+        return PagedStudyDTO.from(studyPage, studies);
     }
 
+    @Transactional
+    public List<StudyDTO> getMyStudies(Long memberId) {
+        return studyRepository.findByMemberMemberIdAndIsDeletedFalse(memberId)
+                .stream()
+                .map(StudyDTO::fromEntity)
+                .collect(Collectors.toList());
+    }
 }
