@@ -17,8 +17,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -40,8 +43,15 @@ public class NotificationServiceImpl implements NotificationService {
 
         SseEmitter emitter = createEmitter(userId);
 
+        Map<String,Object> connMessage = new HashMap<>();
+        connMessage.put("type", "connection");
+        connMessage.put("message", "Connected to SSE stream");
+        connMessage.put("userId", userId);
+        connMessage.put("timestamp", LocalDateTime.now().toString());
+
+
         // 클라이언트가 처음 구독할 때 기본 메시지 전송 (연결 안정성 확보)
-        sendToClient(userId, "Connected to SSE stream. [userId=" + userId + "]");
+        sendToClient(userId, connMessage);
 
 
         return emitter;
@@ -116,14 +126,18 @@ public class NotificationServiceImpl implements NotificationService {
         notificationRepository.save(notification);
 
     }
-    @Scheduled(fixedRate = 30_000)
+    @Scheduled(fixedRate = 300_000)
     @Override
     public void sendHeartbeat() {
         List<Long> userIds = emitterRepository.getAllUserIds();
 
         for(Long userId : userIds){
             try{
-                sendToClient(userId,"heartbeat message");
+                sendToClient(userId,Map.of(
+                        "type", "heartbeat",
+                        "message", "heartbeat로 인한 연결 유지",
+                        "timestamp", LocalDateTime.now().toString()
+                ));
             } catch(Exception e){
                 log.error("하트비트 전송 실패: {} ",e.getMessage());
             }
@@ -141,7 +155,7 @@ public class NotificationServiceImpl implements NotificationService {
 
         emitters.forEach(emitter -> {
             try {
-                emitter.send(SseEmitter.event().name("SSE").data(notification).reconnectTime(3000));
+                emitter.send(SseEmitter.event().name("notification").data(notification).reconnectTime(3000));
             } catch (IOException e) {
                 emitter.complete();
                 failEmitterList.add(emitter);
@@ -166,7 +180,7 @@ public class NotificationServiceImpl implements NotificationService {
             try {
                 emitter.send(SseEmitter.event()
                         .id(String.valueOf(id))
-                        .name("SSE Connection")
+                        .name("notification")
                         .data(data));
 
                 log.info("✅ SSE 메시지 전송 완료: {}", data);
