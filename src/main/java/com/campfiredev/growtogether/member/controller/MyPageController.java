@@ -72,8 +72,8 @@ public class MyPageController {
         return ResponseEntity.ok(bookmarks);
     }
 
-    @Operation(summary = "내가 참여 중인 스터디 리스트 조회",
-            description = "참여 중인 스터디 개수와 좋아요한 게시글(스터디 북마크 + 부트캠프 리뷰 좋아요) 개수를 조회합니다.")
+    @Operation(summary = "마이 페이지 정보수정",
+            description = "마이페이지 정보를 수정합니다.")
     @PutMapping("/update-my-Info")
     public ResponseEntity<MyPageUpdateDto> updateMyPageInfo(@AuthenticationPrincipal CustomUserDetails customUserDetails,
                                                             @RequestBody MyPageUpdateDto myPageUpdateDto) {
