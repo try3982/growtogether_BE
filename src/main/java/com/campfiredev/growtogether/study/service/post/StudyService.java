@@ -15,6 +15,7 @@ import com.campfiredev.growtogether.study.dto.schedule.MainScheduleDto;
 import com.campfiredev.growtogether.study.entity.SkillStudy;
 import com.campfiredev.growtogether.study.entity.Study;
 import com.campfiredev.growtogether.study.entity.join.StudyMemberEntity;
+import com.campfiredev.growtogether.study.repository.bookmark.BookmarkRepository;
 import com.campfiredev.growtogether.study.repository.comment.StudyCommentRepository;
 import com.campfiredev.growtogether.study.repository.join.JoinRepository;
 import com.campfiredev.growtogether.study.repository.post.SkillStudyRepository;
@@ -49,6 +50,8 @@ public class StudyService {
     private final StudyCommentRepository studyCommentRepository;
 
     private final JoinRepository joinRepository;
+
+    private final BookmarkRepository bookmarkRepository;
 
     private final ScheduleService scheduleService;
 
@@ -178,6 +181,7 @@ public class StudyService {
     private StudyDTO getStudyDTO(Study study) {
         StudyDTO studyDto = StudyDTO.fromEntity(study);
         studyDto.setCommentCount(studyCommentRepository.countAllByStudyId(study.getStudyId()));
+        studyDto.setLikeCount(bookmarkRepository.countAllByStudyStudyId(study.getStudyId()));
         return studyDto;
     }
 

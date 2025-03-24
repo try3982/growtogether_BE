@@ -61,6 +61,9 @@ public class StudyDTO {
     @Setter
     private Integer commentCount;
 
+    @Setter
+    private Integer likeCount;
+
     private LocalDateTime createdAt;
 
     public static StudyDTO fromEntity(Study study) {
