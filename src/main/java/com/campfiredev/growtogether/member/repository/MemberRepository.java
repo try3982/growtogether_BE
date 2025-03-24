@@ -32,4 +32,5 @@ public interface MemberRepository extends JpaRepository<MemberEntity, Long> {
     Optional<MemberEntity> findByIdWithLock(@Param("memberId") Long memberId);
 
     Optional<MemberEntity> findById(Long memberId);
+    Optional<MemberEntity> findByPhone(String phone);
 }
