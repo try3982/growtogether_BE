@@ -4,8 +4,12 @@ import static com.campfiredev.growtogether.study.type.VoteStatus.PROGRESS;
 
 import com.campfiredev.growtogether.study.dto.schedule.ScheduleUpdateDto;
 import com.campfiredev.growtogether.study.entity.join.StudyMemberEntity;
+import com.campfiredev.growtogether.study.entity.schedule.ScheduleEntity;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import java.time.LocalDateTime;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,7 +24,9 @@ public class ChangeVoteEntity extends VoteEntity {
 
   //일정 관리 id
   //추가 예정
-  private Long scheduleId;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "schedule_id")
+  private ScheduleEntity schedule;
 
   private String content;
 
@@ -31,14 +37,14 @@ public class ChangeVoteEntity extends VoteEntity {
   private Integer total;
 
   public static ChangeVoteEntity create(String title, StudyMemberEntity studyMemberEntity,
-     ScheduleUpdateDto scheduleUpdateDto, Long scheduleId) {
+     ScheduleUpdateDto scheduleUpdateDto, ScheduleEntity scheduleEntity) {
 
     LocalDateTime start = LocalDateTime.of(scheduleUpdateDto.getStartDate(),
         scheduleUpdateDto.getStartTime());
 
     return ChangeVoteEntity.builder()
         .title(title)
-        .scheduleId(scheduleId)
+        .schedule(scheduleEntity)
         .studyMember(studyMemberEntity)
         .study(studyMemberEntity.getStudy())
         .status(PROGRESS)

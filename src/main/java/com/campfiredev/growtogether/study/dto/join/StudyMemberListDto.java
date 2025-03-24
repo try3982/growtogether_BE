@@ -17,11 +17,14 @@ public class StudyMemberListDto {
 
   private Long studyMemberId;
 
+  private String profileImageUrl;
+
   public static StudyMemberListDto fromEntity(StudyMemberEntity studyMemberEntity){
 
     return StudyMemberListDto.builder()
         .nickname(studyMemberEntity.getMember().getNickName())
         .studyMemberId(studyMemberEntity.getId())
+        .profileImageUrl(studyMemberEntity.getMember().getProfileImageUrl())
         .build();
   }
 }

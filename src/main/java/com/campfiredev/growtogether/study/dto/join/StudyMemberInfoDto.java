@@ -13,4 +13,5 @@ public class StudyMemberInfoDto {
 
   private String nickName;
   private Long studyMemberId;
+  private String profileImageUrl;
 }

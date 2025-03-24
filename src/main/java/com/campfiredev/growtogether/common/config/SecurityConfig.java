@@ -93,7 +93,7 @@ public class SecurityConfig {
       //  configuration.setAllowedOriginPatterns(List.of("https://jiangxy.github.io", "http://localhost:*"));
        // configuration.setAllowedOriginPatterns(List.of("https://jiangxy.github.io", "http://localhost:*"));
         //onfiguration.setAllowedOrigins(List.of("https://jiangxy.github.io","http://localhost:5173"));
-        configuration.setAllowedOriginPatterns(List.of("https://jiangxy.github.io", "http://localhost:*"));
+        configuration.setAllowedOriginPatterns(List.of("*"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setExposedHeaders(List.of("Authorization", "Access-Token-Expire-Time"));
