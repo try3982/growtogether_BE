@@ -93,7 +93,7 @@ public class ScheduleService {
 
     checkMainConflict(scheduleEntity.getStudy(), start, end, scheduleEntity.getId());
 
-    if (validateCreateVote(memberId, scheduleId, updateDto, scheduleEntity, start, end)) {
+    if (validateCreateVote(memberId, updateDto, scheduleEntity, start, end)) {
       return;
     }
 
@@ -187,13 +187,13 @@ public class ScheduleService {
     }
   }
 
-  private boolean validateCreateVote(Long memberId, Long scheduleId,
+  private boolean validateCreateVote(Long memberId,
       ScheduleUpdateDto scheduleUpdateDto,
       ScheduleEntity scheduleEntity, LocalDateTime start, LocalDateTime end) {
 
     if (MAIN.equals(scheduleEntity.getType()) && (!start.equals(scheduleEntity.getStart()))
         || !end.equals(scheduleEntity.getEnd())) {
-      voteService.createChangeVote(memberId, scheduleEntity.getStudy().getStudyId(), scheduleId,
+      voteService.createChangeVote(memberId, scheduleEntity.getStudy().getStudyId(), scheduleEntity,
           scheduleUpdateDto);
       return true;
     }

@@ -162,7 +162,7 @@ public class JoinService {
         .orElseThrow(() -> new CustomException(NOT_A_STUDY_MEMBER));
 
     return new StudyMemberInfoDto(studyMemberEntity.getMember().getNickName(),
-        studyMemberEntity.getId());
+        studyMemberEntity.getId(), studyMemberEntity.getMember().getProfileImageUrl());
   }
 
   /**

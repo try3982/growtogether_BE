@@ -8,7 +8,10 @@ import static com.campfiredev.growtogether.study.type.VoteStatus.PROGRESS;
 
 import com.campfiredev.growtogether.exception.custom.CustomException;
 import com.campfiredev.growtogether.exception.response.ErrorCode;
+import com.campfiredev.growtogether.study.dto.vote.ChangeVoteDetailsDto;
+import com.campfiredev.growtogether.study.dto.vote.KickVoteDetailsDto;
 import com.campfiredev.growtogether.study.entity.join.StudyMemberEntity;
+import com.campfiredev.growtogether.study.entity.schedule.ScheduleEntity;
 import com.campfiredev.growtogether.study.repository.join.JoinRepository;
 import com.campfiredev.growtogether.study.dto.schedule.ScheduleUpdateDto;
 import com.campfiredev.growtogether.study.dto.vote.VotingDto;
@@ -68,21 +71,21 @@ public class VoteService {
 
     settingVote(studyId, save.getId());
 
-    scheduleJob(KickVoteJob.class, "job"+save.getId(), "job", 3, save.getId());
+    scheduleJob(KickVoteJob.class, "job"+save.getId(), "job", 10, save.getId());
   }
 
-  public void createChangeVote(Long memberId, Long studyId, Long scheduleId,
+  public void createChangeVote(Long memberId, Long studyId, ScheduleEntity scheduleEntity,
       ScheduleUpdateDto scheduleUpdateDto) {
     StudyMemberEntity studyMemberEntity = getStudyMemberEntity(memberId, studyId);
 
-    String title = scheduleId + "번 스케줄 시간 변경 투표입니다.";
+    String title = scheduleEntity.getTitle() + " 스케줄 시간 변경 투표입니다.";
 
     ChangeVoteEntity save = changeVoteRepository.save(
-        ChangeVoteEntity.create(title, studyMemberEntity, scheduleUpdateDto, scheduleId));
+        ChangeVoteEntity.create(title, studyMemberEntity, scheduleUpdateDto, scheduleEntity));
 
     settingVote(studyId, save.getId());
 
-    scheduleJob(ChangeVoteJob.class, "job"+save.getId(), "job", 3, save.getId());
+    scheduleJob(ChangeVoteJob.class, "job"+save.getId(), "job", 10, save.getId());
   }
 
   private void scheduleJob(Class<? extends Job> jobClass, String jobName, String jobGroup,
@@ -194,4 +197,21 @@ public class VoteService {
         .map(v -> VoteDto.fromEntity(v))
         .collect(Collectors.toList());
   }
+
+  public VoteDto getDetailVote(Long voteId){
+    VoteEntity voteEntity = voteRepository.findById(voteId)
+        .orElseThrow(() -> new CustomException(VOTE_NOT_FOUND));
+
+    if (voteEntity instanceof KickVoteEntity kick) {
+      return KickVoteDetailsDto.fromEntity(kick);
+    } else if (voteEntity instanceof ChangeVoteEntity change) {
+      return ChangeVoteDetailsDto.fromEntity(change);
+    } else {
+      throw new IllegalArgumentException("Unknown vote type");
+    }
+
+
+  }
+
+
 }
