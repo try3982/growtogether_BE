@@ -195,4 +195,5 @@ public class StudyService {
 
         return PagedStudyDTO.from(studyPage, studies);
     }
+}
  
