@@ -1,26 +1,27 @@
 package com.campfiredev.growtogether.chat;
 
-import static com.campfiredev.growtogether.study.entity.StudyStatus.*;
-import static com.campfiredev.growtogether.study.type.StudyMemberType.*;
-
 import com.campfiredev.growtogether.chat.dto.ChatMessageDto;
 import com.campfiredev.growtogether.chat.entity.ChatEntity;
 import com.campfiredev.growtogether.chat.repository.ChatRepository;
 import com.campfiredev.growtogether.study.entity.Study;
 import com.campfiredev.growtogether.study.entity.join.StudyMemberEntity;
-import com.campfiredev.growtogether.study.repository.StudyRepository;
 import com.campfiredev.growtogether.study.repository.join.JoinRepository;
+import com.campfiredev.growtogether.study.repository.post.StudyRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import static com.campfiredev.growtogether.study.entity.StudyStatus.PROGRESS;
+import static com.campfiredev.growtogether.study.type.StudyMemberType.*;
 
 @Slf4j
 @Component

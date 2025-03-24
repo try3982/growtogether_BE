@@ -8,8 +8,8 @@
 //import com.campfiredev.growtogether.study.dto.post.StudyDTO;
 //import com.campfiredev.growtogether.study.entity.SkillStudy;
 //import com.campfiredev.growtogether.study.entity.Study;
-//import com.campfiredev.growtogether.study.repository.SkillStudyRepository;
-//import com.campfiredev.growtogether.study.repository.StudyRepository;
+//import com.campfiredev.growtogether.study.repository.post.SkillStudyRepository;
+//import com.campfiredev.growtogether.study.repository.post.StudyRepository;
 //import org.junit.jupiter.api.Test;
 //import org.junit.jupiter.api.extension.ExtendWith;
 //import org.mockito.InjectMocks;
