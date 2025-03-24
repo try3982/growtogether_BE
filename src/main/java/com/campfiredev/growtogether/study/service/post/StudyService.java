@@ -185,5 +185,4 @@ public class StudyService {
         study.updateViewCount();
         return StudyDTO.fromEntity(study);
     }
-
 }
