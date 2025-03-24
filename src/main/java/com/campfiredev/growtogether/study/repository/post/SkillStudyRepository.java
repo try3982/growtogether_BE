@@ -1,4 +1,4 @@
-package com.campfiredev.growtogether.study.repository;
+package com.campfiredev.growtogether.study.repository.post;
 
 import com.campfiredev.growtogether.study.entity.SkillStudy;
 import org.springframework.data.jpa.repository.JpaRepository;

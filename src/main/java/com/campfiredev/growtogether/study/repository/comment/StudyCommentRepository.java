@@ -1,4 +1,4 @@
-package com.campfiredev.growtogether.study.repository;
+package com.campfiredev.growtogether.study.repository.comment;
 
 import com.campfiredev.growtogether.study.entity.StudyComment;
 import org.springframework.data.domain.Page;

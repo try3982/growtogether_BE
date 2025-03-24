@@ -9,15 +9,17 @@ import com.campfiredev.growtogether.skill.entity.SkillEntity;
 import com.campfiredev.growtogether.skill.repository.SkillRepository;
 import com.campfiredev.growtogether.study.dto.post.PagedStudyDTO;
 import com.campfiredev.growtogether.study.dto.post.StudyDTO;
+import com.campfiredev.growtogether.study.dto.post.StudyFilter;
 import com.campfiredev.growtogether.study.dto.post.StudyScheduleDto;
 import com.campfiredev.growtogether.study.dto.schedule.MainScheduleDto;
 import com.campfiredev.growtogether.study.entity.SkillStudy;
 import com.campfiredev.growtogether.study.entity.Study;
 import com.campfiredev.growtogether.study.entity.join.StudyMemberEntity;
-import com.campfiredev.growtogether.study.repository.SkillStudyRepository;
-import com.campfiredev.growtogether.study.repository.StudyCommentRepository;
-import com.campfiredev.growtogether.study.repository.StudyRepository;
+import com.campfiredev.growtogether.study.repository.bookmark.BookmarkRepository;
+import com.campfiredev.growtogether.study.repository.comment.StudyCommentRepository;
 import com.campfiredev.growtogether.study.repository.join.JoinRepository;
+import com.campfiredev.growtogether.study.repository.post.SkillStudyRepository;
+import com.campfiredev.growtogether.study.repository.post.StudyRepository;
 import com.campfiredev.growtogether.study.service.schedule.ScheduleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -49,6 +51,8 @@ public class StudyService {
 
     private final JoinRepository joinRepository;
 
+    private final BookmarkRepository bookmarkRepository;
+
     private final ScheduleService scheduleService;
 
     private final PointService pointService;
@@ -58,7 +62,7 @@ public class StudyService {
 
         Study study = Study.fromDTO(dto);
 
-        MemberEntity member = memberRepository.findByIdWithLock(memberId).orElseThrow(() -> new CustomException(NOT_INVALID_MEMBER));
+        MemberEntity member = memberRepository.findByIdWithLock(memberId).orElseThrow(()->new CustomException(NOT_INVALID_MEMBER));
 
         study.setAuthor(member);
 
@@ -73,7 +77,7 @@ public class StudyService {
 
         List<MainScheduleDto> list = StudyScheduleDto.formDto(dto.getMainScheduleList());
 
-        scheduleService.createMainSchedule(study, memberId, list);
+        scheduleService.createMainSchedule(study,memberId,list);
 
         List<SkillStudy> skillStudies = skills.stream()
                 .map(skill -> SkillStudy.builder()
@@ -86,27 +90,27 @@ public class StudyService {
 
         return StudyDTO.fromEntity(study);
     }
-
     @Transactional(readOnly = true)
-    public PagedStudyDTO getAllStudies(Pageable pageable) {
-        Page<Study> studyPage = studyRepository.findByIsDeletedFalseOrderByCreatedAtDesc(pageable);
+    public PagedStudyDTO getFilteredAndSortedStudies(StudyFilter filter, Pageable pageable) {
+        Page<Study> studyPage = studyRepository.findFilteredAndSortedStudies(filter, pageable);
 
         List<StudyDTO> studyDtoList = studyPage.getContent().stream()
-                .map(study -> {
-                    StudyDTO studyDTO = StudyDTO.fromEntity(study);
-                    studyDTO.setCommentCount(studyCommentRepository.countAllByStudyId(study.getStudyId()));
-                    return studyDTO;
-                }).toList();
+                .map(this::getStudyDTO)
+                .toList();
 
         return PagedStudyDTO.from(studyPage, studyDtoList);
     }
 
-    @Transactional
-    public List<StudyDTO> getMyStudies(Long memberId) {
-        return studyRepository.findByMemberMemberIdAndIsDeletedFalse(memberId)
-                .stream()
-                .map(StudyDTO::fromEntity)
-                .collect(Collectors.toList());
+    public StudyDTO getStudyById(Long studyId) {
+        Study study = studyRepository.findById(studyId)
+                .orElseThrow(() -> new CustomException(STUDY_NOT_FOUND));
+
+        if(Boolean.TRUE.equals(study.getIsDeleted())){
+            throw new CustomException(ALREADY_DELETED_STUDY);
+        }
+
+        study.updateViewCount();
+        return getStudyDTO(study);
     }
 
     public StudyDTO updateStudy(Long studyId, StudyDTO dto, Long memberId) {
@@ -135,7 +139,7 @@ public class StudyService {
 
         skillStudyRepository.saveAll(newSkillStudies);
 
-        study.updateFromDto(dto, newSkillStudies);
+        study.updateFromDto(dto,newSkillStudies);
 
         return StudyDTO.fromEntity(study);
     }
@@ -151,7 +155,7 @@ public class StudyService {
     }
 
     private void validateMember(Long memberId, Study study) {
-        if (!study.getMember().getMemberId().equals(memberId)) {
+        if(!study.getMember().getMemberId().equals(memberId)){
             throw new CustomException(NOT_AUTHOR);
         }
     }
@@ -168,22 +172,27 @@ public class StudyService {
 
     @Transactional(readOnly = true)
     public List<StudyDTO> getPopularStudies() {
-        Pageable pageable = PageRequest.of(0, 3);
+        Pageable pageable = PageRequest.of(0,3);
         return studyRepository.findByPopularity(pageable).stream()
                 .map(StudyDTO::fromEntity)
                 .toList();
     }
 
-    public StudyDTO getStudyById(Long studyId) {
-        Study study = studyRepository.findById(studyId)
-                .orElseThrow(() -> new CustomException(STUDY_NOT_FOUND));
+    private StudyDTO getStudyDTO(Study study) {
+        StudyDTO studyDto = StudyDTO.fromEntity(study);
+        studyDto.setCommentCount(studyCommentRepository.countAllByStudyId(study.getStudyId()));
+        studyDto.setLikeCount(bookmarkRepository.countAllByStudyStudyId(study.getStudyId()));
+        return studyDto;
+    }
 
-        if (Boolean.TRUE.equals(study.getIsDeleted())) {
-            throw new CustomException(ALREADY_DELETED_STUDY);
-        }
+    @Transactional(readOnly = true)
+    public PagedStudyDTO searchStudies(String title, Pageable pageable) {
+        Page<Study> studyPage = studyRepository.searchPostsByTitle(title, pageable);
+        List<StudyDTO> studies = studyPage.stream()
+                .map(StudyDTO::fromEntity)
+                .collect(Collectors.toList());
 
-        study.updateViewCount();
-        return StudyDTO.fromEntity(study);
+        return PagedStudyDTO.from(studyPage,studies);
     }
 
 }
