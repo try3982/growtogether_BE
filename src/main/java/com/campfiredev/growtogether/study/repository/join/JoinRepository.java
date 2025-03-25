@@ -22,9 +22,9 @@ public interface JoinRepository extends JpaRepository<StudyMemberEntity, Long> {
       @Param("studyMemberId") Long studyMemberId);
 
   @Query("SELECT sm FROM StudyMemberEntity sm " +
-      "JOIN FETCH sm.member u " +
-      "JOIN FETCH u.userSkills us " +
-      "JOIN FETCH us.skill sk " +
+      "LEFT JOIN FETCH sm.member u " +
+      "LEFT JOIN FETCH u.userSkills us " +
+      "LEFT JOIN FETCH us.skill sk " +
       "WHERE sm.id = :studyMemberId")
   Optional<StudyMemberEntity> findWithSkillsById(
       @Param("studyMemberId") Long studyMemberId);

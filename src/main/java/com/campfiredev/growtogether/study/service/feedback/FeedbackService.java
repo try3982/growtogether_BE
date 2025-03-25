@@ -1,6 +1,7 @@
 package com.campfiredev.growtogether.study.service.feedback;
 
 import static com.campfiredev.growtogether.exception.response.ErrorCode.*;
+import static com.campfiredev.growtogether.study.entity.StudyStatus.COMPLETE;
 import static com.campfiredev.growtogether.study.entity.StudyStatus.PROGRESS;
 import static com.campfiredev.growtogether.study.type.StudyMemberType.LEADER;
 import static com.campfiredev.growtogether.study.type.StudyMemberType.NORMAL;
@@ -87,7 +88,7 @@ public class FeedbackService {
   }
 
   private void validationFeedback(StudyMemberEntity studyMemberEntity) {
-    if(PROGRESS.equals(studyMemberEntity.getStatus())){
+    if(!COMPLETE.equals(studyMemberEntity.getStudy().getStudyStatus())){
       throw new CustomException(INVALID_FEEDBACK_PERIOD);
     }
 

@@ -45,6 +45,7 @@ public class MyPageService {
 
         return MyPageInfoDto.builder()
                 .email(member.getEmail())
+                .phone(member.getPhone())
                 .nickName(member.getNickName())
                 .profileImageUrl(member.getProfileImageUrl())
                 .points(member.getPoints())
@@ -65,7 +66,7 @@ public class MyPageService {
                 likedPosts.add(MyPageLikesDto.builder()
                         .postId(like.getBootCampReview().getBootCampId())
                         .title(like.getBootCampReview().getTitle())
-                        .type("부트캠프 리뷰")
+                        .type("Bootcamp")
                         .build());
             }
         }
@@ -95,8 +96,8 @@ public class MyPageService {
         member.setGithubUrl(myPageInfoDto.getGithubUrl());
         member.setPhone(myPageInfoDto.getPhone());
 
-        member.getUserSkills().clear();
-        member.getUserSkills().addAll(myPageInfoDto.getSkills());
+//        member.getUserSkills().clear();
+//        member.getUserSkills().addAll(myPageInfoDto.getSkills());
 
         return myPageInfoDto;
     }

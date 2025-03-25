@@ -83,6 +83,7 @@ public class MemberService {
                 .password(passwordEncoder.encode(request.getPassword()))
                 .githubUrl(request.getGithubUrl())
                 .profileImageUrl(profileImageUrl)
+                .rating(5.0)
                 .build());
 
         // 선택한 기술 스택 저장
