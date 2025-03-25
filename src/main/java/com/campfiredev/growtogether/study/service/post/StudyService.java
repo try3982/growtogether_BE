@@ -177,6 +177,7 @@ public class StudyService {
         return studyRepository.findByPopularity(pageable).stream()
                 .map(StudyDTO::fromEntity)
                 .toList();
+
     }
 
     private StudyDTO getStudyDTO(Study study) {
