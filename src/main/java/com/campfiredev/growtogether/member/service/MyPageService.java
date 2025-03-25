@@ -95,8 +95,8 @@ public class MyPageService {
         member.setGithubUrl(myPageInfoDto.getGithubUrl());
         member.setPhone(myPageInfoDto.getPhone());
 
-        member.getUserSkills().clear();
-        member.getUserSkills().addAll(myPageInfoDto.getSkills());
+//        member.getUserSkills().clear();
+//        member.getUserSkills().addAll(myPageInfoDto.getSkills());
 
         return myPageInfoDto;
     }
