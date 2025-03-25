@@ -14,5 +14,7 @@ public class MyPageLikesDto {
     private Integer people; // 총 모집예정 인원
     private List<String> skillName; // 기술스택
     private  String status;
+    private List<String> bootcampSkillNames;
+    private String programCourse;
 
 }
