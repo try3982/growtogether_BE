@@ -84,7 +84,7 @@ public class MyPageService {
                 likedPosts.add(MyPageLikesDto.builder()
                         .postId(study.getStudyId())
                         .title(study.getTitle())
-                        .type("스터디")
+                        .type(study.getType())
                         .people(study.getMaxParticipant())
                         .skillName(skillNames)
                         .status(study.getStudyStatus().name())
