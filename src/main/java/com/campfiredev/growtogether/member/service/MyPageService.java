@@ -45,6 +45,7 @@ public class MyPageService {
 
         return MyPageInfoDto.builder()
                 .email(member.getEmail())
+                .phone(member.getPhone())
                 .nickName(member.getNickName())
                 .profileImageUrl(member.getProfileImageUrl())
                 .points(member.getPoints())
