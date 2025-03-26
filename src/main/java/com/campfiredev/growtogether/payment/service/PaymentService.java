@@ -56,8 +56,6 @@ public class PaymentService {
                 new HttpEntity<>(parameters, getHeaders()),
                 ReadyResponse.class).getBody();
     }
-
-
     // 카카오페이 결제 승인
     // 사용자가 결제 수단을 선택하고 비밀번호를 입력해 결제 인증을 완료한 뒤, 최종적으로 결제 완료 처리를 하는 단계
     @Transactional
