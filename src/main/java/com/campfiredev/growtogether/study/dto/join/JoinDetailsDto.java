@@ -22,13 +22,16 @@ public class JoinDetailsDto {
 
   private String content;
 
-  private double points;
+  /**
+   *  points -> rating으로 변경
+   */
+  private double rating;
 
   public static JoinDetailsDto from(StudyMemberEntity studyMemberEntity, String content) {
     return JoinDetailsDto.builder()
         .studyMemberId(studyMemberEntity.getId())
         .nickname(studyMemberEntity.getMember().getNickName())
-        .points(studyMemberEntity.getMember().getPoints())
+        .rating(studyMemberEntity.getMember().getRating())
         .content(content)
         .skillNames(studyMemberEntity.getMember().getUserSkills().stream()
             .map(skill -> skill.getSkill().getSkillName())
