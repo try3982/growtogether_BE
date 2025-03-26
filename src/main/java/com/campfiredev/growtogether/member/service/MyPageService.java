@@ -81,7 +81,6 @@ public class MyPageService {
                         .build());
             }
         }
-
         // 2. 스터디 북마크 리스트
         List<Bookmark> bookmarks = bookmarkRepository.findByMember_MemberId(memberId);
         for (Bookmark bookmark : bookmarks) {

@@ -7,13 +7,14 @@ import com.campfiredev.growtogether.member.dto.KakaoUserDto;
 import com.campfiredev.growtogether.member.dto.MemberLoginDto;
 import com.campfiredev.growtogether.member.dto.MemberRegisterDto;
 import com.campfiredev.growtogether.member.entity.MemberEntity;
+import com.campfiredev.growtogether.member.entity.MemberSkillEntity;
 import com.campfiredev.growtogether.member.repository.MemberRepository;
 import com.campfiredev.growtogether.member.util.JwtUtil;
 import com.campfiredev.growtogether.point.service.PointService;
 import com.campfiredev.growtogether.skill.entity.SkillEntity;
 import com.campfiredev.growtogether.skill.repository.SkillRepository;
-import com.campfiredev.growtogether.study.repository.post.StudyRepository;
 import com.campfiredev.growtogether.study.repository.join.JoinRepository;
+import com.campfiredev.growtogether.study.repository.post.StudyRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -25,6 +26,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import static com.campfiredev.growtogether.exception.response.ErrorCode.*;
 
@@ -88,10 +90,13 @@ public class MemberService {
 
         // 선택한 기술 스택 저장
         if (request.getSkills() != null && !request.getSkills().isEmpty()) {
-            List<SkillEntity> skills = skillRepository.findAllById(request.getSkills());
-            for (SkillEntity skill : skills) {
-                //       skillRepository.save(new SkillEntity(user, skill));
-            }
+            List<SkillEntity> skillEntities = skillRepository.findBySkillNameIn(request.getSkills());
+
+            List<MemberSkillEntity> memberSkills = skillEntities.stream()
+                    .map(skill -> new MemberSkillEntity(member, skill))
+                    .collect(Collectors.toList());
+
+            member.setUserSkills(memberSkills);
         }
 
         return member;
