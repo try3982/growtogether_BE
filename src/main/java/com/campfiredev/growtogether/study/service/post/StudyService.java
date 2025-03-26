@@ -73,7 +73,7 @@ public class StudyService {
 
         joinRepository.save(studyMemberEntity);
 
-        pointService.usePoint(memberId, savedStudy.getStudyCount() * 30);
+        pointService.usePoint(memberId, savedStudy.getStudyCount() * 5);
 
         List<MainScheduleDto> list = StudyScheduleDto.formDto(dto.getMainScheduleList());
 
