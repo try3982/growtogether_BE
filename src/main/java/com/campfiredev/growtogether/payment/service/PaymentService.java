@@ -47,7 +47,7 @@ public class PaymentService {
         parameters.put("quantity", "1");                                                // 상품 수량
         parameters.put("total_amount", String.valueOf(paymentOrder.totalPrice()));      // 상품 총액
         parameters.put("tax_free_amount", "0");                                         // 상품 비과세 금액
-        parameters.put("approval_url", "http://localhost:8080/payment/approve");        // 결제 성공 시 URL
+        parameters.put("approval_url", " http://localhost:5173/payment/approve");        // 결제 성공 시 URL
         parameters.put("cancel_url", "http://localhost:8080/payment/cancel");           // 결제 취소 시 URL
         parameters.put("fail_url", "http://localhost:8080//payment/fail");              // 결제 실패 시 URL
 
