@@ -26,22 +26,37 @@ public class PointTransactionController {
 
     // 포인트 사용 API
     @PostMapping("/use")
-    public ResponseEntity<String> usePoint(@RequestParam Long memberId, @RequestParam int amount) {
+    public ResponseEntity<String> usePoint(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestParam int amount) {
+
+        Long memberId = userDetails.getMemberId();
         pointService.usePoint(memberId, amount);
         return ResponseEntity.ok("포인트 사용 성공");
     }
 
+
     // 포인트 적립 API
     @PostMapping("/add")
-    public ResponseEntity<String> addPoint(@RequestParam Long memberId, @RequestParam int amount) {
+    public ResponseEntity<String> addPoint(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestParam int amount) {
+
+        Long memberId = userDetails.getMemberId();
         pointService.addPoint(memberId, amount, PointTransaction.TransactionType.REWARD);
         return ResponseEntity.ok("포인트 적립 성공");
     }
 
+
     //  포인트 충전 API
     @PostMapping("/charge")
-    public ResponseEntity<String> chargePoint(@RequestParam Long memberId, @RequestParam int amount) {
+    public ResponseEntity<String> chargePoint(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestParam int amount) {
+
+        Long memberId = userDetails.getMemberId();
         pointService.addPoint(memberId, amount, PointTransaction.TransactionType.CHARGE);
         return ResponseEntity.ok("포인트 충전 성공");
     }
+
 }
