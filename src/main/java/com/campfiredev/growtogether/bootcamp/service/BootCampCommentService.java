@@ -19,7 +19,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -68,8 +67,9 @@ public class BootCampCommentService {
                 .build();
 
         bootCampCommentRepository.save(comment);
-
-        String reviewUrl = ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/bootcamp/comments/{id}").buildAndExpand(review.getBootCampId()).toUriString();
+        String url = "https://www.growtogether.site/bootcamp/";
+        String reviewUrl; //= ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/bootcamp/comments/{id}").buildAndExpand(review.getBootCampId()).toUriString();
+        reviewUrl = url + review.getBootCampId();
         // 추후에 수정 예정
         if(parentComment == null){
             notificationService.sendNotification(review.getMember(),"[부트캠프]"+review.getTitle() +" 새로운 답글이 달렸습니다.", reviewUrl , NotiType.BOOTCAMP);
