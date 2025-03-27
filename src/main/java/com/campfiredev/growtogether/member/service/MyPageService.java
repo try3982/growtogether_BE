@@ -1,5 +1,6 @@
 package com.campfiredev.growtogether.member.service;
 
+import com.campfiredev.growtogether.bootcamp.entity.BootCampReview;
 import com.campfiredev.growtogether.bootcamp.entity.ReviewLike;
 import com.campfiredev.growtogether.bootcamp.repository.ReviewLikeRepository;
 import com.campfiredev.growtogether.exception.custom.CustomException;
@@ -11,6 +12,7 @@ import com.campfiredev.growtogether.member.entity.MemberEntity;
 import com.campfiredev.growtogether.member.repository.MemberRepository;
 import com.campfiredev.growtogether.skill.repository.SkillRepository;
 import com.campfiredev.growtogether.study.entity.Bookmark;
+import com.campfiredev.growtogether.study.entity.Study;
 import com.campfiredev.growtogether.study.repository.bookmark.BookmarkRepository;
 import com.campfiredev.growtogether.study.repository.post.StudyRepository;
 import lombok.RequiredArgsConstructor;
@@ -59,32 +61,49 @@ public class MyPageService {
     public List<MyPageLikesDto> getMyLikedPosts(Long memberId) {
         List<MyPageLikesDto> likedPosts = new ArrayList<>();
 
-        // 1. 찜한 부트캠프 후기 조회
+        // 1. 부트캠프 후기 좋아요 리스트
         List<ReviewLike> bootcampLikes = reviewLikeRepository.findByMemberMemberId(memberId);
         for (ReviewLike like : bootcampLikes) {
             if (like != null && like.getBootCampReview() != null) {
+                BootCampReview review = like.getBootCampReview();
+
+                // 스킬 이름 목록 추출
+                List<String> skillNames = review.getBootCampSkills().stream()
+                        .map(bs -> bs.getSkill().getSkillName())
+                        .toList();
+
                 likedPosts.add(MyPageLikesDto.builder()
-                        .postId(like.getBootCampReview().getBootCampId())
-                        .title(like.getBootCampReview().getTitle())
-                        .type("Bootcamp")
+                        .postId(review.getBootCampId())
+                        .title(review.getTitle())
+                        .type("BootCamp")
+                        .bootcampSkillNames(skillNames)
+                        .programCourse(review.getProgramCourse().name())
                         .build());
             }
         }
-
-        // 2. 북마크한 스터디 조회
+        // 2. 스터디 북마크 리스트
         List<Bookmark> bookmarks = bookmarkRepository.findByMember_MemberId(memberId);
         for (Bookmark bookmark : bookmarks) {
-            if (bookmark != null && bookmark.getStudy() != null) {
+            Study study = bookmark.getStudy();
+            if (study != null) {
+                List<String> skillNames = study.getSkillStudies().stream()
+                        .map(s -> s.getSkill().getSkillName())
+                        .toList();
+
                 likedPosts.add(MyPageLikesDto.builder()
-                        .postId(bookmark.getStudy().getStudyId())
-                        .title(bookmark.getStudy().getTitle())
-                        .type("스터디")
+                        .postId(study.getStudyId())
+                        .title(study.getTitle())
+                        .type(study.getType())
+                        .people(study.getMaxParticipant())
+                        .skillName(skillNames)
+                        .status(study.getStudyStatus().name())
                         .build());
             }
         }
 
         return likedPosts;
     }
+
 
     @Transactional
     public MyPageUpdateDto updateMyPageInfo(Long memberId, MyPageUpdateDto myPageInfoDto) {

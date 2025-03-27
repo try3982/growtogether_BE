@@ -39,5 +39,7 @@ public class MemberRegisterDto {
     // 선택 입력 사항 (null 허용)
     private String githubUrl;
     private String profileImageUrl;
-    private List<Long> skills;  // 선택한 기술 스택 ID 리스트
+    private List<String> skills;    // 선택한 기술 스택 ID 리스트
+
+
 }

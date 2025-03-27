@@ -7,13 +7,14 @@ import com.campfiredev.growtogether.member.dto.KakaoUserDto;
 import com.campfiredev.growtogether.member.dto.MemberLoginDto;
 import com.campfiredev.growtogether.member.dto.MemberRegisterDto;
 import com.campfiredev.growtogether.member.entity.MemberEntity;
+import com.campfiredev.growtogether.member.entity.MemberSkillEntity;
 import com.campfiredev.growtogether.member.repository.MemberRepository;
 import com.campfiredev.growtogether.member.util.JwtUtil;
 import com.campfiredev.growtogether.point.service.PointService;
 import com.campfiredev.growtogether.skill.entity.SkillEntity;
 import com.campfiredev.growtogether.skill.repository.SkillRepository;
-import com.campfiredev.growtogether.study.repository.post.StudyRepository;
 import com.campfiredev.growtogether.study.repository.join.JoinRepository;
+import com.campfiredev.growtogether.study.repository.post.StudyRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -25,6 +26,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import static com.campfiredev.growtogether.exception.response.ErrorCode.*;
 
@@ -88,10 +90,13 @@ public class MemberService {
 
         // 선택한 기술 스택 저장
         if (request.getSkills() != null && !request.getSkills().isEmpty()) {
-            List<SkillEntity> skills = skillRepository.findAllById(request.getSkills());
-            for (SkillEntity skill : skills) {
-                //       skillRepository.save(new SkillEntity(user, skill));
-            }
+            List<SkillEntity> skillEntities = skillRepository.findBySkillNameIn(request.getSkills());
+
+            List<MemberSkillEntity> memberSkills = skillEntities.stream()
+                    .map(skill -> new MemberSkillEntity(member, skill))
+                    .collect(Collectors.toList());
+
+            member.setUserSkills(memberSkills);
         }
 
         return member;
@@ -217,7 +222,8 @@ public class MemberService {
         redisTemplate.opsForValue().set(RESET_PASSWORD_PREFIX + token, email, TOKEN_EXPIRATION_TIME, TimeUnit.MINUTES);
 
         // 비밀번호 재설정 URL 생성
-        String resetUrl = "http://localhost:3000/reset-password?token=" + token; // 프론트엔드 URL
+        String resetUrl = "http://localhost:5173/resetpassword?token=" + token;
+
 
         // 이메일 전송
         emailService.sendPasswordResetEmail(email, resetUrl);
